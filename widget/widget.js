@@ -22,7 +22,7 @@
     if (oldWidget) oldWidget.remove();
 
     const response = await fetch(
-      `http://localhost:4000/api/widget/reviews?apiKey=${encodeURIComponent(
+      `https://avaliapro-api.onrender.com/api/widget/reviews?apiKey=${encodeURIComponent(
         apiKey
       )}&sku=${encodeURIComponent(sku)}`
     );
@@ -153,7 +153,7 @@
       };
 
       const submitResponse = await fetch(
-        "http://localhost:4000/api/widget/reviews",
+        "https://avaliapro-api.onrender.com/api/widget/reviews",
         {
           method: "POST",
           headers: {
