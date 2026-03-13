@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+
+  companies Company[]
+}
+
+model Company {
+  id        String   @id @default(uuid())
+  name      String
+  domain    String?
+  apiKey    String   @unique
+  createdAt DateTime @default(now())
+
+  users     User[]
+  products  Product[]
+  customers Customer[]
+  reviews   Review[]
+}
+
+model Product {
+  id        String   @id @default(uuid())
+  name      String
+  sku       String?
+  createdAt DateTime @default(now())
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  reviews Review[]
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  name      String?
+  email     String?
+  avatar    String?
+  createdAt DateTime @default(now())
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  reviews Review[]
+}
+
+model Review {
+  id               String    @id @default(uuid())
+  rating           Int
+  title            String?
+  comment          String?
+  authorName       String?
+  verifiedPurchase Boolean   @default(false)
+  productVariant   String?
+  imageUrl         String?
+  helpfulCount     Int       @default(0)
+  createdAt        DateTime  @default(now())
+
+  productId        String
+  product          Product   @relation(fields: [productId], references: [id])
+
+  companyId        String
+  company          Company   @relation(fields: [companyId], references: [id])
+
+  customerId       String?
+  customer         Customer? @relation(fields: [customerId], references: [id])
+}
