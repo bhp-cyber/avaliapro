@@ -1,0 +1,11 @@
+{
+  "name": "avaliapro",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "cd frontend/admin && npm run dev",
+    "build": "cd frontend/admin && npm run build",
+    "test": "cd frontend/admin && npm run build",
+    "lint": "cd frontend/admin && npm run lint"
+  }
+}

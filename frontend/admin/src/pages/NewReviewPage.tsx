@@ -229,6 +229,7 @@ export default function NewReviewPage() {
 
           <div style={fieldStyle}>
             <label style={labelStyle}>Nota</label>
+
             <div style={ratingBoxStyle}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -246,6 +247,7 @@ export default function NewReviewPage() {
                   />
                 </button>
               ))}
+
               <span style={{ color: "#6b7280", fontSize: 14, marginLeft: 6 }}>{rating} de 5</span>
             </div>
 
@@ -280,6 +282,7 @@ export default function NewReviewPage() {
             <button type="button" style={secondaryButtonStyle} onClick={() => navigate("/reviews")}>
               Cancelar
             </button>
+
             <button type="submit" style={primaryButtonStyle}>
               Salvar avaliação
             </button>
