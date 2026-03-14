@@ -111,50 +111,51 @@ router.get("/reviews", async (req, res) => {
       });
     }
 
-    let reviews;
+    let reviews: any[] = [];
+
+    let reviewsWhere: any = {
+      productId: product.id,
+      companyId: company.id,
+    };
 
     if (variantId) {
-      reviews = await prisma.review.findMany({
-        where: {
-          productId: product.id,
-          companyId: company.id,
-          variantId: variantId,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
+      reviewsWhere.variantId = variantId;
+    }
 
-      if (reviews.length === 0) {
-        reviews = await prisma.review.findMany({
-          where: {
-            productId: product.id,
-            companyId: company.id,
-            variantId: null,
-          },
-          orderBy: {
-            createdAt: "desc",
-          },
-        });
-      }
-    } else {
+    reviews = await prisma.review.findMany({
+      where: reviewsWhere,
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    if (variantId && reviews.length === 0) {
+      reviewsWhere = {
+        productId: product.id,
+        companyId: company.id,
+        variantId: null,
+      };
+
       reviews = await prisma.review.findMany({
-        where: {
-          productId: product.id,
-          companyId: company.id,
-        },
+        where: reviewsWhere,
         orderBy: {
           createdAt: "desc",
         },
       });
     }
 
-    let average = 0;
+    const reviewsSummary = await prisma.review.aggregate({
+      where: reviewsWhere,
+      _avg: {
+        rating: true,
+      },
+      _count: {
+        rating: true,
+      },
+    });
 
-    if (reviews.length) {
-      const total = reviews.reduce((acc, review) => acc + review.rating, 0);
-      average = total / reviews.length;
-    }
+    const average = reviewsSummary._avg.rating ?? 0;
+    const totalReviews = reviewsSummary._count.rating ?? 0;
 
     return res.json({
       company: {
@@ -170,7 +171,7 @@ router.get("/reviews", async (req, res) => {
       },
       summary: {
         averageRating: average,
-        totalReviews: reviews.length,
+        totalReviews,
       },
       reviews,
     });
