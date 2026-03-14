@@ -32,7 +32,10 @@ function getCachedProduct(key: string) {
 function setCachedProduct(key: string, product: any) {
   if (productCache.size >= PRODUCT_CACHE_LIMIT) {
     const firstKey = productCache.keys().next().value;
-    productCache.delete(firstKey);
+
+    if (firstKey) {
+      productCache.delete(firstKey);
+    }
   }
 
   productCache.set(key, {
@@ -64,8 +67,10 @@ router.get("/reviews", async (req, res) => {
       });
     }
 
-    const productCacheKey = `${company.id}:${platformProductId || sku}`;
-    let product = getCachedProduct(productCacheKey);
+    const cacheId = platformProductId || sku;
+
+    const productCacheKey = cacheId ? `${company.id}:${cacheId}` : null;
+    let product = productCacheKey ? getCachedProduct(productCacheKey) : null;
 
     if (!product) {
       product = await prisma.product.findFirst({
@@ -81,12 +86,16 @@ router.get("/reviews", async (req, res) => {
       });
 
       if (product) {
-        setCachedProduct(productCacheKey, product);
+        if (productCacheKey) {
+          setCachedProduct(productCacheKey, product);
+        }
       }
     }
 
     if (!product) {
-      productCache.delete(productCacheKey);
+      if (productCacheKey) {
+        productCache.delete(productCacheKey);
+      }
 
       return res.json({
         company: {
@@ -220,8 +229,10 @@ router.post("/reviews", async (req, res) => {
       });
     }
 
-    const productCacheKey = `${company.id}:${platformProductId || sku}`;
-    let product = getCachedProduct(productCacheKey);
+    const cacheId = platformProductId || sku;
+
+    const productCacheKey = cacheId ? `${company.id}:${cacheId}` : null;
+    let product = productCacheKey ? getCachedProduct(productCacheKey) : null;
 
     if (!product) {
       product = await prisma.product.findFirst({
@@ -237,12 +248,16 @@ router.post("/reviews", async (req, res) => {
       });
 
       if (product) {
-        setCachedProduct(productCacheKey, product);
+        if (productCacheKey) {
+          setCachedProduct(productCacheKey, product);
+        }
       }
     }
 
     if (!product) {
-      productCache.delete(productCacheKey);
+      if (productCacheKey) {
+        productCache.delete(productCacheKey);
+      }
 
       return res.status(404).json({
         error: "Produto não encontrado",
