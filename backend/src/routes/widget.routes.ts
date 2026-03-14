@@ -13,6 +13,7 @@ const productCache = new Map<
 
 const PRODUCT_CACHE_TTL = 60 * 1000;
 const PRODUCT_CACHE_LIMIT = 100;
+const REVIEWS_LIMIT = 50;
 
 function getCachedProduct(key: string) {
   const entry = productCache.get(key);
@@ -127,7 +128,7 @@ router.get("/reviews", async (req, res) => {
       orderBy: {
         createdAt: "desc",
       },
-      take: 50,
+      take: REVIEWS_LIMIT,
       select: {
         id: true,
         rating: true,
@@ -151,7 +152,7 @@ router.get("/reviews", async (req, res) => {
         orderBy: {
           createdAt: "desc",
         },
-        take: 50,
+        take: REVIEWS_LIMIT,
         select: {
           id: true,
           rating: true,
