@@ -18,6 +18,7 @@
     lastRenderedSku: null,
     observerStarted: false,
     pollStarted: false,
+    pollInterval: null,
     historyListenersStarted: false,
     mutationObserver: null,
     isLoading: false,
@@ -472,7 +473,13 @@
 
   function resolveContainer(skuInfo) {
     var existing = document.getElementById(WIDGET_ID);
-    if (existing) return existing;
+    if (existing) {
+      if (document.body.contains(existing)) {
+        return existing;
+      }
+
+      existing.remove();
+    }
 
     var explicit = document.querySelector("[data-avaliapro-widget]");
     if (explicit) {
@@ -573,9 +580,9 @@
       </div>
     `;
   }
-
   function renderWidget(container, data, sku) {
-    var platformProductId = getPlatformProductId();
+    var platformProductId = state.currentPlatformProductId;
+    var platformVariantId = state.currentPlatformVariantId;
     var summary = (data && data.summary) || {};
     var reviews = Array.isArray(data && data.reviews) ? data.reviews : [];
     var averageRating = Number(summary.averageRating || 0);
@@ -605,7 +612,7 @@
             <div class="avaliapro-debug">
         sku: ${safeText(sku || "")} | platformProductId: ${safeText(
             platformProductId || ""
-          )} | platformVariantId: ${safeText(getPlatformVariantId() || "")}
+          )} | platformVariantId: ${safeText(platformVariantId || "")}
       </div>
       `
         : ""
@@ -827,6 +834,20 @@
 
     if (!sku && !platformProductId) return Promise.resolve();
 
+    var renderKey = sku || platformProductId;
+    var cacheKey = getProductCacheKey(sku);
+    var hasCacheEntry = !!(cacheKey && state.reviewsCache[cacheKey]);
+
+    if (
+      !options.force &&
+      !hasCacheEntry &&
+      state.lastRenderedSku === renderKey &&
+      state.currentPlatformVariantId === platformVariantId &&
+      state.currentPlatformProductId === platformProductId
+    ) {
+      return Promise.resolve();
+    }
+
     var container = resolveContainer({ sku: sku || platformProductId });
 
     if (!options.silent) {
@@ -844,7 +865,7 @@
     state.lastRenderedSku = sku || platformProductId;
 
     var requestToken = ++state.requestToken;
-    var cacheKey = getProductCacheKey(sku);
+    cacheKey = getProductCacheKey(sku);
 
     if (cacheKey && state.reviewsCache[cacheKey]) {
       var cachedEntry = state.reviewsCache[cacheKey];
@@ -856,6 +877,11 @@
 
       if (isCacheValid) {
         if (requestToken !== state.requestToken) {
+          state.isLoading = false;
+          return Promise.resolve();
+        }
+
+        if (!container || !document.body.contains(container)) {
           state.isLoading = false;
           return Promise.resolve();
         }
@@ -913,6 +939,10 @@
           return;
         }
 
+        if (!container || !document.body.contains(container)) {
+          return;
+        }
+
         renderWidget(container, data, sku || platformProductId);
 
         if (options.preserveFeedback && options.feedbackMessage) {
@@ -944,6 +974,11 @@
     state.refreshTimer = setTimeout(
       function () {
         state.refreshTimer = null;
+
+        if (!document.body) {
+          return;
+        }
+
         refreshIfSkuChanged();
       },
       typeof delay === "number" ? delay : 0
@@ -960,6 +995,17 @@
       var existing = document.getElementById(WIDGET_ID);
       if (existing) {
         existing.remove();
+      }
+
+      if (state.refreshTimer) {
+        clearTimeout(state.refreshTimer);
+        state.refreshTimer = null;
+      }
+
+      if (state.pollInterval) {
+        clearInterval(state.pollInterval);
+        state.pollInterval = null;
+        state.pollStarted = false;
       }
 
       state.requestToken++;
@@ -983,11 +1029,19 @@
       return;
     }
 
+    if (!state.pollStarted) {
+      startSkuWatcher();
+    }
+
     loadAndRenderSku(nextSku || null);
   }
 
   function startSkuWatcher() {
     if (!document.body) return;
+
+    if (state.observerStarted && state.pollStarted) {
+      return;
+    }
 
     if (!state.observerStarted) {
       try {
@@ -1022,7 +1076,7 @@
     if (!state.pollStarted) {
       state.pollStarted = true;
 
-      setInterval(function () {
+      state.pollInterval = setInterval(function () {
         scheduleRefresh(0);
       }, 1200);
     }
@@ -1078,8 +1132,8 @@
       return;
     }
 
-    loadAndRenderSku(sku || null);
     startSkuWatcher();
+    loadAndRenderSku(sku || null);
   }
 
   if (document.readyState === "loading") {
