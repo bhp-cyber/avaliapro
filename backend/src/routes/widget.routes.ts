@@ -175,7 +175,7 @@ router.get("/reviews", async (req, res) => {
       },
     });
 
-    const average = reviewsSummary._avg.rating ?? 0;
+    const average = Number((reviewsSummary._avg.rating ?? 0).toFixed(1));
     const totalReviews = reviewsSummary._count.rating ?? 0;
 
     return res.json({
