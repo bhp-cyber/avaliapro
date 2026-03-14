@@ -226,6 +226,8 @@ Situação atual:
 - criação de review funcional
 - renderização funcional
 - cache implementado
+- suporte a avaliações por variante (platformVariantId)
+- fallback automático para reviews do produto
 - arquitetura preparada para SaaS
 
 O sistema já se comporta como **primeira versão funcional de um produto SaaS de avaliações embedáveis**.
