@@ -840,6 +840,7 @@
 
     if (
       !options.force &&
+      !options.preserveFeedback &&
       !hasCacheEntry &&
       state.lastRenderedSku === renderKey &&
       state.currentPlatformVariantId === platformVariantId &&
@@ -1045,8 +1046,72 @@
 
     if (!state.observerStarted) {
       try {
-        state.mutationObserver = new MutationObserver(function () {
-          scheduleRefresh(100);
+        state.mutationObserver = new MutationObserver(function (mutations) {
+          for (var i = 0; i < mutations.length; i++) {
+            var target = mutations[i].target;
+            var insideWidget = false;
+
+            if (target && target.nodeType === 1 && target.closest) {
+              insideWidget = !!target.closest("#" + WIDGET_ID);
+            } else if (
+              target &&
+              target.parentElement &&
+              target.parentElement.closest
+            ) {
+              insideWidget = !!target.parentElement.closest("#" + WIDGET_ID);
+            }
+
+            var mutation = mutations[i];
+            var changedInsideWidget = false;
+
+            if (mutation.addedNodes && mutation.addedNodes.length) {
+              for (var j = 0; j < mutation.addedNodes.length; j++) {
+                var addedNode = mutation.addedNodes[j];
+
+                if (
+                  addedNode &&
+                  addedNode.nodeType === 1 &&
+                  (addedNode.id === WIDGET_ID ||
+                    (addedNode.closest && addedNode.closest("#" + WIDGET_ID)))
+                ) {
+                  changedInsideWidget = true;
+                  break;
+                }
+              }
+            }
+
+            if (
+              !changedInsideWidget &&
+              mutation.removedNodes &&
+              mutation.removedNodes.length
+            ) {
+              for (var k = 0; k < mutation.removedNodes.length; k++) {
+                var removedNode = mutation.removedNodes[k];
+
+                if (
+                  removedNode &&
+                  removedNode.nodeType === 1 &&
+                  (removedNode.id === WIDGET_ID ||
+                    (removedNode.querySelector &&
+                      removedNode.querySelector("#" + WIDGET_ID)))
+                ) {
+                  changedInsideWidget = true;
+                  break;
+                }
+              }
+            }
+
+            if (
+              insideWidget ||
+              (target && target.id === WIDGET_ID) ||
+              changedInsideWidget
+            ) {
+              continue;
+            }
+
+            scheduleRefresh(100);
+            return;
+          }
         });
 
         state.mutationObserver.observe(document.body, {
