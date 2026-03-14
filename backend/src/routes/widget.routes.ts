@@ -149,11 +149,12 @@ router.get("/reviews", async (req, res) => {
       });
     }
 
-    const average =
-      reviews.length > 0
-        ? reviews.reduce((acc, review) => acc + review.rating, 0) /
-          reviews.length
-        : 0;
+    let average = 0;
+
+    if (reviews.length) {
+      const total = reviews.reduce((acc, review) => acc + review.rating, 0);
+      average = total / reviews.length;
+    }
 
     return res.json({
       company: {
