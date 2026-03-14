@@ -80,6 +80,8 @@ router.get("/reviews", async (req, res) => {
     }
 
     if (!product) {
+      productCache.delete(productCacheKey);
+
       return res.json({
         company: {
           id: company.id,
@@ -216,6 +218,8 @@ router.post("/reviews", async (req, res) => {
     }
 
     if (!product) {
+      productCache.delete(productCacheKey);
+
       return res.status(404).json({
         error: "Produto não encontrado",
       });
