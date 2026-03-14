@@ -58,14 +58,15 @@ Validações implementadas:
 - produto deve existir
 - suporte a identificação por:
 
-  - `platformProductId`
-  - `sku` (fallback)
+- `platformProductId`
+- `sku` (fallback)
 
 Proteções implementadas:
 
 - rating limitado entre **1 e 5**
 - normalização de `verifiedPurchase`
 - validação da resposta antes de renderizar no widget
+- normalização de `rating` para número inteiro
 
 ---
 
@@ -90,7 +91,7 @@ O widget já possui:
 
 ## Identificação de produto via:
 
-1️⃣ `platformProductId`
+1️⃣ `platformProductId`  
 2️⃣ fallback para `sku`
 
 ## Recursos implementados
@@ -119,6 +120,103 @@ O widget já possui:
 
 ---
 
+# Sistema de cache no backend
+
+Arquivo:
+
+```
+backend/src/routes/widget.routes.ts
+```
+
+Características implementadas:
+
+- cache de produto em memória (`Map`)
+- chave baseada em `companyId + productIdentifier`
+- TTL de **60 segundos**
+- limite máximo de **100 produtos em cache**
+- remoção automática do item mais antigo ao atingir limite
+- proteção contra chave `null`
+- invalidação automática após criação de review
+- limpeza de entradas expiradas
+
+Objetivo:
+
+- reduzir consultas repetidas ao banco
+- melhorar performance do endpoint
+- preparar arquitetura para alto volume de tráfego SaaS
+
+---
+
+# Otimizações do Endpoint de Reviews
+
+## Limite de reviews retornadas
+
+O endpoint retorna no máximo:
+
+```
+50 reviews
+```
+
+Constante utilizada:
+
+```
+REVIEWS_LIMIT = 50
+```
+
+Isso evita:
+
+- payload excessivo
+- lentidão do widget
+- consultas pesadas
+
+---
+
+## Agregação no banco
+
+O cálculo de média e total de avaliações foi movido para o banco usando:
+
+```
+prisma.review.aggregate()
+```
+
+Isso evita:
+
+- cálculo em memória
+- transferência de milhares de registros
+- sobrecarga no Node.js
+
+O endpoint agora retorna:
+
+```
+averageRating
+totalReviews
+```
+
+calculados diretamente no PostgreSQL.
+
+---
+
+## Redução de payload
+
+As consultas `findMany` retornam apenas campos necessários:
+
+```
+id
+rating
+comment
+authorName
+verifiedPurchase
+createdAt
+variantId
+```
+
+Isso reduz:
+
+- tamanho da resposta
+- tempo de renderização do widget
+
+---
+
 # Proteções adicionais
 
 - validação da resposta da API
@@ -126,7 +224,7 @@ O widget já possui:
 - refresh global seguro
 - debug opcional via:
 
-```javascript
+```
 window.AVALIAPRO_DEBUG = true;
 ```
 
@@ -146,44 +244,74 @@ window.AVALIAPRO_DEBUG = true;
 
 ✅ IMPLEMENTADO
 
+Implementado em:
+
+- `schema.prisma`
+- `widget.routes.ts`
+- `widget.routes.js`
+- `widget.js`
+
+Agora o sistema suporta:
+
+- envio de `platformVariantId`
+- armazenamento em `variantId`
+- fallback automático para reviews do produto
+
+---
+
 ## 4. Cache de produto no backend
 
-🔜 PRÓXIMO PASSO
+✅ IMPLEMENTADO
 
-## 5. Coleta automática de reviews por email
+Arquivo:
 
-⏳ PENDENTE
+```
+backend/src/routes/widget.routes.ts
+```
 
-## 6. Painel SaaS para lojistas
+Componentes:
 
-⏳ PENDENTE
+- `productCache`
+- `PRODUCT_CACHE_TTL`
+- `PRODUCT_CACHE_LIMIT`
+- `getCachedProduct()`
+- `setCachedProduct()`
 
-## 7. Moderação de avaliações
+---
 
-⏳ PENDENTE
+## 5. Otimização de consultas de reviews
 
-## 8. Sistema de reputação e helpful votes
+✅ IMPLEMENTADO
+
+- agregação de média no banco
+- limite de 50 reviews
+- redução de payload
+- reutilização de filtro (`reviewsWhere`)
+- média padronizada com 1 casa decimal
+
+---
+
+## 6. Coleta automática de reviews por email
 
 ⏳ PENDENTE
 
 ---
 
-# Próximo Passo Técnico Planejado
+## 7. Painel SaaS para lojistas
 
-Implementar suporte a:
+⏳ PENDENTE
 
-```
-platformVariantId
-```
+---
 
-## Objetivo
+## 8. Moderação de avaliações
 
-- suportar avaliações por variante
-- permitir avaliações separadas por:
+⏳ PENDENTE
 
-  - cor
-  - tamanho
-  - modelo
+---
+
+## 9. Sistema de reputação e helpful votes
+
+⏳ PENDENTE
 
 ---
 
@@ -225,9 +353,58 @@ Situação atual:
 - API funcional
 - criação de review funcional
 - renderização funcional
-- cache implementado
-- suporte a avaliações por variante (platformVariantId)
+- cache no widget implementado
+- cache de produto no backend implementado
+- suporte a avaliações por variante (`platformVariantId`)
 - fallback automático para reviews do produto
+- agregação de média no banco
+- limite de reviews retornadas
+- redução de payload do endpoint
 - arquitetura preparada para SaaS
 
 O sistema já se comporta como **primeira versão funcional de um produto SaaS de avaliações embedáveis**.
+
+---
+
+# Último Passo Executado
+
+PASSO 128
+
+Padronização da média de avaliações para **uma casa decimal**.
+
+Exemplo:
+
+```
+4.666 → 4.7
+4.333 → 4.3
+```
+
+Implementado em:
+
+```
+backend/src/routes/widget.routes.ts
+```
+
+---
+
+# Próximo Passo
+
+PASSO 129
+
+Arquivo:
+
+```
+backend/widget/widget.js
+```
+
+Objetivo:
+
+Auditar e estabilizar o fluxo de inicialização do widget para sites SPA (Nuvemshop, Shopify, etc.).
+
+Serão analisados:
+
+- detecção de produto
+- detecção de mudança de página
+- inicialização do widget
+- prevenção de múltiplas execuções do script
+- prevenção de múltiplos requests duplicados

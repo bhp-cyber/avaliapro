@@ -18,10 +18,13 @@
     lastRenderedSku: null,
     observerStarted: false,
     pollStarted: false,
+    historyListenersStarted: false,
     mutationObserver: null,
     isLoading: false,
     currentPlatformProductId: null,
     currentPlatformVariantId: null,
+    requestToken: 0,
+    refreshTimer: null,
     reviewsCache: {},
     reviewsCacheOrder: [],
     reviewsCacheLimit: 20,
@@ -693,6 +696,10 @@
       params.append("platformVariantId", platformVariantId);
     }
 
+    if (platformProductId) {
+      params.append("platformProductId", platformProductId);
+    }
+
     if (sku) {
       params.append("sku", sku);
     }
@@ -814,8 +821,8 @@
 
   function loadAndRenderSku(sku, options) {
     options = options || {};
-
     var platformProductId = getPlatformProductId();
+
     var platformVariantId = getPlatformVariantId();
 
     if (!sku && !platformProductId) return Promise.resolve();
@@ -826,11 +833,17 @@
       renderLoading(container, sku || platformProductId);
     }
 
+    if (state.isLoading) {
+      state.requestToken++;
+    }
+
     state.isLoading = true;
     state.currentSku = sku;
     state.currentPlatformProductId = platformProductId;
     state.currentPlatformVariantId = platformVariantId;
+    state.lastRenderedSku = sku || platformProductId;
 
+    var requestToken = ++state.requestToken;
     var cacheKey = getProductCacheKey(sku);
 
     if (cacheKey && state.reviewsCache[cacheKey]) {
@@ -842,6 +855,11 @@
         Date.now() - cachedEntry.timestamp < state.reviewsCacheTTL;
 
       if (isCacheValid) {
+        if (requestToken !== state.requestToken) {
+          state.isLoading = false;
+          return Promise.resolve();
+        }
+
         renderWidget(container, cachedEntry.data, sku || platformProductId);
 
         if (options.preserveFeedback && options.feedbackMessage) {
@@ -853,6 +871,11 @@
       }
 
       delete state.reviewsCache[cacheKey];
+
+      var expiredIndex = state.reviewsCacheOrder.indexOf(cacheKey);
+      if (expiredIndex !== -1) {
+        state.reviewsCacheOrder.splice(expiredIndex, 1);
+      }
     }
 
     return fetchReviews(sku || null)
@@ -886,6 +909,10 @@
           }
         }
 
+        if (requestToken !== state.requestToken) {
+          return;
+        }
+
         renderWidget(container, data, sku || platformProductId);
 
         if (options.preserveFeedback && options.feedbackMessage) {
@@ -893,6 +920,10 @@
         }
       })
       .catch(function (error) {
+        if (requestToken !== state.requestToken) {
+          return;
+        }
+
         renderError(
           container,
           (error && error.message) ||
@@ -905,34 +936,63 @@
       });
   }
 
+  function scheduleRefresh(delay) {
+    if (state.refreshTimer) {
+      clearTimeout(state.refreshTimer);
+    }
+
+    state.refreshTimer = setTimeout(
+      function () {
+        state.refreshTimer = null;
+        refreshIfSkuChanged();
+      },
+      typeof delay === "number" ? delay : 0
+    );
+  }
+
   function refreshIfSkuChanged() {
     var skuInfo = getSku();
     var nextSku = skuInfo && skuInfo.sku ? skuInfo.sku : null;
     var nextPlatformProductId = getPlatformProductId();
     var nextPlatformVariantId = getPlatformVariantId();
 
-    if (!nextSku && !nextPlatformProductId) return;
-    if (state.isLoading) return;
+    if (!nextSku && !nextPlatformProductId) {
+      var existing = document.getElementById(WIDGET_ID);
+      if (existing) {
+        existing.remove();
+      }
 
-    if (
-      state.currentSku === nextSku &&
-      state.lastRenderedSku === (nextSku || nextPlatformProductId) &&
-      state.currentPlatformProductId === nextPlatformProductId &&
-      state.currentPlatformVariantId === nextPlatformVariantId
-    ) {
+      state.requestToken++;
+      state.isLoading = false;
+      state.currentSku = null;
+      state.lastRenderedSku = null;
+      state.currentPlatformProductId = null;
+      state.currentPlatformVariantId = null;
+
       return;
     }
 
-    loadAndRenderSku(nextSku);
+    if (state.isLoading) return;
+
+    var productChanged =
+      state.currentSku !== nextSku ||
+      state.currentPlatformProductId !== nextPlatformProductId ||
+      state.currentPlatformVariantId !== nextPlatformVariantId;
+
+    if (!productChanged) {
+      return;
+    }
+
+    loadAndRenderSku(nextSku || null);
   }
 
   function startSkuWatcher() {
-    if (!state.observerStarted) {
-      state.observerStarted = true;
+    if (!document.body) return;
 
+    if (!state.observerStarted) {
       try {
         state.mutationObserver = new MutationObserver(function () {
-          refreshIfSkuChanged();
+          scheduleRefresh(100);
         });
 
         state.mutationObserver.observe(document.body, {
@@ -963,21 +1023,44 @@
       state.pollStarted = true;
 
       setInterval(function () {
-        refreshIfSkuChanged();
+        scheduleRefresh(0);
       }, 1200);
     }
 
-    window.addEventListener("popstate", function () {
-      setTimeout(refreshIfSkuChanged, 300);
-    });
+    if (!state.historyListenersStarted) {
+      state.historyListenersStarted = true;
 
-    window.addEventListener("hashchange", function () {
-      setTimeout(refreshIfSkuChanged, 300);
-    });
+      window.addEventListener("popstate", function () {
+        scheduleRefresh(300);
+      });
+
+      window.addEventListener("hashchange", function () {
+        scheduleRefresh(300);
+      });
+    }
+
+    if (!window.__AVALIAPRO_HISTORY_PATCHED__) {
+      window.__AVALIAPRO_HISTORY_PATCHED__ = true;
+
+      var originalPushState = history.pushState;
+      var originalReplaceState = history.replaceState;
+
+      history.pushState = function () {
+        var result = originalPushState.apply(this, arguments);
+        scheduleRefresh(300);
+        return result;
+      };
+
+      history.replaceState = function () {
+        var result = originalReplaceState.apply(this, arguments);
+        scheduleRefresh(300);
+        return result;
+      };
+    }
   }
 
   window.__AVALIAPRO_WIDGET_REFRESH__ = function () {
-    refreshIfSkuChanged();
+    scheduleRefresh(0);
   };
 
   function init() {
@@ -995,7 +1078,7 @@
       return;
     }
 
-    loadAndRenderSku(sku);
+    loadAndRenderSku(sku || null);
     startSkuWatcher();
   }
 
