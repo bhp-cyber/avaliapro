@@ -144,17 +144,17 @@ router.get("/reviews", async (req, res) => {
       company: {
         id: company.id,
         name: company.name,
-        product: {
-          id: product.id,
-          name: product.name,
-          sku: product.sku,
-          platformProductId: product.platformProductId,
-          platformVariantId: variantId,
-        },
-        summary: {
-          averageRating: average,
-          totalReviews: reviews.length,
-        },
+      },
+      product: {
+        id: product.id,
+        name: product.name,
+        sku: product.sku,
+        platformProductId: product.platformProductId,
+        platformVariantId: variantId,
+      },
+      summary: {
+        averageRating: average,
+        totalReviews: reviews.length,
       },
       reviews,
     });
