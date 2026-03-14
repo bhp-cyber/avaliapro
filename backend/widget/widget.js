@@ -1,16 +1,66 @@
 (async function () {
-  const skuElement = document.querySelector("[data-product-sku]");
+  function getSku() {
+    const dataSkuElement = document.querySelector("[data-product-sku]");
+    const dataSku = dataSkuElement?.getAttribute("data-product-sku");
+    if (dataSku) {
+      return {
+        sku: dataSku,
+        element: dataSkuElement,
+      };
+    }
 
-  if (!skuElement) return;
+    const selectors = [
+      "[data-sku]",
+      "[data-product-id]",
+      "[data-variant-sku]",
+      ".product-sku",
+      "#product-sku",
+    ];
 
-  const sku = skuElement.getAttribute("data-product-sku");
-  const currentScript = document.currentScript;
-  const apiKey = currentScript?.getAttribute("data-api-key");
+    for (const selector of selectors) {
+      const element = document.querySelector(selector);
+      if (!element) continue;
 
-  if (!sku) {
-    console.error("SKU não encontrado no elemento data-product-sku");
+      const value =
+        element.getAttribute("data-sku") ||
+        element.getAttribute("data-product-id") ||
+        element.getAttribute("data-variant-sku") ||
+        element.textContent?.trim();
+
+      if (value) {
+        return {
+          sku: value,
+          element,
+        };
+      }
+    }
+
+    const metaSku =
+      document
+        .querySelector('meta[property="product:retailer_item_id"]')
+        ?.getAttribute("content") ||
+      document.querySelector('meta[name="sku"]')?.getAttribute("content");
+
+    if (metaSku) {
+      return {
+        sku: metaSku,
+        element: document.body,
+      };
+    }
+
+    return null;
+  }
+
+  const skuData = getSku();
+
+  if (!skuData) {
+    console.error("SKU não encontrado na página");
     return;
   }
+
+  const { sku, element: skuElement } = skuData;
+  const currentScript = document.currentScript;
+  const apiKey = currentScript?.getAttribute("data-api-key");
 
   if (!apiKey) {
     console.error("apiKey não encontrada no script");
