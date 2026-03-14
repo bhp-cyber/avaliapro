@@ -178,11 +178,29 @@ router.post("/reviews", async (req, res) => {
     } = req.body;
     const variantId = platformVariantId ? String(platformVariantId) : null;
 
-    if (!apiKey || (!sku && !platformProductId) || !rating) {
+    if (!apiKey || (!sku && !platformProductId) || rating === undefined) {
       return res.status(400).json({
         error: "apiKey, sku ou platformProductId, e rating são obrigatórios",
       });
     }
+
+    const normalizedRating = Number(rating);
+
+    if (
+      !Number.isFinite(normalizedRating) ||
+      normalizedRating < 1 ||
+      normalizedRating > 5
+    ) {
+      return res.status(400).json({
+        error: "rating deve ser um número entre 1 e 5",
+      });
+    }
+
+    const normalizedVerifiedPurchase =
+      verifiedPurchase === true ||
+      verifiedPurchase === "true" ||
+      verifiedPurchase === 1 ||
+      verifiedPurchase === "1";
 
     const company = await prisma.company.findUnique({
       where: {
@@ -227,10 +245,10 @@ router.post("/reviews", async (req, res) => {
 
     const review = await prisma.review.create({
       data: {
-        rating,
+        rating: normalizedRating,
         comment,
         authorName,
-        verifiedPurchase,
+        verifiedPurchase: normalizedVerifiedPurchase,
         productVariant: sku || null,
         variantId: variantId || null,
         productId: product.id,
