@@ -12,6 +12,7 @@ const productCache = new Map<
 >();
 
 const PRODUCT_CACHE_TTL = 60 * 1000;
+const PRODUCT_CACHE_LIMIT = 100;
 
 function getCachedProduct(key: string) {
   const entry = productCache.get(key);
@@ -29,6 +30,11 @@ function getCachedProduct(key: string) {
 }
 
 function setCachedProduct(key: string, product: any) {
+  if (productCache.size >= PRODUCT_CACHE_LIMIT) {
+    const firstKey = productCache.keys().next().value;
+    productCache.delete(firstKey);
+  }
+
   productCache.set(key, {
     product,
     timestamp: Date.now(),
