@@ -148,7 +148,7 @@ window.AVALIAPRO_DEBUG = true;
 
 ## 4. Cache de produto no backend
 
-⏳ PENDENTE
+🔜 PRÓXIMO PASSO
 
 ## 5. Coleta automática de reviews por email
 
