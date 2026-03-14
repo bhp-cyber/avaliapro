@@ -144,7 +144,7 @@ window.AVALIAPRO_DEBUG = true;
 
 ## 3. Suporte a platformVariantId
 
-⏳ PENDENTE
+✅ IMPLEMENTADO
 
 ## 4. Cache de produto no backend
 
