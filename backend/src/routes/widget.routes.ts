@@ -5,11 +5,12 @@ const router = Router();
 
 router.get("/reviews", async (req, res) => {
   try {
-    const { apiKey, sku } = req.query;
+    const { apiKey, sku, platformProductId, platformVariantId } = req.query;
+    const variantId = platformVariantId ? String(platformVariantId) : null;
 
-    if (!apiKey || !sku) {
+    if (!apiKey || (!sku && !platformProductId)) {
       return res.status(400).json({
-        error: "apiKey e sku são obrigatórios",
+        error: "apiKey e sku ou platformProductId são obrigatórios",
       });
     }
 
@@ -27,26 +28,68 @@ router.get("/reviews", async (req, res) => {
 
     const product = await prisma.product.findFirst({
       where: {
-        sku: String(sku),
         companyId: company.id,
+        OR: [
+          ...(platformProductId
+            ? [{ platformProductId: String(platformProductId) }]
+            : []),
+          ...(sku ? [{ sku: String(sku) }] : []),
+        ],
       },
     });
 
     if (!product) {
-      return res.status(404).json({
-        error: "Produto não encontrado",
+      return res.json({
+        company: {
+          id: company.id,
+          name: company.name,
+        },
+        product: null,
+        summary: {
+          averageRating: 0,
+          totalReviews: 0,
+        },
+        reviews: [],
       });
     }
 
-    const reviews = await prisma.review.findMany({
-      where: {
-        productId: product.id,
-        companyId: company.id,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    let reviews;
+
+    if (variantId) {
+      reviews = await prisma.review.findMany({
+        where: {
+          productId: product.id,
+          companyId: company.id,
+          variantId: variantId,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      if (reviews.length === 0) {
+        reviews = await prisma.review.findMany({
+          where: {
+            productId: product.id,
+            companyId: company.id,
+            variantId: null,
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        });
+      }
+    } else {
+      reviews = await prisma.review.findMany({
+        where: {
+          productId: product.id,
+          companyId: company.id,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    }
 
     const average =
       reviews.length > 0
@@ -78,12 +121,21 @@ router.get("/reviews", async (req, res) => {
 
 router.post("/reviews", async (req, res) => {
   try {
-    const { apiKey, sku, rating, comment, authorName, verifiedPurchase } =
-      req.body;
+    const {
+      apiKey,
+      sku,
+      rating,
+      comment,
+      authorName,
+      verifiedPurchase,
+      platformProductId,
+      platformVariantId,
+    } = req.body;
+    const variantId = platformVariantId ? String(platformVariantId) : null;
 
-    if (!apiKey || !sku || !rating) {
+    if (!apiKey || (!sku && !platformProductId) || !rating) {
       return res.status(400).json({
-        error: "apiKey, sku e rating são obrigatórios",
+        error: "apiKey, sku ou platformProductId, e rating são obrigatórios",
       });
     }
 
@@ -101,8 +153,13 @@ router.post("/reviews", async (req, res) => {
 
     const product = await prisma.product.findFirst({
       where: {
-        sku: String(sku),
         companyId: company.id,
+        OR: [
+          ...(platformProductId
+            ? [{ platformProductId: String(platformProductId) }]
+            : []),
+          ...(sku ? [{ sku: String(sku) }] : []),
+        ],
       },
     });
 
@@ -114,10 +171,12 @@ router.post("/reviews", async (req, res) => {
 
     const review = await prisma.review.create({
       data: {
-        rating: Number(rating),
+        rating,
         comment,
         authorName,
-        verifiedPurchase: Boolean(verifiedPurchase),
+        verifiedPurchase,
+        productVariant: sku || null,
+        variantId: variantId || null,
         productId: product.id,
         companyId: company.id,
       },
