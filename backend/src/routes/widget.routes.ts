@@ -3,6 +3,38 @@ import prisma from "../lib/prisma";
 
 const router = Router();
 
+const productCache = new Map<
+  string,
+  {
+    product: any;
+    timestamp: number;
+  }
+>();
+
+const PRODUCT_CACHE_TTL = 60 * 1000;
+
+function getCachedProduct(key: string) {
+  const entry = productCache.get(key);
+
+  if (!entry) return null;
+
+  const isExpired = Date.now() - entry.timestamp > PRODUCT_CACHE_TTL;
+
+  if (isExpired) {
+    productCache.delete(key);
+    return null;
+  }
+
+  return entry.product;
+}
+
+function setCachedProduct(key: string, product: any) {
+  productCache.set(key, {
+    product,
+    timestamp: Date.now(),
+  });
+}
+
 router.get("/reviews", async (req, res) => {
   try {
     const { apiKey, sku, platformProductId, platformVariantId } = req.query;
@@ -26,17 +58,26 @@ router.get("/reviews", async (req, res) => {
       });
     }
 
-    const product = await prisma.product.findFirst({
-      where: {
-        companyId: company.id,
-        OR: [
-          ...(platformProductId
-            ? [{ platformProductId: String(platformProductId) }]
-            : []),
-          ...(sku ? [{ sku: String(sku) }] : []),
-        ],
-      },
-    });
+    const productCacheKey = `${company.id}:${platformProductId || sku}`;
+    let product = getCachedProduct(productCacheKey);
+
+    if (!product) {
+      product = await prisma.product.findFirst({
+        where: {
+          companyId: company.id,
+          OR: [
+            ...(platformProductId
+              ? [{ platformProductId: String(platformProductId) }]
+              : []),
+            ...(sku ? [{ sku: String(sku) }] : []),
+          ],
+        },
+      });
+
+      if (product) {
+        setCachedProduct(productCacheKey, product);
+      }
+    }
 
     if (!product) {
       return res.json({
@@ -108,9 +149,10 @@ router.get("/reviews", async (req, res) => {
           platformProductId: product.platformProductId,
           platformVariantId: variantId,
         },
-      summary: {
-        averageRating: average,
-        totalReviews: reviews.length,
+        summary: {
+          averageRating: average,
+          totalReviews: reviews.length,
+        },
       },
       reviews,
     });
@@ -152,17 +194,26 @@ router.post("/reviews", async (req, res) => {
       });
     }
 
-    const product = await prisma.product.findFirst({
-      where: {
-        companyId: company.id,
-        OR: [
-          ...(platformProductId
-            ? [{ platformProductId: String(platformProductId) }]
-            : []),
-          ...(sku ? [{ sku: String(sku) }] : []),
-        ],
-      },
-    });
+    const productCacheKey = `${company.id}:${platformProductId || sku}`;
+    let product = getCachedProduct(productCacheKey);
+
+    if (!product) {
+      product = await prisma.product.findFirst({
+        where: {
+          companyId: company.id,
+          OR: [
+            ...(platformProductId
+              ? [{ platformProductId: String(platformProductId) }]
+              : []),
+            ...(sku ? [{ sku: String(sku) }] : []),
+          ],
+        },
+      });
+
+      if (product) {
+        setCachedProduct(productCacheKey, product);
+      }
+    }
 
     if (!product) {
       return res.status(404).json({
