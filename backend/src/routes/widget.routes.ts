@@ -127,6 +127,7 @@ router.get("/reviews", async (req, res) => {
       orderBy: {
         createdAt: "desc",
       },
+      take: 50,
     });
 
     if (variantId && reviews.length === 0) {
@@ -141,6 +142,7 @@ router.get("/reviews", async (req, res) => {
         orderBy: {
           createdAt: "desc",
         },
+        take: 50,
       });
     }
 
@@ -201,7 +203,7 @@ router.post("/reviews", async (req, res) => {
       });
     }
 
-    const normalizedRating = Number(rating);
+    const normalizedRating = Math.round(Number(rating));
 
     if (
       !Number.isFinite(normalizedRating) ||
