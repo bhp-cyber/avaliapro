@@ -279,6 +279,10 @@ router.post("/reviews", async (req, res) => {
       },
     });
 
+    if (productCacheKey) {
+      productCache.delete(productCacheKey);
+    }
+
     return res.status(201).json({
       message: "Review criada com sucesso",
       review,
