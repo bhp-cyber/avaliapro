@@ -87,3 +87,35 @@ router.get("/sku/:sku", async (req, res) => {
     return res.status(500).json({ error: "Erro interno do servidor" });
   }
 });
+
+router.get("/sku/:sku/reviews", async (req, res) => {
+  try {
+    const { sku } = req.params;
+
+    const product = await prisma.product.findFirst({
+      where: {
+        sku,
+      },
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        error: "Produto não encontrado",
+      });
+    }
+
+    const reviews = await prisma.review.findMany({
+      where: {
+        productId: product.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return res.json(reviews);
+  } catch (error) {
+    console.error("Erro ao buscar reviews por SKU:", error);
+    return res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
