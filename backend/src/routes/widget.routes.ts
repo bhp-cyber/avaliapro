@@ -128,6 +128,15 @@ router.get("/reviews", async (req, res) => {
         createdAt: "desc",
       },
       take: 50,
+      select: {
+        id: true,
+        rating: true,
+        comment: true,
+        authorName: true,
+        verifiedPurchase: true,
+        createdAt: true,
+        variantId: true,
+      },
     });
 
     if (variantId && reviews.length === 0) {
@@ -143,6 +152,15 @@ router.get("/reviews", async (req, res) => {
           createdAt: "desc",
         },
         take: 50,
+        select: {
+          id: true,
+          rating: true,
+          comment: true,
+          authorName: true,
+          verifiedPurchase: true,
+          createdAt: true,
+          variantId: true,
+        },
       });
     }
 
