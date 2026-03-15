@@ -780,19 +780,38 @@
 
     var url = apiBase + "/api/widget/reviews?" + params.toString();
 
+    var controller = new AbortController();
+
+    var timeout = setTimeout(function () {
+      controller.abort();
+    }, 8000);
+
     return fetch(url, {
       method: "GET",
       credentials: "omit",
       cache: "no-store",
+      signal: controller.signal,
       headers: {
         Accept: "application/json",
       },
-    }).then(function (response) {
-      if (!response.ok) {
-        throw new Error("Falha ao carregar avaliações.");
-      }
-      return response.json();
-    });
+    })
+      .then(function (response) {
+        clearTimeout(timeout);
+
+        if (!response.ok) {
+          throw new Error("Falha ao carregar avaliações.");
+        }
+        return response.json();
+      })
+      .catch(function (error) {
+        clearTimeout(timeout);
+
+        if (error && error.name === "AbortError") {
+          throw new Error("Tempo limite excedido ao carregar avaliações.");
+        }
+
+        throw error;
+      });
   }
 
   function submitReview(payload) {
