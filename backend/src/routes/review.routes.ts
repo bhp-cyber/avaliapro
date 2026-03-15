@@ -118,10 +118,14 @@ router.post("/", async (req, res) => {
         : null;
 
     const normalizedTitle =
-      typeof title === "string" && title.trim() ? title.trim() : null;
+      typeof title === "string" && title.trim()
+        ? title.trim().slice(0, 120)
+        : null;
 
     const normalizedComment =
-      typeof comment === "string" && comment.trim() ? comment.trim() : null;
+      typeof comment === "string" && comment.trim()
+        ? comment.trim().slice(0, 2000)
+        : null;
 
     const normalizedRating = Number(rating);
 
