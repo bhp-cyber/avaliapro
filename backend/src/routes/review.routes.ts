@@ -248,6 +248,7 @@ router.post("/", async (req, res) => {
         comment: true,
         authorName: true,
         verifiedPurchase: true,
+        status: true,
         createdAt: true,
         productId: true,
         companyId: true,
@@ -258,6 +259,75 @@ router.post("/", async (req, res) => {
     return res.status(201).json(review);
   } catch (error) {
     console.error("Erro ao criar review:", error);
+    return res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
+router.patch("/:reviewId/status", async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const { companyId, status } = req.body;
+
+    const normalizedReviewId =
+      typeof reviewId === "string" ? reviewId.trim() : "";
+
+    const normalizedCompanyId =
+      typeof companyId === "string" ? companyId.trim() : "";
+
+    const normalizedStatus =
+      typeof status === "string" ? status.trim().toLowerCase() : "";
+
+    if (!normalizedReviewId || !normalizedCompanyId || !normalizedStatus) {
+      return res.status(400).json({
+        error: "reviewId, companyId e status são obrigatórios",
+      });
+    }
+
+    if (
+      normalizedStatus !== "pending" &&
+      normalizedStatus !== "approved" &&
+      normalizedStatus !== "rejected"
+    ) {
+      return res.status(400).json({
+        error: "status deve ser pending, approved ou rejected",
+      });
+    }
+
+    const review = await prisma.review.findFirst({
+      where: {
+        id: normalizedReviewId,
+        companyId: normalizedCompanyId,
+      },
+      select: {
+        id: true,
+        companyId: true,
+      },
+    });
+
+    if (!review) {
+      return res.status(404).json({
+        error: "Review não encontrada para esta empresa",
+      });
+    }
+
+    const updatedReview = await prisma.review.update({
+      where: {
+        id: normalizedReviewId,
+      },
+      data: {
+        status: normalizedStatus,
+      },
+      select: {
+        id: true,
+        status: true,
+        companyId: true,
+        createdAt: true,
+      },
+    });
+
+    return res.json(updatedReview);
+  } catch (error) {
+    console.error("Erro ao atualizar status da review:", error);
     return res.status(500).json({ error: "Erro interno do servidor" });
   }
 });
