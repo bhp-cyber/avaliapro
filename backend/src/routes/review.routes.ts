@@ -41,8 +41,23 @@ router.get("/", async (req, res) => {
       },
       take: 100,
       include: {
-        product: true,
-        customer: true,
+        product: {
+          select: {
+            id: true,
+            name: true,
+            sku: true,
+            platformProductId: true,
+            platformVariantId: true,
+          },
+        },
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true,
+          },
+        },
       },
     });
 
