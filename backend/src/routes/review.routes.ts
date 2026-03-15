@@ -127,7 +127,7 @@ router.post("/", async (req, res) => {
         ? comment.trim().slice(0, 2000)
         : null;
 
-    const normalizedRating = Number(rating);
+    const normalizedRating = Math.floor(Number(rating));
 
     if (
       !normalizedCompanyId ||
