@@ -650,7 +650,10 @@
     var platformVariantId = state.currentPlatformVariantId;
     var summary = (data && data.summary) || {};
     var reviews = Array.isArray(data && data.reviews) ? data.reviews : [];
-    var averageRating = Number(summary.averageRating || 0);
+    var averageRating = Number(summary.averageRating);
+    if (!Number.isFinite(averageRating)) {
+      averageRating = 0;
+    }
     var totalReviews = Number(summary.totalReviews || reviews.length || 0);
 
     var safeReviews = reviews.filter(function (r) {
