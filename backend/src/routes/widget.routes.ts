@@ -47,6 +47,13 @@ function setCachedProduct(key: string, product: any) {
 
 router.get("/reviews", async (req, res) => {
   try {
+    res.set({
+      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+      Pragma: "no-cache",
+      Expires: "0",
+      "Surrogate-Control": "no-store",
+    });
+
     const { apiKey, sku, platformProductId, platformVariantId } = req.query;
     const variantId = platformVariantId ? String(platformVariantId) : null;
 
