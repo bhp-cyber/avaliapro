@@ -98,16 +98,18 @@ router.get("/reviews", async (req, res) => {
         productCache.delete(productCacheKey);
       }
 
+      const summary = {
+        averageRating: 0,
+        totalReviews: 0,
+      };
+
       return res.json({
         company: {
           id: company.id,
           name: company.name,
         },
         product: null,
-        summary: {
-          averageRating: 0,
-          totalReviews: 0,
-        },
+        summary,
         reviews: [],
       });
     }
@@ -178,22 +180,26 @@ router.get("/reviews", async (req, res) => {
     const average = Number((reviewsSummary._avg.rating ?? 0).toFixed(1));
     const totalReviews = reviewsSummary._count.rating ?? 0;
 
+    const productResponse = {
+      id: product.id,
+      name: product.name,
+      sku: product.sku,
+      platformProductId: product.platformProductId,
+      platformVariantId: variantId,
+    };
+
+    const summary = {
+      averageRating: average,
+      totalReviews,
+    };
+
     return res.json({
       company: {
         id: company.id,
         name: company.name,
       },
-      product: {
-        id: product.id,
-        name: product.name,
-        sku: product.sku,
-        platformProductId: product.platformProductId,
-        platformVariantId: variantId,
-      },
-      summary: {
-        averageRating: average,
-        totalReviews,
-      },
+      product: productResponse,
+      summary,
       reviews,
     });
   } catch (error) {

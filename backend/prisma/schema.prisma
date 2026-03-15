@@ -84,4 +84,5 @@ model Review {
   customer         Customer? @relation(fields: [customerId], references: [id])
 
   @@index([productId, variantId])
+  @@index([companyId])
 }
