@@ -114,6 +114,8 @@ router.get("/", async (req, res) => {
     return res.json({
       companyId: normalizedCompanyId,
       total: totalReviews,
+      limit: normalizedLimit,
+      offset: normalizedOffset,
       reviews: reviewsResponse,
     });
   } catch (error) {
