@@ -16,8 +16,8 @@ router.get("/", async (req, res) => {
     const normalizedCompanyId =
       typeof companyId === "string" ? companyId.trim() : "";
 
-    const parsedLimit = Number(
-      Array.isArray(limitParam) ? limitParam[0] : limitParam
+    const parsedLimit = Math.floor(
+      Number(Array.isArray(limitParam) ? limitParam[0] : limitParam)
     );
 
     const parsedOffset = Math.floor(
