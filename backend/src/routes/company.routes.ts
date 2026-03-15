@@ -135,7 +135,7 @@ router.get("/:companyId/summary", async (req, res) => {
       ]);
 
     const averageRating = Number(
-      ((reviewsAggregate._avg.rating ?? 0) as number).toFixed(1)
+      Number(reviewsAggregate._avg.rating ?? 0).toFixed(1)
     );
 
     return res.json({
