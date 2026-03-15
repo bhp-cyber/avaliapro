@@ -29,7 +29,7 @@ router.get("/", async (req, res) => {
       : 50;
 
     const normalizedOffset = Number.isFinite(parsedOffset)
-      ? Math.max(0, parsedOffset)
+      ? Math.min(10000, Math.max(0, parsedOffset))
       : 0;
 
     if (!normalizedCompanyId) {
