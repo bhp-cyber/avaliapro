@@ -105,30 +105,46 @@ router.get("/:companyId/summary", async (req, res) => {
       });
     }
 
-    const [productsCount, reviewsCount, customersCount] = await Promise.all([
-      prisma.product.count({
-        where: {
-          companyId: String(companyId),
-        },
-      }),
-      prisma.review.count({
-        where: {
-          companyId: String(companyId),
-        },
-      }),
-      prisma.customer.count({
-        where: {
-          companyId: String(companyId),
-        },
-      }),
-    ]);
+    const normalizedCompanyId = String(companyId);
+
+    const [productsCount, reviewsCount, customersCount, reviewsAggregate] =
+      await Promise.all([
+        prisma.product.count({
+          where: {
+            companyId: normalizedCompanyId,
+          },
+        }),
+        prisma.review.count({
+          where: {
+            companyId: normalizedCompanyId,
+          },
+        }),
+        prisma.customer.count({
+          where: {
+            companyId: normalizedCompanyId,
+          },
+        }),
+        prisma.review.aggregate({
+          where: {
+            companyId: normalizedCompanyId,
+          },
+          _avg: {
+            rating: true,
+          },
+        }),
+      ]);
+
+    const averageRating = Number(
+      ((reviewsAggregate._avg.rating ?? 0) as number).toFixed(1)
+    );
 
     return res.json({
-      companyId,
+      companyId: normalizedCompanyId,
       summary: {
         productsCount,
         reviewsCount,
         customersCount,
+        averageRating,
       },
     });
   } catch (error) {
