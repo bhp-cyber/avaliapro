@@ -1056,6 +1056,8 @@
           return;
         }
 
+        console.error("[AvaliaPro] erro ao carregar avaliações:", error);
+
         renderError(
           container,
           (error && error.message) ||
