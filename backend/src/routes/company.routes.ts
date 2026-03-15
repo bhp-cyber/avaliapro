@@ -86,4 +86,55 @@ router.get("/:companyId", async (req, res) => {
   }
 });
 
+router.get("/:companyId/summary", async (req, res) => {
+  try {
+    const { companyId } = req.params;
+
+    const company = await prisma.company.findUnique({
+      where: {
+        id: companyId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!company) {
+      return res.status(404).json({
+        error: "Empresa não encontrada",
+      });
+    }
+
+    const [productsCount, reviewsCount, customersCount] = await Promise.all([
+      prisma.product.count({
+        where: {
+          companyId,
+        },
+      }),
+      prisma.review.count({
+        where: {
+          companyId,
+        },
+      }),
+      prisma.customer.count({
+        where: {
+          companyId,
+        },
+      }),
+    ]);
+
+    return res.json({
+      companyId,
+      summary: {
+        productsCount,
+        reviewsCount,
+        customersCount,
+      },
+    });
+  } catch (error) {
+    console.error("Erro ao buscar resumo da empresa:", error);
+    return res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
 export default router;
