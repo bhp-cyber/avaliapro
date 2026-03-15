@@ -96,6 +96,8 @@ router.get("/:companyId/summary", async (req, res) => {
       },
       select: {
         id: true,
+        name: true,
+        domain: true,
       },
     });
 
@@ -139,6 +141,11 @@ router.get("/:companyId/summary", async (req, res) => {
     );
 
     return res.json({
+      company: {
+        id: company.id,
+        name: company.name,
+        domain: company.domain,
+      },
       companyId: normalizedCompanyId,
       summary: {
         productsCount,
