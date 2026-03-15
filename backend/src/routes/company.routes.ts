@@ -56,4 +56,34 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/:companyId", async (req, res) => {
+  try {
+    const { companyId } = req.params;
+
+    const company = await prisma.company.findUnique({
+      where: {
+        id: companyId,
+      },
+      select: {
+        id: true,
+        name: true,
+        domain: true,
+        apiKey: true,
+        createdAt: true,
+      },
+    });
+
+    if (!company) {
+      return res.status(404).json({
+        error: "Empresa não encontrada",
+      });
+    }
+
+    return res.json(company);
+  } catch (error) {
+    console.error("Erro ao buscar empresa:", error);
+    return res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
 export default router;
