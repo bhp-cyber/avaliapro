@@ -384,12 +384,21 @@
       );
     }
 
-    var metaSku = document.querySelector('meta[name="sku"]');
-    if (metaSku) {
+    var metaVariantSku = document.querySelector('meta[name="variant-sku"]');
+    if (metaVariantSku) {
       pushCandidate(
-        metaSku.getAttribute("content"),
-        metaSku,
-        'meta[name="sku"]'
+        metaVariantSku.getAttribute("content"),
+        metaVariantSku,
+        'meta[name="variant-sku"]'
+      );
+    }
+
+    var metaProductSku = document.querySelector('meta[name="product-sku"]');
+    if (metaProductSku) {
+      pushCandidate(
+        metaProductSku.getAttribute("content"),
+        metaProductSku,
+        'meta[name="product-sku"]'
       );
     }
 
