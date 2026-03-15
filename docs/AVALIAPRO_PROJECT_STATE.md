@@ -29,7 +29,7 @@ Stack atual:
 - PostgreSQL
 - Deploy: Render
 
-Endpoints principais já funcionando:
+Endpoints principais funcionando:
 
 GET
 
@@ -43,58 +43,39 @@ POST
 /api/widget/reviews
 ```
 
-Funções do endpoint:
+O endpoint já faz:
 
 - buscar avaliações de um produto
-- calcular média de avaliação
-- retornar resumo (`summary`)
+- calcular média
+- retornar `summary`
 - retornar lista de reviews
 - criar nova avaliação
 
-Validações implementadas:
+Validações e proteções já implementadas:
 
 - `apiKey` obrigatório
 - `rating` obrigatório
 - produto deve existir
-- suporte a identificação por:
-
-- `platformProductId`
-- `sku` (fallback)
-
-Proteções implementadas:
-
+- suporte a:
+  - `platformProductId`
+  - `sku` (fallback)
+- suporte a `platformVariantId`
 - rating limitado entre **1 e 5**
 - normalização de `verifiedPurchase`
 - validação da resposta antes de renderizar no widget
-- normalização de `rating` para número inteiro
+- normalização de `rating` para inteiro
 
 ---
 
 # Widget
 
-Arquivo:
+Arquivo principal:
 
 ```
 backend/widget/widget.js
 ```
 
 O widget já possui:
-
-## Detecção automática de produto na página via:
-
-- `data-product-sku`
-- `data-sku`
-- `data-variant-sku`
-- `.product-sku`
-- `#product-sku`
-- meta tags
-
-## Identificação de produto via:
-
-1️⃣ `platformProductId`  
-2️⃣ fallback para `sku`
-
-## Recursos implementados
 
 - carregamento automático de avaliações
 - cálculo de média
@@ -108,19 +89,41 @@ O widget já possui:
 - observação de DOM via `MutationObserver`
 - fallback por polling
 
+Detecção automática de produto via:
+
+- `data-product-sku`
+- `data-sku`
+- `data-variant-sku`
+- `.product-sku`
+- `#product-sku`
+- meta tags
+
+Identificação atual:
+
+1. `platformProductId`
+2. fallback para `sku`
+
 ---
 
-# Sistema de cache no widget
+# Cache no Widget
+
+Implementado em:
+
+```
+backend/widget/widget.js
+```
+
+Estado atual:
 
 - cache em memória por produto
 - chave baseada em `platformProductId` ou `sku`
-- limite de **20 produtos** no cache
+- limite de **20 produtos**
 - TTL de **60 segundos**
 - invalidação de cache ao criar review
 
 ---
 
-# Sistema de cache no backend
+# Cache no Backend
 
 Arquivo:
 
@@ -128,77 +131,29 @@ Arquivo:
 backend/src/routes/widget.routes.ts
 ```
 
-Características implementadas:
+Estado atual:
 
 - cache de produto em memória (`Map`)
 - chave baseada em `companyId + productIdentifier`
 - TTL de **60 segundos**
-- limite máximo de **100 produtos em cache**
+- limite máximo de **100 produtos**
 - remoção automática do item mais antigo ao atingir limite
 - proteção contra chave `null`
 - invalidação automática após criação de review
 - limpeza de entradas expiradas
 
-Objetivo:
-
-- reduzir consultas repetidas ao banco
-- melhorar performance do endpoint
-- preparar arquitetura para alto volume de tráfego SaaS
-
 ---
 
-# Otimizações do Endpoint de Reviews
+# Otimizações já implementadas
 
-## Limite de reviews retornadas
+## Endpoint de reviews
 
-O endpoint retorna no máximo:
+- agregação de média e total no banco com `prisma.review.aggregate()`
+- limite de **50 reviews**
+- redução de payload
+- média padronizada com **1 casa decimal**
 
-```
-50 reviews
-```
-
-Constante utilizada:
-
-```
-REVIEWS_LIMIT = 50
-```
-
-Isso evita:
-
-- payload excessivo
-- lentidão do widget
-- consultas pesadas
-
----
-
-## Agregação no banco
-
-O cálculo de média e total de avaliações foi movido para o banco usando:
-
-```
-prisma.review.aggregate()
-```
-
-Isso evita:
-
-- cálculo em memória
-- transferência de milhares de registros
-- sobrecarga no Node.js
-
-O endpoint agora retorna:
-
-```
-averageRating
-totalReviews
-```
-
-calculados diretamente no PostgreSQL.
-
----
-
-## Redução de payload
-
-As consultas `findMany` retornam apenas campos necessários:
+Campos retornados no `findMany`:
 
 ```
 id
@@ -210,29 +165,49 @@ createdAt
 variantId
 ```
 
-Isso reduz:
-
-- tamanho da resposta
-- tempo de renderização do widget
-
 ---
 
-# Proteções adicionais
+# Estabilização SPA já executada
 
-- validação da resposta da API
-- prevenção de widget duplicado
-- refresh global seguro
-- debug opcional via:
+Arquivo:
 
 ```
-window.AVALIAPRO_DEBUG = true;
+backend/widget/widget.js
 ```
+
+Entre os passos **129 ao 35** foi feita a estabilização do widget para SPA.
+
+Principais pontos já resolvidos:
+
+- prevenção de múltiplas execuções do script
+- controle de concorrência via `requestToken`
+- scheduler centralizado via `scheduleRefresh`
+- detecção de navegação por:
+  - `popstate`
+  - `hashchange`
+  - `history.pushState`
+  - `history.replaceState`
+- prevenção de múltiplos `MutationObserver`
+- prevenção de múltiplos `setInterval`
+- prevenção de múltiplos listeners
+- remoção segura do widget ao sair de página de produto
+- reinicialização segura ao voltar para página de produto
+- proteção contra render atrasado
+- proteção contra render em container removido
+- proteção contra reutilização de container fora do DOM
+- ignorar mutações do próprio widget
+- prevenção de loops de refresh/render
+- prevenção de render duplicado na inicialização
+- sincronização correta de:
+  - `sku`
+  - `platformProductId`
+  - `platformVariantId`
 
 ---
 
 # Roadmap Técnico
 
-## 1. Identidade de produto estável (não depender só de SKU)
+## 1. Identidade de produto estável
 
 ✅ IMPLEMENTADO
 
@@ -244,108 +219,37 @@ window.AVALIAPRO_DEBUG = true;
 
 ✅ IMPLEMENTADO
 
-Implementado em:
-
-- `schema.prisma`
-- `widget.routes.ts`
-- `widget.routes.js`
-- `widget.js`
-
-Agora o sistema suporta:
-
-- envio de `platformVariantId`
-- armazenamento em `variantId`
-- fallback automático para reviews do produto
-
----
-
 ## 4. Cache de produto no backend
 
 ✅ IMPLEMENTADO
-
-Arquivo:
-
-```
-backend/src/routes/widget.routes.ts
-```
-
-Componentes:
-
-- `productCache`
-- `PRODUCT_CACHE_TTL`
-- `PRODUCT_CACHE_LIMIT`
-- `getCachedProduct()`
-- `setCachedProduct()`
-
----
 
 ## 5. Otimização de consultas de reviews
 
 ✅ IMPLEMENTADO
 
-- agregação de média no banco
-- limite de 50 reviews
-- redução de payload
-- reutilização de filtro (`reviewsWhere`)
-- média padronizada com 1 casa decimal
+## 6. Estabilização do widget para sites SPA
 
----
+✅ IMPLEMENTADO
 
-## 6. Coleta automática de reviews por email
+## 7. Coleta automática de reviews por email
+
+⏳ PENDENTE
+
+## 8. Painel SaaS para lojistas
+
+⏳ PENDENTE
+
+## 9. Moderação de avaliações
+
+⏳ PENDENTE
+
+## 10. Sistema de reputação e helpful votes
 
 ⏳ PENDENTE
 
 ---
 
-## 7. Painel SaaS para lojistas
-
-⏳ PENDENTE
-
----
-
-## 8. Moderação de avaliações
-
-⏳ PENDENTE
-
----
-
-## 9. Sistema de reputação e helpful votes
-
-⏳ PENDENTE
-
----
-
-# Estrutura futura
-
-Produto
-
-```
-product
-```
-
-Variante
-
-```
-variant
-```
-
-Review poderá ser associada a:
-
-```
-productId
-ou
-variantId
-```
-
-Isso permitirá:
-
-- reviews por variante
-- média por variante
-- fallback para média do produto
-
----
-
-# Estado do Sistema
+# Estado Atual do Sistema
 
 Situação atual:
 
@@ -354,42 +258,59 @@ Situação atual:
 - criação de review funcional
 - renderização funcional
 - cache no widget implementado
-- cache de produto no backend implementado
-- suporte a avaliações por variante (`platformVariantId`)
+- cache no backend implementado
+- suporte a avaliações por variante
 - fallback automático para reviews do produto
-- agregação de média no banco
-- limite de reviews retornadas
-- redução de payload do endpoint
 - arquitetura preparada para SaaS
+- widget estabilizado para navegação SPA
 
-O sistema já se comporta como **primeira versão funcional de um produto SaaS de avaliações embedáveis**.
+---
+
+# Commits e Tags já criados
+
+```bash
+git commit -m "Estabilização completa do widget SPA (MutationObserver, history API, request token, cache e scheduler de refresh)"
+git tag v0.1.0-widget-spa-stable
+```
+
+```bash
+git commit -m "Refinamentos de estabilidade do widget SPA e ciclo de vida do container"
+git tag v0.1.1-widget-spa-lifecycle-stable
+```
+
+```bash
+git commit -m "Aprimora watcher SPA e evita refresh causado por mutações do próprio widget"
+git tag v0.1.2-widget-spa-observer-stable
+```
 
 ---
 
 # Último Passo Executado
 
-PASSO 128
+PASSO 35
 
-Padronização da média de avaliações para **uma casa decimal**.
-
-Exemplo:
+Arquivo:
 
 ```
-4.666 → 4.7
-4.333 → 4.3
+backend/widget/widget.js
 ```
 
-Implementado em:
+Alteração executada:
 
-```
-backend/src/routes/widget.routes.ts
+- a inicialização do widget passou a usar o mesmo pipeline de refresh do SPA
+
+Trecho final ajustado em `init()`:
+
+```js
+startSkuWatcher();
+scheduleRefresh(0);
 ```
 
 ---
 
 # Próximo Passo
 
-PASSO 129
+PASSO 36
 
 Arquivo:
 
@@ -399,12 +320,8 @@ backend/widget/widget.js
 
 Objetivo:
 
-Auditar e estabilizar o fluxo de inicialização do widget para sites SPA (Nuvemshop, Shopify, etc.).
+Auditar e estabilizar definitivamente o sistema de **cache de reviews no widget**, garantindo:
 
-Serão analisados:
-
-- detecção de produto
-- detecção de mudança de página
-- inicialização do widget
-- prevenção de múltiplas execuções do script
-- prevenção de múltiplos requests duplicados
+- consistência entre `sku`, `platformProductId` e `platformVariantId`
+- invalidação correta após envio de review
+- eliminação de cache incorreto em navegação SPA

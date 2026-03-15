@@ -471,6 +471,42 @@
     return null;
   }
 
+  function removeReviewsCacheKey(cacheKey) {
+    if (!cacheKey || !state.reviewsCache[cacheKey]) return;
+
+    delete state.reviewsCache[cacheKey];
+
+    var index = state.reviewsCacheOrder.indexOf(cacheKey);
+    if (index !== -1) {
+      state.reviewsCacheOrder.splice(index, 1);
+    }
+  }
+
+  function invalidateReviewsCache(sku, platformProductId, platformVariantId) {
+    if (platformProductId && platformVariantId) {
+      removeReviewsCacheKey(
+        "platformProductId:" +
+          platformProductId +
+          "|platformVariantId:" +
+          platformVariantId
+      );
+    }
+
+    if (platformProductId) {
+      removeReviewsCacheKey("platformProductId:" + platformProductId);
+    }
+
+    if (sku && platformVariantId) {
+      removeReviewsCacheKey(
+        "sku:" + sku + "|platformVariantId:" + platformVariantId
+      );
+    }
+
+    if (sku) {
+      removeReviewsCacheKey("sku:" + sku);
+    }
+  }
+
   function resolveContainer(skuInfo) {
     var existing = document.getElementById(WIDGET_ID);
     if (existing) {
@@ -674,6 +710,14 @@
 
     bindForm(container, state.currentSku);
     state.lastRenderedSku = sku;
+
+    if (window.AVALIAPRO_DEBUG) {
+      console.log("[AvaliaPro DEBUG]", {
+        sku: sku,
+        platformProductId: state.currentPlatformProductId,
+        platformVariantId: state.currentPlatformVariantId,
+      });
+    }
   }
 
   function setFeedback(container, type, message) {
@@ -794,15 +838,11 @@
         });
       })()
         .then(function () {
-          var cacheKey = getProductCacheKey(sku);
-          if (cacheKey) {
-            delete state.reviewsCache[cacheKey];
-
-            var index = state.reviewsCacheOrder.indexOf(cacheKey);
-            if (index !== -1) {
-              state.reviewsCacheOrder.splice(index, 1);
-            }
-          }
+          invalidateReviewsCache(
+            sku,
+            getPlatformProductId(),
+            getPlatformVariantId()
+          );
 
           setFeedback(container, "success", "Avaliação enviada com sucesso.");
           form.reset();
@@ -837,14 +877,17 @@
     var renderKey = sku || platformProductId;
     var cacheKey = getProductCacheKey(sku);
     var hasCacheEntry = !!(cacheKey && state.reviewsCache[cacheKey]);
+    var isSameIdentity =
+      state.currentSku === sku &&
+      state.currentPlatformProductId === platformProductId &&
+      state.currentPlatformVariantId === platformVariantId;
 
     if (
       !options.force &&
       !options.preserveFeedback &&
       !hasCacheEntry &&
       state.lastRenderedSku === renderKey &&
-      state.currentPlatformVariantId === platformVariantId &&
-      state.currentPlatformProductId === platformProductId
+      isSameIdentity
     ) {
       return Promise.resolve();
     }
@@ -860,10 +903,10 @@
     }
 
     state.isLoading = true;
-    state.currentSku = sku;
-    state.currentPlatformProductId = platformProductId;
-    state.currentPlatformVariantId = platformVariantId;
-    state.lastRenderedSku = sku || platformProductId;
+    state.currentSku = sku || null;
+    state.currentPlatformProductId = platformProductId || null;
+    state.currentPlatformVariantId = platformVariantId || null;
+    state.lastRenderedSku = sku || platformProductId || null;
 
     var requestToken = ++state.requestToken;
     cacheKey = getProductCacheKey(sku);
@@ -1022,9 +1065,11 @@
     if (state.isLoading) return;
 
     var productChanged =
-      state.currentSku !== nextSku ||
-      state.currentPlatformProductId !== nextPlatformProductId ||
-      state.currentPlatformVariantId !== nextPlatformVariantId;
+      (state.currentSku || null) !== (nextSku || null) ||
+      (state.currentPlatformProductId || null) !==
+        (nextPlatformProductId || null) ||
+      (state.currentPlatformVariantId || null) !==
+        (nextPlatformVariantId || null);
 
     if (!productChanged) {
       return;
@@ -1179,7 +1224,19 @@
   }
 
   window.__AVALIAPRO_WIDGET_REFRESH__ = function () {
-    scheduleRefresh(0);
+    var skuInfo = getSku();
+    var sku = skuInfo && skuInfo.sku ? skuInfo.sku : null;
+    var platformProductId = getPlatformProductId();
+    var platformVariantId = getPlatformVariantId();
+
+    console.log("[AvaliaPro REFRESH]", {
+      sku: sku,
+      platformProductId: platformProductId,
+      platformVariantId: platformVariantId,
+      debug: !!window.AVALIAPRO_DEBUG,
+    });
+
+    loadAndRenderSku(sku, { force: true });
   };
 
   function init() {
