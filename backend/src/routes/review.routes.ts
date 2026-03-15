@@ -66,7 +66,7 @@ router.get("/", async (req, res) => {
 
     const reviewsResponse = reviews.map((review) => ({
       id: review.id,
-      rating: review.rating,
+      rating: Math.max(1, Math.min(5, review.rating)),
       title: review.title,
       comment: review.comment,
       authorName: review.authorName,
