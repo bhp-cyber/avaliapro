@@ -5,7 +5,11 @@ const router = Router();
 
 router.get("/", async (req, res) => {
   try {
-    const { companyId } = req.query;
+    const companyIdParam = req.query.companyId;
+
+    const companyId = Array.isArray(companyIdParam)
+      ? companyIdParam[0]
+      : companyIdParam;
 
     if (!companyId) {
       return res.status(400).json({
