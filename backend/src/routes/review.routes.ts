@@ -20,8 +20,8 @@ router.get("/", async (req, res) => {
       Array.isArray(limitParam) ? limitParam[0] : limitParam
     );
 
-    const parsedOffset = Number(
-      Array.isArray(offsetParam) ? offsetParam[0] : offsetParam
+    const parsedOffset = Math.floor(
+      Number(Array.isArray(offsetParam) ? offsetParam[0] : offsetParam)
     );
 
     const normalizedLimit = Number.isFinite(parsedLimit)
