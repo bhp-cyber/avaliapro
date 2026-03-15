@@ -403,11 +403,31 @@
 
   function getPlatformProductId() {
     var productIdElement = document.querySelector("[data-product-id]");
-    if (!productIdElement) return null;
+    if (productIdElement) {
+      var dataValue = normalizeText(
+        productIdElement.getAttribute("data-product-id")
+      );
 
-    var value = normalizeText(productIdElement.getAttribute("data-product-id"));
+      if (dataValue) return dataValue;
+    }
 
-    return value || null;
+    var metaName = document.querySelector('meta[name="platform-product-id"]');
+    if (metaName) {
+      var metaNameValue = normalizeText(metaName.getAttribute("content"));
+      if (metaNameValue) return metaNameValue;
+    }
+
+    var metaProperty = document.querySelector(
+      'meta[property="platform-product-id"]'
+    );
+    if (metaProperty) {
+      var metaPropertyValue = normalizeText(
+        metaProperty.getAttribute("content")
+      );
+      if (metaPropertyValue) return metaPropertyValue;
+    }
+
+    return null;
   }
 
   function getPlatformVariantId() {
