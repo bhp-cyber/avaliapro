@@ -653,8 +653,12 @@
     var averageRating = Number(summary.averageRating || 0);
     var totalReviews = Number(summary.totalReviews || reviews.length || 0);
 
-    var reviewListHtml = reviews.length
-      ? reviews.map(buildReviewItem).join("")
+    var safeReviews = reviews.filter(function (r) {
+      return r && typeof r === "object";
+    });
+
+    var reviewListHtml = safeReviews.length
+      ? safeReviews.map(buildReviewItem).join("")
       : `<div class="avaliapro-empty">Ainda não há avaliações para este produto.</div>`;
 
     container.innerHTML = `
