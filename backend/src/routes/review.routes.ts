@@ -93,6 +93,7 @@ router.get("/", async (req, res) => {
       comment: review.comment,
       authorName: review.authorName,
       verifiedPurchase: review.verifiedPurchase,
+      status: review.status,
       createdAt: review.createdAt,
       product: review.product
         ? {
@@ -235,6 +236,7 @@ router.post("/", async (req, res) => {
         rating: normalizedRating,
         title: normalizedTitle,
         comment: normalizedComment,
+        status: "approved",
         productId: normalizedProductId,
         companyId: normalizedCompanyId,
         customerId: normalizedCustomerId,

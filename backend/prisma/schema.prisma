@@ -68,6 +68,7 @@ model Review {
   comment          String?
   authorName       String?
   verifiedPurchase Boolean   @default(false)
+  status String @default("approved")
   productVariant   String?
   variantId        String?
   imageUrl         String?

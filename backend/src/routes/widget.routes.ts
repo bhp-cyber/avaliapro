@@ -126,6 +126,7 @@ router.get("/reviews", async (req, res) => {
     let reviewsWhere: any = {
       productId: product.id,
       companyId: company.id,
+      status: "approved",
     };
 
     if (variantId) {
@@ -154,6 +155,7 @@ router.get("/reviews", async (req, res) => {
         productId: product.id,
         companyId: company.id,
         variantId: null,
+        status: "approved",
       };
 
       reviews = await prisma.review.findMany({
@@ -306,6 +308,7 @@ router.post("/reviews", async (req, res) => {
         comment,
         authorName,
         verifiedPurchase: normalizedVerifiedPurchase,
+        status: "pending",
         productVariant: sku || null,
         variantId: variantId || null,
         productId: product.id,
