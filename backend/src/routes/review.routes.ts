@@ -17,9 +17,11 @@ router.get("/", async (req, res) => {
       });
     }
 
+    const normalizedCompanyId = String(companyId);
+
     const company = await prisma.company.findUnique({
       where: {
-        id: String(companyId),
+        id: normalizedCompanyId,
       },
       select: {
         id: true,
@@ -34,8 +36,9 @@ router.get("/", async (req, res) => {
 
     const reviews = await prisma.review.findMany({
       where: {
-        companyId: String(companyId),
+        companyId: normalizedCompanyId,
       },
+
       orderBy: {
         createdAt: "desc",
       },
@@ -89,7 +92,7 @@ router.get("/", async (req, res) => {
     }));
 
     return res.json({
-      companyId: String(companyId),
+      companyId: normalizedCompanyId,
       total: reviewsResponse.length,
       reviews: reviewsResponse,
     });
