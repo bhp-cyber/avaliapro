@@ -17,6 +17,21 @@ router.get("/", async (req, res) => {
       });
     }
 
+    const company = await prisma.company.findUnique({
+      where: {
+        id: String(companyId),
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!company) {
+      return res.status(404).json({
+        error: "Empresa não encontrada",
+      });
+    }
+
     const reviews = await prisma.review.findMany({
       where: {
         companyId: String(companyId),
