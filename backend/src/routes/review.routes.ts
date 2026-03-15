@@ -38,9 +38,6 @@ router.get("/", async (req, res) => {
     const reviews = await prisma.review.findMany({
       where: {
         companyId: normalizedCompanyId,
-        product: {
-          companyId: normalizedCompanyId,
-        },
       },
 
       orderBy: {
@@ -211,6 +208,18 @@ router.post("/", async (req, res) => {
         productId: normalizedProductId,
         companyId: normalizedCompanyId,
         customerId: normalizedCustomerId,
+      },
+      select: {
+        id: true,
+        rating: true,
+        title: true,
+        comment: true,
+        authorName: true,
+        verifiedPurchase: true,
+        createdAt: true,
+        productId: true,
+        companyId: true,
+        customerId: true,
       },
     });
 
