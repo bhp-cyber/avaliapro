@@ -28,6 +28,9 @@ router.get("/", async (req, res) => {
       ? Math.min(50, Math.max(1, parsedLimit))
       : 50;
 
+    // proteção extra para evitar offset inútil quando não há limite
+    const effectiveLimit = normalizedLimit || 50;
+
     const normalizedOffset = Number.isFinite(parsedOffset)
       ? Math.min(10000, Math.max(0, parsedOffset))
       : 0;
@@ -61,7 +64,7 @@ router.get("/", async (req, res) => {
       orderBy: {
         createdAt: "desc",
       },
-      take: normalizedLimit,
+      take: effectiveLimit,
       skip: normalizedOffset,
       include: {
         product: {
