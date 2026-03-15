@@ -108,17 +108,17 @@ router.get("/:companyId/summary", async (req, res) => {
     const [productsCount, reviewsCount, customersCount] = await Promise.all([
       prisma.product.count({
         where: {
-          companyId,
+          companyId: String(companyId),
         },
       }),
       prisma.review.count({
         where: {
-          companyId,
+          companyId: String(companyId),
         },
       }),
       prisma.customer.count({
         where: {
-          companyId,
+          companyId: String(companyId),
         },
       }),
     ]);
