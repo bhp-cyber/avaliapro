@@ -24,6 +24,7 @@ router.get("/", async (req, res) => {
       orderBy: {
         createdAt: "desc",
       },
+      take: 100,
       include: {
         product: true,
         customer: true,
