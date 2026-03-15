@@ -73,8 +73,6 @@ router.get("/", async (req, res) => {
       },
     });
 
-    const totalReviews = reviews.length;
-
     const reviewsResponse = reviews.map((review) => ({
       id: review.id,
       rating: Math.max(1, Math.min(5, review.rating)),
@@ -100,6 +98,8 @@ router.get("/", async (req, res) => {
           }
         : null,
     }));
+
+    const totalReviews = reviewsResponse.length;
 
     return res.json({
       companyId: normalizedCompanyId,
