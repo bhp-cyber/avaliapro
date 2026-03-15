@@ -6,6 +6,7 @@ const router = Router();
 router.get("/", async (req, res) => {
   try {
     const companyIdParam = req.query.companyId;
+    const limitParam = req.query.limit;
 
     const companyId = Array.isArray(companyIdParam)
       ? companyIdParam[0]
@@ -13,6 +14,14 @@ router.get("/", async (req, res) => {
 
     const normalizedCompanyId =
       typeof companyId === "string" ? companyId.trim() : "";
+
+    const normalizedLimit = Math.min(
+      50,
+      Math.max(
+        1,
+        Number(Array.isArray(limitParam) ? limitParam[0] : limitParam) || 50
+      )
+    );
 
     if (!normalizedCompanyId) {
       return res.status(400).json({
@@ -43,7 +52,7 @@ router.get("/", async (req, res) => {
       orderBy: {
         createdAt: "desc",
       },
-      take: 50,
+      take: normalizedLimit,
       include: {
         product: {
           select: {
