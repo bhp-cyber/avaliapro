@@ -7,6 +7,7 @@ router.get("/", async (req, res) => {
   try {
     const companyIdParam = req.query.companyId;
     const limitParam = req.query.limit;
+    const offsetParam = req.query.offset;
 
     const companyId = Array.isArray(companyIdParam)
       ? companyIdParam[0]
@@ -19,9 +20,17 @@ router.get("/", async (req, res) => {
       Array.isArray(limitParam) ? limitParam[0] : limitParam
     );
 
+    const parsedOffset = Number(
+      Array.isArray(offsetParam) ? offsetParam[0] : offsetParam
+    );
+
     const normalizedLimit = Number.isFinite(parsedLimit)
       ? Math.min(50, Math.max(1, parsedLimit))
       : 50;
+
+    const normalizedOffset = Number.isFinite(parsedOffset)
+      ? Math.max(0, parsedOffset)
+      : 0;
 
     if (!normalizedCompanyId) {
       return res.status(400).json({
@@ -53,6 +62,7 @@ router.get("/", async (req, res) => {
         createdAt: "desc",
       },
       take: normalizedLimit,
+      skip: normalizedOffset,
       include: {
         product: {
           select: {
