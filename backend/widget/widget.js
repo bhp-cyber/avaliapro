@@ -710,14 +710,6 @@
 
     bindForm(container, state.currentSku);
     state.lastRenderedSku = sku;
-
-    if (window.AVALIAPRO_DEBUG) {
-      console.log("[AvaliaPro DEBUG]", {
-        sku: sku,
-        platformProductId: state.currentPlatformProductId,
-        platformVariantId: state.currentPlatformVariantId,
-      });
-    }
   }
 
   function setFeedback(container, type, message) {
