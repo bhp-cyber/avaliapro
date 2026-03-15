@@ -43,7 +43,7 @@ router.get("/", async (req, res) => {
       orderBy: {
         createdAt: "desc",
       },
-      take: 100,
+      take: 50,
       include: {
         product: {
           select: {
