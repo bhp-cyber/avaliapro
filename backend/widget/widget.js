@@ -639,7 +639,7 @@
         )}</div>
         ${titleHtml}
         <div class="avaliapro-review-comment">${safeText(
-          (review && review.comment) || ""
+          normalizeText((review && review.comment) || "")
         )}</div>
         ${imageHtml}
       </div>
