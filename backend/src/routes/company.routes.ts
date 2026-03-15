@@ -21,7 +21,8 @@ router.get("/", async (_req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { name, domain } = req.body;
+    const name = String(req.body?.name || "").trim();
+    const domain = String(req.body?.domain || "").trim() || null;
 
     if (!name) {
       return res.status(400).json({ error: "Nome da empresa é obrigatório" });
@@ -35,7 +36,13 @@ router.post("/", async (req, res) => {
       },
     });
 
-    return res.status(201).json(company);
+    return res.status(201).json({
+      id: company.id,
+      name: company.name,
+      domain: company.domain,
+      apiKey: company.apiKey,
+      createdAt: company.createdAt,
+    });
   } catch (error) {
     console.error("Erro ao criar empresa:", error);
     return res.status(500).json({ error: "Erro interno do servidor" });
