@@ -977,6 +977,18 @@
 
     return fetchReviews(sku || null)
       .then(function (data) {
+        var latestSku = state.currentSku;
+        var latestPlatformProductId = state.currentPlatformProductId;
+        var latestPlatformVariantId = state.currentPlatformVariantId;
+
+        if (
+          latestSku !== sku &&
+          latestPlatformProductId !== getPlatformProductId() &&
+          latestPlatformVariantId !== getPlatformVariantId()
+        ) {
+          return;
+        }
+
         if (
           !data ||
           typeof data !== "object" ||
