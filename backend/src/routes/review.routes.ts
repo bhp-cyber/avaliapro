@@ -26,7 +26,33 @@ router.get("/", async (req, res) => {
       },
     });
 
-    return res.json(reviews);
+    return res.json(
+      reviews.map((review) => ({
+        id: review.id,
+        rating: review.rating,
+        title: review.title,
+        comment: review.comment,
+        authorName: review.authorName,
+        verifiedPurchase: review.verifiedPurchase,
+        createdAt: review.createdAt,
+        product: review.product
+          ? {
+              id: review.product.id,
+              name: review.product.name,
+              sku: review.product.sku,
+              platformProductId: review.product.platformProductId,
+              platformVariantId: review.product.platformVariantId,
+            }
+          : null,
+        customer: review.customer
+          ? {
+              id: review.customer.id,
+              name: review.customer.name,
+              email: review.customer.email,
+            }
+          : null,
+      }))
+    );
   } catch (error) {
     console.error("Erro ao buscar reviews:", error);
     return res.status(500).json({ error: "Erro interno do servidor" });
