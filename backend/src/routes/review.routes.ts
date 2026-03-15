@@ -15,13 +15,13 @@ router.get("/", async (req, res) => {
     const normalizedCompanyId =
       typeof companyId === "string" ? companyId.trim() : "";
 
-    const normalizedLimit = Math.min(
-      50,
-      Math.max(
-        1,
-        Number(Array.isArray(limitParam) ? limitParam[0] : limitParam) || 50
-      )
+    const parsedLimit = Number(
+      Array.isArray(limitParam) ? limitParam[0] : limitParam
     );
+
+    const normalizedLimit = Number.isFinite(parsedLimit)
+      ? Math.min(50, Math.max(1, parsedLimit))
+      : 50;
 
     if (!normalizedCompanyId) {
       return res.status(400).json({
