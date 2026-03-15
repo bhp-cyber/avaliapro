@@ -11,13 +11,14 @@ router.get("/", async (req, res) => {
       ? companyIdParam[0]
       : companyIdParam;
 
-    if (!companyId) {
+    const normalizedCompanyId =
+      typeof companyId === "string" ? companyId.trim() : "";
+
+    if (!normalizedCompanyId) {
       return res.status(400).json({
         error: "companyId é obrigatório",
       });
     }
-
-    const normalizedCompanyId = String(companyId);
 
     const company = await prisma.company.findUnique({
       where: {
@@ -37,6 +38,9 @@ router.get("/", async (req, res) => {
     const reviews = await prisma.review.findMany({
       where: {
         companyId: normalizedCompanyId,
+        product: {
+          companyId: normalizedCompanyId,
+        },
       },
 
       orderBy: {
@@ -57,7 +61,6 @@ router.get("/", async (req, res) => {
           select: {
             id: true,
             name: true,
-            email: true,
             avatar: true,
           },
         },
@@ -85,7 +88,6 @@ router.get("/", async (req, res) => {
         ? {
             id: review.customer.id,
             name: review.customer.name,
-            email: review.customer.email,
             avatar: review.customer.avatar,
           }
         : null,
@@ -107,20 +109,108 @@ router.post("/", async (req, res) => {
     const { rating, title, comment, productId, companyId, customerId } =
       req.body;
 
-    if (!rating || !productId || !companyId) {
+    const normalizedCompanyId =
+      typeof companyId === "string" ? companyId.trim() : "";
+
+    const normalizedProductId =
+      typeof productId === "string" ? productId.trim() : "";
+
+    const normalizedCustomerId =
+      typeof customerId === "string" && customerId.trim()
+        ? customerId.trim()
+        : null;
+
+    const normalizedTitle =
+      typeof title === "string" && title.trim() ? title.trim() : null;
+
+    const normalizedComment =
+      typeof comment === "string" && comment.trim() ? comment.trim() : null;
+
+    const normalizedRating = Number(rating);
+
+    if (
+      !normalizedCompanyId ||
+      !normalizedProductId ||
+      Number.isNaN(normalizedRating)
+    ) {
       return res.status(400).json({
         error: "rating, productId e companyId são obrigatórios",
       });
     }
 
+    if (
+      !Number.isInteger(normalizedRating) ||
+      normalizedRating < 1 ||
+      normalizedRating > 5
+    ) {
+      return res.status(400).json({
+        error: "rating deve ser um inteiro entre 1 e 5",
+      });
+    }
+
+    const company = await prisma.company.findUnique({
+      where: {
+        id: normalizedCompanyId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!company) {
+      return res.status(404).json({
+        error: "Empresa não encontrada",
+      });
+    }
+
+    const product = await prisma.product.findUnique({
+      where: {
+        id: normalizedProductId,
+      },
+      select: {
+        id: true,
+        companyId: true,
+      },
+    });
+
+    if (!product || product.companyId !== normalizedCompanyId) {
+      return res.status(404).json({
+        error: "Produto não encontrado para esta empresa",
+      });
+    }
+
+    if (!product) {
+      return res.status(404).json({
+        error: "Produto não encontrado para esta empresa",
+      });
+    }
+
+    if (normalizedCustomerId) {
+      const customer = await prisma.customer.findFirst({
+        where: {
+          id: normalizedCustomerId,
+          companyId: normalizedCompanyId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!customer) {
+        return res.status(404).json({
+          error: "Cliente não encontrado para esta empresa",
+        });
+      }
+    }
+
     const review = await prisma.review.create({
       data: {
-        rating,
-        title,
-        comment,
-        productId,
-        companyId,
-        customerId,
+        rating: normalizedRating,
+        title: normalizedTitle,
+        comment: normalizedComment,
+        productId: normalizedProductId,
+        companyId: normalizedCompanyId,
+        customerId: normalizedCustomerId,
       },
     });
 
