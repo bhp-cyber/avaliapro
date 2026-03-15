@@ -103,7 +103,7 @@ O operador apenas executará os comandos fornecidos.
 
 PASSO 1
 Arquivo: caminho/do/arquivo
+Alteração: instrução breve e exata do que será feito
 Localizar a função: **especifique**
 Localizar este trecho: **mostre o trecho**
 Substitua por: **mande o código**
-Alteração: instrução breve e exata do que foi feito

@@ -776,10 +776,14 @@
       params.append("sku", sku);
     }
 
+    params.append("_ts", Date.now());
+
     var url = apiBase + "/api/widget/reviews?" + params.toString();
 
     return fetch(url, {
       method: "GET",
+      credentials: "omit",
+      cache: "no-store",
       headers: {
         Accept: "application/json",
       },
@@ -794,6 +798,8 @@
   function submitReview(payload) {
     return fetch(apiBase + "/api/widget/reviews", {
       method: "POST",
+      credentials: "omit",
+      cache: "no-store",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
