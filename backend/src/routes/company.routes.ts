@@ -10,6 +10,13 @@ router.get("/", async (_req, res) => {
       orderBy: {
         createdAt: "desc",
       },
+      select: {
+        id: true,
+        name: true,
+        domain: true,
+        apiKey: true,
+        createdAt: true,
+      },
     });
 
     return res.json(companies);
