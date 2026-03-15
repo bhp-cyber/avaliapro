@@ -3,15 +3,25 @@ import prisma from "../lib/prisma";
 
 const router = Router();
 
-router.get("/", async (_req, res) => {
+router.get("/", async (req, res) => {
   try {
+    const { companyId } = req.query;
+
+    if (!companyId) {
+      return res.status(400).json({
+        error: "companyId é obrigatório",
+      });
+    }
+
     const reviews = await prisma.review.findMany({
+      where: {
+        companyId: String(companyId),
+      },
       orderBy: {
         createdAt: "desc",
       },
       include: {
         product: true,
-        company: true,
         customer: true,
       },
     });
