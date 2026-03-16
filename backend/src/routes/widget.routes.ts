@@ -76,8 +76,11 @@ router.get("/reviews", async (req, res) => {
     }
 
     const cacheId = platformProductId || sku;
+    const cacheVariantPart = variantId ? `:variant:${variantId}` : "";
 
-    const productCacheKey = cacheId ? `${company.id}:${cacheId}` : null;
+    const productCacheKey = cacheId
+      ? `${company.id}:${cacheId}${cacheVariantPart}`
+      : null;
     let product = productCacheKey ? getCachedProduct(productCacheKey) : null;
 
     if (!product) {
@@ -268,8 +271,11 @@ router.post("/reviews", async (req, res) => {
     }
 
     const cacheId = platformProductId || sku;
+    const cacheVariantPart = variantId ? `:variant:${variantId}` : "";
 
-    const productCacheKey = cacheId ? `${company.id}:${cacheId}` : null;
+    const productCacheKey = cacheId
+      ? `${company.id}:${cacheId}${cacheVariantPart}`
+      : null;
     let product = productCacheKey ? getCachedProduct(productCacheKey) : null;
 
     if (!product) {
@@ -295,6 +301,15 @@ router.post("/reviews", async (req, res) => {
     if (!product) {
       if (productCacheKey) {
         productCache.delete(productCacheKey);
+      }
+
+      const baseCacheId = platformProductId || sku;
+      const baseProductCacheKey = baseCacheId
+        ? `${company.id}:${baseCacheId}`
+        : null;
+
+      if (baseProductCacheKey) {
+        productCache.delete(baseProductCacheKey);
       }
 
       return res.status(404).json({
