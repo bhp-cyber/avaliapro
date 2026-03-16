@@ -11,8 +11,16 @@ export default function ReviewsPage() {
 
   const [filter, setFilter] = useState("Todas");
   useEffect(() => {
+    setOpenMenuReviewId(null);
     loadReviews(filter);
   }, [filter]);
+
+  const [search, setSearch] = useState("");
+  useEffect(() => {
+    setOpenMenuReviewId(null);
+  }, [search]);
+  const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null);
+  const [openMenuReviewId, setOpenMenuReviewId] = useState<string | null>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -37,9 +45,6 @@ export default function ReviewsPage() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [openMenuReviewId]);
-  const [search, setSearch] = useState("");
-  const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null);
-  const [openMenuReviewId, setOpenMenuReviewId] = useState<string | null>(null);
 
   const filteredReviews = reviews.filter((review) => {
     const matchesFilter = filter === "Todas" ? true : review.status === filter;
@@ -55,6 +60,7 @@ export default function ReviewsPage() {
   });
 
   function toggleExpand(reviewId: string) {
+    setOpenMenuReviewId(null);
     setExpandedReviewId((prev) => (prev === reviewId ? null : reviewId));
   }
 
@@ -69,11 +75,6 @@ export default function ReviewsPage() {
 
   async function handleReject(reviewId: string) {
     await rejectReview(reviewId);
-    setOpenMenuReviewId(null);
-  }
-
-  function handleToggleDetails(reviewId: string) {
-    toggleExpand(reviewId);
     setOpenMenuReviewId(null);
   }
 
@@ -139,6 +140,7 @@ export default function ReviewsPage() {
           padding: 20,
           boxShadow: "0 8px 24px rgba(15, 23, 42, 0.06)",
           overflowX: "auto",
+          overflowY: "visible",
         }}
       >
         <table
@@ -166,7 +168,7 @@ export default function ReviewsPage() {
               filteredReviews.map((review) => {
                 const isExpanded = expandedReviewId === review.id;
                 const isApproved = review.status === "Aprovada";
-                const detailsLabel = isExpanded ? "Ocultar detalhes" : "Ver detalhes";
+                const isMenuOpen = openMenuReviewId === review.id;
 
                 return (
                   <Fragment key={review.id}>
@@ -215,7 +217,7 @@ export default function ReviewsPage() {
                         <div data-review-menu-id={review.id} style={{ position: "relative" }}>
                           <button
                             type="button"
-                            style={menuButtonStyle}
+                            style={isMenuOpen ? activeMenuButtonStyle : menuButtonStyle}
                             onClick={(event) => {
                               event.preventDefault();
                               event.stopPropagation();
@@ -227,14 +229,6 @@ export default function ReviewsPage() {
 
                           {openMenuReviewId === review.id && (
                             <div style={actionsMenuStyle}>
-                              <button
-                                type="button"
-                                style={detailsButtonStyle}
-                                onClick={() => handleToggleDetails(review.id)}
-                              >
-                                {detailsLabel}
-                              </button>
-
                               {!isApproved && (
                                 <button
                                   type="button"
@@ -366,22 +360,27 @@ const detailsButtonStyle: React.CSSProperties = {
 const approveButtonStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
+  justifyContent: "flex-start",
+  width: "100%",
   gap: 6,
   border: "none",
   borderRadius: 10,
-  padding: "8px 12px",
+  padding: "10px 12px",
   background: "#dcfce7",
   color: "#166534",
+  cursor: "pointer",
   fontWeight: 600,
 };
 
 const rejectButtonStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
+  justifyContent: "flex-start",
+  width: "100%",
   gap: 6,
   border: "none",
   borderRadius: 10,
-  padding: "8px 12px",
+  padding: "10px 12px",
   background: "#fee2e2",
   color: "#991b1b",
   cursor: "pointer",
@@ -393,17 +392,27 @@ const menuButtonStyle: React.CSSProperties = {
   background: "transparent",
   cursor: "pointer",
   padding: 6,
+  borderRadius: 10,
+};
+
+const activeMenuButtonStyle: React.CSSProperties = {
+  border: "1px solid #d1d5db",
+  background: "#f3f4f6",
+  cursor: "pointer",
+  padding: 6,
+  borderRadius: 10,
 };
 
 const actionsMenuStyle: React.CSSProperties = {
   position: "absolute",
   right: 0,
   top: 32,
+  minWidth: 180,
   background: "#ffffff",
   border: "1px solid #e5e7eb",
-  borderRadius: 10,
-  boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
-  padding: 6,
+  borderRadius: 12,
+  boxShadow: "0 12px 32px rgba(15, 23, 42, 0.12)",
+  padding: 8,
   display: "grid",
   gap: 6,
   zIndex: 10,
@@ -412,11 +421,13 @@ const actionsMenuStyle: React.CSSProperties = {
 const deleteButtonStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
+  justifyContent: "flex-start",
+  width: "100%",
   gap: 6,
   border: "none",
   borderRadius: 10,
-  padding: "8px 12px",
-  background: "#fee2e2",
+  padding: "10px 12px",
+  background: "#fff1f2",
   color: "#991b1b",
   cursor: "pointer",
   fontWeight: 600,
