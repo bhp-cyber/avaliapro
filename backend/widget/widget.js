@@ -591,11 +591,13 @@
         document.querySelector(".product-title");
 
       if (title && title.parentElement) {
-        var summary = document.createElement("div");
-        summary.id = summaryId;
-        summary.style.marginTop = "6px";
+        if (!title.parentElement.querySelector("#" + summaryId)) {
+          var summary = document.createElement("div");
+          summary.id = summaryId;
+          summary.style.marginTop = "6px";
 
-        title.parentElement.insertBefore(summary, title.nextSibling);
+          title.parentElement.insertBefore(summary, title.nextSibling);
+        }
       }
     }
 
