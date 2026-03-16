@@ -39,10 +39,18 @@ export default function ReviewsPage() {
       }
     }
 
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpenMenuReviewId(null);
+      }
+    }
+
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [openMenuReviewId]);
 
@@ -169,10 +177,11 @@ export default function ReviewsPage() {
                 const isExpanded = expandedReviewId === review.id;
                 const isApproved = review.status === "Aprovada";
                 const isMenuOpen = openMenuReviewId === review.id;
+                const rowStyle = isMenuOpen ? activeTableRowStyle : tableRowStyle;
 
                 return (
                   <Fragment key={review.id}>
-                    <tr style={{ borderBottom: "1px solid #f1f5f9" }}>
+                    <tr style={rowStyle}>
                       <td style={tdStyle}>
                         <div style={productCellStyle}>{review.product}</div>
                       </td>
@@ -306,6 +315,15 @@ export default function ReviewsPage() {
     </div>
   );
 }
+
+const tableRowStyle: React.CSSProperties = {
+  borderBottom: "1px solid #f1f5f9",
+};
+
+const activeTableRowStyle: React.CSSProperties = {
+  borderBottom: "1px solid #f1f5f9",
+  background: "#fafafa",
+};
 
 const thStyle: React.CSSProperties = {
   padding: "14px 12px",
