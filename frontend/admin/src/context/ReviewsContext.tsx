@@ -9,6 +9,7 @@ type ReviewsContextType = {
   addReview: (review: NewReviewInput) => void;
   approveReview: (reviewId: string) => Promise<void>;
   deleteReview: (reviewId: string) => void;
+  loadReviews: (status?: string) => Promise<void>;
 };
 
 const ReviewsContext = createContext<ReviewsContextType | undefined>(undefined);
@@ -17,35 +18,35 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
   const COMPANY_ID = "48b20d58-8847-417a-940f-a9793bf40807";
   const [reviews, setReviews] = useState<Review[]>([]);
 
-  useEffect(() => {
-    async function loadReviews() {
-      try {
-        const apiReviews = await fetchReviews(COMPANY_ID);
+  async function loadReviews(status?: string) {
+    try {
+      const apiReviews = await fetchReviews(COMPANY_ID, status);
 
-        const normalizedReviews: Review[] = apiReviews.map((review: any) => ({
-          id: review.id,
-          product: review.product?.name ?? "Produto",
-          customer: review.customer?.name ?? review.authorName ?? "Cliente",
-          customerAvatar: undefined,
-          rating: Number(review.rating) || 0,
-          title: review.title ?? "",
-          comment: review.comment ?? "",
-          status:
-            review.status === "approved"
-              ? "Aprovada"
-              : review.status === "pending"
-                ? "Pendente"
-                : "Pendente",
-          source: review.verifiedPurchase ? "Cliente" : "Manual",
-          date: new Date(review.createdAt).toLocaleDateString("pt-BR"),
-        }));
+      const normalizedReviews: Review[] = apiReviews.map((review: any) => ({
+        id: review.id,
+        product: review.product?.name ?? "Produto",
+        customer: review.customer?.name ?? review.authorName ?? "Cliente",
+        customerAvatar: undefined,
+        rating: Number(review.rating) || 0,
+        title: review.title ?? "",
+        comment: review.comment ?? "",
+        status:
+          review.status === "approved"
+            ? "Aprovada"
+            : review.status === "pending"
+              ? "Pendente"
+              : "Pendente",
+        source: review.verifiedPurchase ? "Cliente" : "Manual",
+        date: new Date(review.createdAt).toLocaleDateString("pt-BR"),
+      }));
 
-        setReviews(normalizedReviews);
-      } catch (error) {
-        console.error("Erro ao carregar avaliações:", error);
-      }
+      setReviews(normalizedReviews);
+    } catch (error) {
+      console.error("Erro ao carregar avaliações:", error);
     }
+  }
 
+  useEffect(() => {
     loadReviews();
   }, []);
 
@@ -93,6 +94,7 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
         addReview,
         approveReview,
         deleteReview,
+        loadReviews,
       }}
     >
       {children}

@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Check, Trash2, Search, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import CustomerAvatar from "../components/CustomerAvatar";
@@ -7,9 +7,12 @@ import StatusBadge from "../components/StatusBadge";
 import { useReviewsContext } from "../context/ReviewsContext";
 
 export default function ReviewsPage() {
-  const { reviews, approveReview, deleteReview } = useReviewsContext();
+  const { reviews, approveReview, deleteReview, loadReviews } = useReviewsContext();
 
   const [filter, setFilter] = useState("Todas");
+  useEffect(() => {
+    loadReviews(filter);
+  }, [filter]);
   const [search, setSearch] = useState("");
   const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null);
 

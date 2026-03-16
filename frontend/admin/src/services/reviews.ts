@@ -1,7 +1,26 @@
 const API_BASE_URL = "https://avaliapro-api.onrender.com/api";
 
-export async function fetchReviews(companyId: string) {
-  const response = await fetch(`${API_BASE_URL}/reviews?companyId=${companyId}&limit=50&offset=0`);
+export async function fetchReviews(companyId: string, status?: string) {
+  const query = new URLSearchParams({
+    companyId,
+    limit: "50",
+    offset: "0",
+  });
+
+  if (status && status !== "Todas") {
+    query.set(
+      "status",
+      status === "Pendente"
+        ? "pending"
+        : status === "Aprovada"
+          ? "approved"
+          : status === "Rejeitada"
+            ? "rejected"
+            : status
+    );
+  }
+
+  const response = await fetch(`${API_BASE_URL}/reviews?${query.toString()}`);
 
   if (!response.ok) {
     throw new Error("Erro ao buscar avaliações");
