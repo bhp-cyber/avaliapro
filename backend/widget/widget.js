@@ -1210,6 +1210,11 @@
       return;
     }
 
+    var summaryContainer = document.getElementById("avaliapro-summary");
+    if (summaryContainer) {
+      summaryContainer.innerHTML = "";
+    }
+
     if (!state.pollStarted) {
       startSkuWatcher();
     }
