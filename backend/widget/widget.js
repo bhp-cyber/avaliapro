@@ -546,40 +546,17 @@
       existing.remove();
     }
 
-    var explicit = document.querySelector("[data-avaliapro-widget]");
-    if (explicit) {
-      explicit.id = WIDGET_ID;
-      return explicit;
+    var explicit =
+      document.getElementById("avaliapro-widget") ||
+      document.querySelector("[data-avaliapro-widget]");
+
+    if (!explicit) {
+      console.warn("AvaliaPro: container #avaliapro-widget não encontrado.");
+      return null;
     }
 
-    var container = document.createElement("div");
-    container.id = WIDGET_ID;
-
-    var anchor =
-      document.querySelector("[data-product-sku]") ||
-      document.querySelector("h1") ||
-      document.querySelector(".product-name") ||
-      document.querySelector(".product-title");
-
-    if (anchor && anchor.parentNode) {
-      if ((anchor.tagName || "").toLowerCase() === "h1") {
-        anchor.insertAdjacentElement("afterend", container);
-      } else {
-        anchor.parentNode.insertBefore(container, anchor.nextSibling);
-      }
-      return container;
-    }
-
-    if (skuInfo && skuInfo.element && skuInfo.element.parentNode) {
-      skuInfo.element.parentNode.insertBefore(
-        container,
-        skuInfo.element.nextSibling
-      );
-      return container;
-    }
-
-    document.body.appendChild(container);
-    return container;
+    explicit.id = WIDGET_ID;
+    return explicit;
   }
 
   function renderLoading(container, sku) {
