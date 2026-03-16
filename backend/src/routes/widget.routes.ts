@@ -179,8 +179,22 @@ router.get("/reviews", async (req, res) => {
       });
     }
 
+    const summaryWhere =
+      variantId && reviews.length > 0
+        ? {
+            productId: product.id,
+            companyId: company.id,
+            variantId: variantId,
+            status: "approved",
+          }
+        : {
+            productId: product.id,
+            companyId: company.id,
+            status: "approved",
+          };
+
     const reviewsSummary = await prisma.review.aggregate({
-      where: reviewsWhere,
+      where: summaryWhere,
       _avg: {
         rating: true,
       },
