@@ -1,9 +1,9 @@
-export type ReviewStatus = "Aprovada" | "Pendente";
+export type ReviewStatus = "Aprovada" | "Pendente" | "approved" | "pending" | "rejected";
 
 export type ReviewSource = "Manual" | "Cliente";
 
 export type Review = {
-  id: number;
+  id: string;
   product: string;
   customer: string;
   customerAvatar?: string;

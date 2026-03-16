@@ -11,7 +11,7 @@ export default function ReviewsPage() {
 
   const [filter, setFilter] = useState("Todas");
   const [search, setSearch] = useState("");
-  const [expandedReviewId, setExpandedReviewId] = useState<number | null>(null);
+  const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null);
 
   const filteredReviews = reviews.filter((review) => {
     const matchesFilter = filter === "Todas" ? true : review.status === filter;
@@ -26,15 +26,15 @@ export default function ReviewsPage() {
     return matchesFilter && matchesSearch;
   });
 
-  function toggleExpand(reviewId: number) {
+  function toggleExpand(reviewId: string) {
     setExpandedReviewId((prev) => (prev === reviewId ? null : reviewId));
   }
 
-  function handleApprove(reviewId: number) {
+  function handleApprove(reviewId: string) {
     approveReview(reviewId);
   }
 
-  function handleDelete(reviewId: number) {
+  function handleDelete(reviewId: string) {
     const confirmed = window.confirm("Tem certeza que deseja excluir esta avaliação?");
 
     if (!confirmed) return;
