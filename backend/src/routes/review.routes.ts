@@ -6,6 +6,7 @@ const router = Router();
 router.get("/", async (req, res) => {
   try {
     const companyIdParam = req.query.companyId;
+    const statusParam = req.query.status;
     const limitParam = req.query.limit;
     const offsetParam = req.query.offset;
 
@@ -15,6 +16,20 @@ router.get("/", async (req, res) => {
 
     const normalizedCompanyId =
       typeof companyId === "string" ? companyId.trim() : "";
+
+    const normalizedStatus =
+      typeof statusParam === "string" ? statusParam.trim().toLowerCase() : "";
+
+    if (
+      normalizedStatus &&
+      normalizedStatus !== "pending" &&
+      normalizedStatus !== "approved" &&
+      normalizedStatus !== "rejected"
+    ) {
+      return res.status(400).json({
+        error: "status deve ser pending, approved ou rejected",
+      });
+    }
 
     const parsedLimit = Math.floor(
       Number(Array.isArray(limitParam) ? limitParam[0] : limitParam)
@@ -56,10 +71,20 @@ router.get("/", async (req, res) => {
       });
     }
 
+    const reviewsWhere: any = {
+      companyId: normalizedCompanyId,
+    };
+
+    if (
+      normalizedStatus === "pending" ||
+      normalizedStatus === "approved" ||
+      normalizedStatus === "rejected"
+    ) {
+      reviewsWhere.status = normalizedStatus;
+    }
+
     const reviews = await prisma.review.findMany({
-      where: {
-        companyId: normalizedCompanyId,
-      },
+      where: reviewsWhere,
 
       orderBy: {
         createdAt: "desc",
@@ -113,10 +138,18 @@ router.get("/", async (req, res) => {
         : null,
     }));
 
-    const totalReviews = reviewsResponse.length;
+    const totalReviews = await prisma.review.count({
+      where: reviewsWhere,
+    });
 
     return res.json({
       companyId: normalizedCompanyId,
+      status:
+        normalizedStatus === "pending" ||
+        normalizedStatus === "approved" ||
+        normalizedStatus === "rejected"
+          ? normalizedStatus
+          : null,
       total: totalReviews,
       limit: normalizedLimit,
       offset: normalizedOffset,

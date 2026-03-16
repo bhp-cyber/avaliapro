@@ -1,6 +1,6 @@
 \*LEIA COM ATENÇÃO E SIGA AS INSTRUÇÕES A RISCO
 
-Esse chat ficou pesado e lento,
+Esse chat ficou pesado e lento, por isso eu ainda n
 eu vou te mandar na proxima mensagem o arquivo "AVALIAPRO_PROJECT_STATE.MD"
 Atualize oque você achar importante sem mecher na estrutura
 usarei esse arquivo para iniciarmos um novo chat nesse exato ponto onde paramos
