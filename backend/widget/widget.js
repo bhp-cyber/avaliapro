@@ -546,12 +546,34 @@
       existing.remove();
     }
 
-    var explicit =
-      document.getElementById("avaliapro-widget") ||
-      document.querySelector("[data-avaliapro-widget]");
+    var script = getCurrentScript();
+    var targetSelector = script
+      ? normalizeText(script.getAttribute("data-target"))
+      : "";
+
+    var explicit = null;
+
+    if (targetSelector) {
+      try {
+        explicit = document.querySelector(targetSelector);
+      } catch (error) {
+        console.warn(
+          "[AvaliaPro] data-target inválido no script:",
+          targetSelector
+        );
+      }
+    }
 
     if (!explicit) {
-      console.warn("AvaliaPro: container #avaliapro-widget não encontrado.");
+      explicit =
+        document.getElementById("avaliapro-widget") ||
+        document.querySelector("[data-avaliapro-widget]");
+    }
+
+    if (!explicit) {
+      console.warn(
+        "AvaliaPro: container explícito não encontrado. Use #avaliapro-widget, [data-avaliapro-widget] ou data-target no script."
+      );
       return null;
     }
 
@@ -923,6 +945,10 @@
     }
 
     var container = resolveContainer({ sku: sku || platformProductId });
+
+    if (!container) {
+      return Promise.resolve();
+    }
 
     if (!options.silent) {
       renderLoading(container, sku || platformProductId);

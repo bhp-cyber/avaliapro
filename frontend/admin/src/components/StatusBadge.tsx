@@ -6,6 +6,7 @@ type Props = {
 
 export default function StatusBadge({ status }: Props) {
   const isApproved = status === "Aprovada";
+  const isRejected = status === "Rejeitada";
 
   return (
     <span
@@ -14,8 +15,8 @@ export default function StatusBadge({ status }: Props) {
         borderRadius: 999,
         fontSize: 12,
         fontWeight: 600,
-        background: isApproved ? "#dcfce7" : "#fef3c7",
-        color: isApproved ? "#166534" : "#92400e",
+        background: isApproved ? "#dcfce7" : isRejected ? "#fee2e2" : "#fef3c7",
+        color: isApproved ? "#166534" : isRejected ? "#991b1b" : "#92400e",
       }}
     >
       {status}

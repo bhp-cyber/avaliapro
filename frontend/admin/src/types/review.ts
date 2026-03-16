@@ -1,4 +1,10 @@
-export type ReviewStatus = "Aprovada" | "Pendente" | "approved" | "pending" | "rejected";
+export type ReviewStatus =
+  | "Aprovada"
+  | "Pendente"
+  | "Rejeitada"
+  | "approved"
+  | "pending"
+  | "rejected";
 
 export type ReviewSource = "Manual" | "Cliente";
 
