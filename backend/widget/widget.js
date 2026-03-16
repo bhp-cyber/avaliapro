@@ -578,6 +578,27 @@
     }
 
     explicit.id = WIDGET_ID;
+
+    /* container de resumo perto do título do produto */
+
+    var summaryId = "avaliapro-summary";
+    var existingSummary = document.getElementById(summaryId);
+
+    if (!existingSummary) {
+      var title =
+        document.querySelector("h1") ||
+        document.querySelector(".product-name") ||
+        document.querySelector(".product-title");
+
+      if (title && title.parentElement) {
+        var summary = document.createElement("div");
+        summary.id = summaryId;
+        summary.style.marginTop = "6px";
+
+        title.parentElement.insertBefore(summary, title.nextSibling);
+      }
+    }
+
     return explicit;
   }
 
@@ -663,6 +684,30 @@
       ? safeReviews.map(buildReviewItem).join("")
       : `<div class="avaliapro-empty">Ainda não há avaliações para este produto.</div>`;
 
+    var summaryContainer = document.getElementById("avaliapro-summary");
+    if (summaryContainer) {
+      summaryContainer.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;">
+        <span style="color:#f59e0b;font-weight:700;">${safeText(
+          getStars(averageRating)
+        )}</span>
+        <span style="font-weight:600;color:#111827;">${safeText(
+          getAverageDisplay(averageRating)
+        )}</span>
+        <span style="color:#6b7280;">(${totalReviews} avaliação${
+        totalReviews === 1 ? "" : "ões"
+      })</span>
+                  <a
+            href="#avaliapro-widget"
+            id="avaliapro-summary-link"
+            style="color:#111827;text-decoration:underline;font-weight:600;"
+          >
+            Ver avaliações
+          </a>
+      </div>
+    `;
+    }
+
     container.innerHTML = `
       <div class="avaliapro-widget" data-sku="${safeText(sku)}">
         <div class="avaliapro-header">
@@ -742,6 +787,17 @@
         </form>
       </div>
     `;
+
+    var summaryLink = document.getElementById("avaliapro-summary-link");
+    if (summaryLink) {
+      summaryLink.onclick = function (event) {
+        event.preventDefault();
+        container.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      };
+    }
 
     bindForm(container, state.currentSku);
     state.lastRenderedSku = sku;
@@ -953,6 +1009,7 @@
     if (!options.silent) {
       renderLoading(container, sku || platformProductId);
     }
+    src = "https://avaliapro-api.onrender.com/widget/widget.js";
 
     if (state.isLoading) {
       state.requestToken++;
@@ -1109,6 +1166,11 @@
       var existing = document.getElementById(WIDGET_ID);
       if (existing) {
         existing.remove();
+      }
+
+      var existingSummary = document.getElementById("avaliapro-summary");
+      if (existingSummary) {
+        existingSummary.innerHTML = "";
       }
 
       if (state.refreshTimer) {
