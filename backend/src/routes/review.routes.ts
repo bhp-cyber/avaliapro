@@ -296,6 +296,74 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.patch("/:reviewId", async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const { companyId, title, comment } = req.body;
+
+    const normalizedReviewId =
+      typeof reviewId === "string" ? reviewId.trim() : "";
+
+    const normalizedCompanyId =
+      typeof companyId === "string" ? companyId.trim() : "";
+
+    const normalizedTitle =
+      typeof title === "string" && title.trim()
+        ? title.trim().slice(0, 120)
+        : null;
+
+    const normalizedComment =
+      typeof comment === "string" && comment.trim()
+        ? comment.trim().slice(0, 2000)
+        : null;
+
+    if (!normalizedReviewId || !normalizedCompanyId) {
+      return res.status(400).json({
+        error: "reviewId e companyId são obrigatórios",
+      });
+    }
+
+    const review = await prisma.review.findFirst({
+      where: {
+        id: normalizedReviewId,
+        companyId: normalizedCompanyId,
+      },
+      select: {
+        id: true,
+        companyId: true,
+      },
+    });
+
+    if (!review) {
+      return res.status(404).json({
+        error: "Review não encontrada para esta empresa",
+      });
+    }
+
+    const updatedReview = await prisma.review.update({
+      where: {
+        id: normalizedReviewId,
+      },
+      data: {
+        title: normalizedTitle,
+        comment: normalizedComment,
+      },
+      select: {
+        id: true,
+        title: true,
+        comment: true,
+        companyId: true,
+        createdAt: true,
+      },
+    });
+
+    return res.json(updatedReview);
+  } catch (error) {
+    console.error("Erro ao atualizar review:", error);
+    return res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
 router.patch("/:reviewId/status", async (req, res) => {
   try {
     const { reviewId } = req.params;

@@ -1,13 +1,25 @@
 import { Fragment, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Check, Search, Plus, ChevronDown, ChevronUp, MoreVertical } from "lucide-react";
+import {
+  Check,
+  Search,
+  Plus,
+  ChevronDown,
+  ChevronUp,
+  MoreVertical,
+  X,
+  Trash2,
+  Pencil,
+  Save,
+} from "lucide-react";
 import CustomerAvatar from "../components/CustomerAvatar";
 import RatingStars from "../components/RatingStars";
 import StatusBadge from "../components/StatusBadge";
 import { useReviewsContext } from "../context/ReviewsContext";
 
 export default function ReviewsPage() {
-  const { reviews, approveReview, rejectReview, deleteReview, loadReviews } = useReviewsContext();
+  const { reviews, approveReview, rejectReview, updateReview, deleteReview, loadReviews } =
+    useReviewsContext();
 
   const [filter, setFilter] = useState("Todas");
   useEffect(() => {
@@ -21,6 +33,9 @@ export default function ReviewsPage() {
   }, [search]);
   const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null);
   const [openMenuReviewId, setOpenMenuReviewId] = useState<string | null>(null);
+  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState("");
+  const [editingComment, setEditingComment] = useState("");
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -84,6 +99,37 @@ export default function ReviewsPage() {
   async function handleReject(reviewId: string) {
     await rejectReview(reviewId);
     setOpenMenuReviewId(null);
+  }
+
+  function handleEdit(reviewId: string) {
+    const reviewToEdit = reviews.find((review) => review.id === reviewId);
+
+    if (!reviewToEdit) return;
+
+    setEditingReviewId(reviewId);
+    setEditingTitle(reviewToEdit.title);
+    setEditingComment(reviewToEdit.comment);
+    setOpenMenuReviewId(null);
+  }
+
+  function handleCloseEditModal() {
+    setEditingReviewId(null);
+    setEditingTitle("");
+    setEditingComment("");
+  }
+
+  async function handleSaveEdit() {
+    if (!editingReviewId) return;
+
+    const title = editingTitle.trim();
+    const comment = editingComment.trim();
+
+    await updateReview(editingReviewId, {
+      title,
+      comment,
+    });
+
+    handleCloseEditModal();
   }
 
   function handleDelete(reviewId: string) {
@@ -238,33 +284,48 @@ export default function ReviewsPage() {
 
                           {openMenuReviewId === review.id && (
                             <div style={actionsMenuStyle}>
-                              {!isApproved && (
+                              <div style={menuActionsGroupStyle}>
                                 <button
                                   type="button"
-                                  style={approveButtonStyle}
-                                  onClick={() => handleApprove(review.id)}
+                                  style={menuActionButtonStyle}
+                                  onClick={() => handleEdit(review.id)}
                                 >
-                                  <Check size={16} />
-                                  Aprovar
+                                  <Pencil size={18} />
+                                  Editar avaliação
                                 </button>
-                              )}
 
-                              {review.status !== "Rejeitada" && (
-                                <button
-                                  type="button"
-                                  style={rejectButtonStyle}
-                                  onClick={() => handleReject(review.id)}
-                                >
-                                  Rejeitar
-                                </button>
-                              )}
+                                {!isApproved && (
+                                  <button
+                                    type="button"
+                                    style={approveButtonStyle}
+                                    onClick={() => handleApprove(review.id)}
+                                  >
+                                    <Check size={18} />
+                                    Aprovar avaliação
+                                  </button>
+                                )}
+
+                                {review.status !== "Rejeitada" && (
+                                  <button
+                                    type="button"
+                                    style={rejectButtonStyle}
+                                    onClick={() => handleReject(review.id)}
+                                  >
+                                    <X size={18} />
+                                    Rejeitar avaliação
+                                  </button>
+                                )}
+                              </div>
+
+                              <div style={menuDividerStyle} />
 
                               <button
                                 type="button"
                                 style={deleteButtonStyle}
                                 onClick={() => handleDelete(review.id)}
                               >
-                                Excluir
+                                <Trash2 size={18} />
+                                Excluir avaliação
                               </button>
                             </div>
                           )}
@@ -312,6 +373,57 @@ export default function ReviewsPage() {
           </tbody>
         </table>
       </div>
+
+      {editingReviewId && (
+        <div style={editModalOverlayStyle}>
+          <div style={editModalStyle}>
+            <div style={editModalHeaderStyle}>
+              <h2 style={editModalTitleStyle}>Editar avaliação</h2>
+
+              <button
+                type="button"
+                style={editModalCloseButtonStyle}
+                onClick={handleCloseEditModal}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={editModalBodyStyle}>
+              <div style={editFieldStyle}>
+                <label style={editLabelStyle}>Título</label>
+                <input
+                  type="text"
+                  value={editingTitle}
+                  onChange={(event) => setEditingTitle(event.target.value)}
+                  style={editInputStyle}
+                />
+              </div>
+
+              <div style={editFieldStyle}>
+                <label style={editLabelStyle}>Comentário</label>
+                <textarea
+                  value={editingComment}
+                  onChange={(event) => setEditingComment(event.target.value)}
+                  style={editTextareaStyle}
+                  rows={6}
+                />
+              </div>
+            </div>
+
+            <div style={editModalFooterStyle}>
+              <button type="button" style={editSecondaryButtonStyle} onClick={handleCloseEditModal}>
+                Cancelar
+              </button>
+
+              <button type="button" style={editPrimaryButtonStyle} onClick={handleSaveEdit}>
+                <Save size={16} />
+                Salvar alterações
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -323,6 +435,125 @@ const tableRowStyle: React.CSSProperties = {
 const activeTableRowStyle: React.CSSProperties = {
   borderBottom: "1px solid #f1f5f9",
   background: "#fafafa",
+};
+
+const editModalOverlayStyle: React.CSSProperties = {
+  position: "fixed",
+  inset: 0,
+  background: "rgba(15, 23, 42, 0.35)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 24,
+  zIndex: 100,
+};
+
+const editModalStyle: React.CSSProperties = {
+  width: "100%",
+  maxWidth: 640,
+  background: "#ffffff",
+  borderRadius: 20,
+  boxShadow: "0 24px 80px rgba(15, 23, 42, 0.18)",
+  border: "1px solid #e5e7eb",
+  overflow: "hidden",
+};
+
+const editModalHeaderStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  padding: "20px 24px",
+  borderBottom: "1px solid #e5e7eb",
+};
+
+const editModalTitleStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: 22,
+  fontWeight: 700,
+  color: "#111827",
+};
+
+const editModalCloseButtonStyle: React.CSSProperties = {
+  border: "none",
+  background: "transparent",
+  cursor: "pointer",
+  padding: 6,
+  borderRadius: 10,
+  color: "#6b7280",
+};
+
+const editModalBodyStyle: React.CSSProperties = {
+  display: "grid",
+  gap: 18,
+  padding: 24,
+};
+
+const editFieldStyle: React.CSSProperties = {
+  display: "grid",
+  gap: 8,
+};
+
+const editLabelStyle: React.CSSProperties = {
+  fontSize: 14,
+  fontWeight: 600,
+  color: "#111827",
+};
+
+const editInputStyle: React.CSSProperties = {
+  width: "100%",
+  border: "1px solid #d1d5db",
+  borderRadius: 12,
+  padding: "12px 14px",
+  fontSize: 14,
+  color: "#111827",
+  outline: "none",
+  boxSizing: "border-box",
+};
+
+const editTextareaStyle: React.CSSProperties = {
+  width: "100%",
+  border: "1px solid #d1d5db",
+  borderRadius: 12,
+  padding: "12px 14px",
+  fontSize: 14,
+  color: "#111827",
+  outline: "none",
+  resize: "vertical",
+  boxSizing: "border-box",
+  fontFamily: "inherit",
+};
+
+const editModalFooterStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "flex-end",
+  gap: 12,
+  padding: "20px 24px",
+  borderTop: "1px solid #e5e7eb",
+};
+
+const editSecondaryButtonStyle: React.CSSProperties = {
+  border: "1px solid #d1d5db",
+  background: "#ffffff",
+  color: "#111827",
+  borderRadius: 12,
+  padding: "10px 14px",
+  fontSize: 14,
+  fontWeight: 600,
+  cursor: "pointer",
+};
+
+const editPrimaryButtonStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  border: "none",
+  background: "#111827",
+  color: "#ffffff",
+  borderRadius: 12,
+  padding: "10px 14px",
+  fontSize: 14,
+  fontWeight: 600,
+  cursor: "pointer",
 };
 
 const thStyle: React.CSSProperties = {
@@ -362,47 +593,147 @@ const customerNameStyle: React.CSSProperties = {
   color: "#111827",
 };
 
-const detailsButtonStyle: React.CSSProperties = {
+function getMenuStatusBadgeStyle(status: string): React.CSSProperties {
+  if (status === "Aprovada") {
+    return {
+      display: "inline-flex",
+      alignItems: "center",
+      padding: "4px 10px",
+      borderRadius: 999,
+      background: "#dcfce7",
+      color: "#166534",
+      fontSize: 12,
+      fontWeight: 700,
+    };
+  }
+
+  if (status === "Rejeitada") {
+    return {
+      display: "inline-flex",
+      alignItems: "center",
+      padding: "4px 10px",
+      borderRadius: 999,
+      background: "#fee2e2",
+      color: "#991b1b",
+      fontSize: 12,
+      fontWeight: 700,
+    };
+  }
+
+  return {
+    display: "inline-flex",
+    alignItems: "center",
+    padding: "4px 10px",
+    borderRadius: 999,
+    background: "#fef3c7",
+    color: "#92400e",
+    fontSize: 12,
+    fontWeight: 700,
+  };
+}
+
+const menuHeaderStyle: React.CSSProperties = {
+  display: "grid",
+  gap: 10,
+  padding: "4px 4px 10px 4px",
+};
+
+const menuTitleStyle: React.CSSProperties = {
+  fontSize: 13,
+  fontWeight: 700,
+  color: "#111827",
+  letterSpacing: "-0.01em",
+};
+
+const menuMetaBlockStyle: React.CSSProperties = {
+  display: "grid",
+  gap: 2,
+};
+
+const menuProductNameStyle: React.CSSProperties = {
+  fontSize: 13,
+  fontWeight: 700,
+  color: "#111827",
+  lineHeight: 1.4,
+};
+
+const menuCustomerNameStyle: React.CSSProperties = {
+  fontSize: 12,
+  color: "#6b7280",
+  lineHeight: 1.4,
+};
+
+const menuBadgesRowStyle: React.CSSProperties = {
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
+};
+
+const menuSourceBadgeStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  padding: "4px 10px",
+  borderRadius: 999,
+  background: "#eff6ff",
+  color: "#1d4ed8",
+  fontSize: 12,
+  fontWeight: 700,
+};
+
+const menuActionsGroupStyle: React.CSSProperties = {
+  display: "grid",
+  gap: 6,
+};
+
+const menuDividerStyle: React.CSSProperties = {
+  height: 1,
+  background: "#e5e7eb",
+  margin: "4px 0",
+};
+
+const menuActionButtonStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
-  gap: 6,
+  gap: 10,
+  width: "100%",
   border: "none",
-  borderRadius: 10,
-  padding: "8px 12px",
-  background: "#f3f4f6",
-  color: "#111827",
+  background: "transparent",
+  padding: "10px 12px",
+  borderRadius: 8,
   cursor: "pointer",
-  fontWeight: 600,
+  fontSize: 14,
+  fontWeight: 500,
+  color: "#111827",
 };
 
 const approveButtonStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
-  justifyContent: "flex-start",
+  gap: 10,
   width: "100%",
-  gap: 6,
   border: "none",
-  borderRadius: 10,
+  background: "transparent",
   padding: "10px 12px",
-  background: "#dcfce7",
-  color: "#166534",
+  borderRadius: 8,
   cursor: "pointer",
-  fontWeight: 600,
+  fontSize: 14,
+  fontWeight: 500,
+  color: "#111827",
 };
 
 const rejectButtonStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
-  justifyContent: "flex-start",
+  gap: 10,
   width: "100%",
-  gap: 6,
   border: "none",
-  borderRadius: 10,
+  background: "transparent",
   padding: "10px 12px",
-  background: "#fee2e2",
-  color: "#991b1b",
+  borderRadius: 8,
   cursor: "pointer",
-  fontWeight: 600,
+  fontSize: 14,
+  fontWeight: 500,
+  color: "#111827",
 };
 
 const menuButtonStyle: React.CSSProperties = {
@@ -424,31 +755,31 @@ const activeMenuButtonStyle: React.CSSProperties = {
 const actionsMenuStyle: React.CSSProperties = {
   position: "absolute",
   right: 0,
-  top: 32,
-  minWidth: 180,
+  top: 36,
+  minWidth: 220,
   background: "#ffffff",
   border: "1px solid #e5e7eb",
-  borderRadius: 12,
-  boxShadow: "0 12px 32px rgba(15, 23, 42, 0.12)",
-  padding: 8,
+  borderRadius: 14,
+  boxShadow: "0 16px 40px rgba(15, 23, 42, 0.16)",
+  padding: 6,
   display: "grid",
-  gap: 6,
-  zIndex: 10,
+  gap: 4,
+  zIndex: 20,
 };
 
 const deleteButtonStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
-  justifyContent: "flex-start",
+  gap: 10,
   width: "100%",
-  gap: 6,
   border: "none",
-  borderRadius: 10,
+  background: "transparent",
   padding: "10px 12px",
-  background: "#fff1f2",
-  color: "#991b1b",
+  borderRadius: 8,
   cursor: "pointer",
-  fontWeight: 600,
+  fontSize: 14,
+  fontWeight: 500,
+  color: "#dc2626",
 };
 
 const expandButtonStyle: React.CSSProperties = {

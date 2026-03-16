@@ -1,6 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { Review } from "../types/review";
-import { fetchReviews, approveReview as approveReviewApi } from "../services/reviews";
+import {
+  fetchReviews,
+  approveReview as approveReviewApi,
+  rejectReview as rejectReviewApi,
+  updateReview as updateReviewApi,
+} from "../services/reviews";
 
 type NewReviewInput = Omit<Review, "id" | "date">;
 
@@ -8,6 +13,8 @@ type ReviewsContextType = {
   reviews: Review[];
   addReview: (review: NewReviewInput) => void;
   approveReview: (reviewId: string) => Promise<void>;
+  rejectReview: (reviewId: string) => Promise<void>;
+  updateReview: (reviewId: string, data: { title: string; comment: string }) => Promise<void>;
   deleteReview: (reviewId: string) => void;
   loadReviews: (status?: string) => Promise<void>;
 };
@@ -35,7 +42,9 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
             ? "Aprovada"
             : review.status === "pending"
               ? "Pendente"
-              : "Pendente",
+              : review.status === "rejected"
+                ? "Rejeitada"
+                : "Pendente",
         source: review.verifiedPurchase ? "Cliente" : "Manual",
         date: new Date(review.createdAt).toLocaleDateString("pt-BR"),
       }));
@@ -83,6 +92,45 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  async function rejectReview(reviewId: string) {
+    try {
+      await rejectReviewApi(reviewId, COMPANY_ID);
+
+      setReviews((prev) =>
+        prev.map((review) =>
+          review.id === reviewId
+            ? {
+                ...review,
+                status: "Rejeitada",
+              }
+            : review
+        )
+      );
+    } catch (error) {
+      console.error("Erro ao rejeitar avaliação:", error);
+    }
+  }
+
+  async function updateReview(reviewId: string, data: { title: string; comment: string }) {
+    try {
+      await updateReviewApi(reviewId, COMPANY_ID, data);
+
+      setReviews((prev) =>
+        prev.map((review) =>
+          review.id === reviewId
+            ? {
+                ...review,
+                title: data.title,
+                comment: data.comment,
+              }
+            : review
+        )
+      );
+    } catch (error) {
+      console.error("Erro ao atualizar avaliação:", error);
+    }
+  }
+
   function deleteReview(reviewId: string) {
     setReviews((prev) => prev.filter((review) => review.id !== reviewId));
   }
@@ -93,6 +141,8 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
         reviews,
         addReview,
         approveReview,
+        rejectReview,
+        updateReview,
         deleteReview,
         loadReviews,
       }}
