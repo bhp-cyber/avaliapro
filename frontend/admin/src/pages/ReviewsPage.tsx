@@ -1,20 +1,45 @@
 import { Fragment, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Check, Trash2, Search, Plus, ChevronDown, ChevronUp } from "lucide-react";
+import { Check, Search, Plus, ChevronDown, ChevronUp, MoreVertical } from "lucide-react";
 import CustomerAvatar from "../components/CustomerAvatar";
 import RatingStars from "../components/RatingStars";
 import StatusBadge from "../components/StatusBadge";
 import { useReviewsContext } from "../context/ReviewsContext";
 
 export default function ReviewsPage() {
-  const { reviews, approveReview, deleteReview, loadReviews } = useReviewsContext();
+  const { reviews, approveReview, rejectReview, deleteReview, loadReviews } = useReviewsContext();
 
   const [filter, setFilter] = useState("Todas");
   useEffect(() => {
     loadReviews(filter);
   }, [filter]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (!openMenuReviewId) return;
+
+      const target = event.target as Node;
+      const menuElement = document.querySelector(`[data-review-menu-id="${openMenuReviewId}"]`);
+
+      if (!menuElement) {
+        setOpenMenuReviewId(null);
+        return;
+      }
+
+      if (!menuElement.contains(target)) {
+        setOpenMenuReviewId(null);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [openMenuReviewId]);
   const [search, setSearch] = useState("");
   const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null);
+  const [openMenuReviewId, setOpenMenuReviewId] = useState<string | null>(null);
 
   const filteredReviews = reviews.filter((review) => {
     const matchesFilter = filter === "Todas" ? true : review.status === filter;
@@ -33,8 +58,23 @@ export default function ReviewsPage() {
     setExpandedReviewId((prev) => (prev === reviewId ? null : reviewId));
   }
 
-  function handleApprove(reviewId: string) {
-    approveReview(reviewId);
+  function toggleMenu(reviewId: string) {
+    setOpenMenuReviewId((prev) => (prev === reviewId ? null : reviewId));
+  }
+
+  async function handleApprove(reviewId: string) {
+    await approveReview(reviewId);
+    setOpenMenuReviewId(null);
+  }
+
+  async function handleReject(reviewId: string) {
+    await rejectReview(reviewId);
+    setOpenMenuReviewId(null);
+  }
+
+  function handleToggleDetails(reviewId: string) {
+    toggleExpand(reviewId);
+    setOpenMenuReviewId(null);
   }
 
   function handleDelete(reviewId: string) {
@@ -47,6 +87,7 @@ export default function ReviewsPage() {
     }
 
     deleteReview(reviewId);
+    setOpenMenuReviewId(null);
   }
 
   return (
@@ -81,6 +122,7 @@ export default function ReviewsPage() {
             <option>Todas</option>
             <option>Aprovada</option>
             <option>Pendente</option>
+            <option>Rejeitada</option>
           </select>
         </div>
 
@@ -124,6 +166,7 @@ export default function ReviewsPage() {
               filteredReviews.map((review) => {
                 const isExpanded = expandedReviewId === review.id;
                 const isApproved = review.status === "Aprovada";
+                const detailsLabel = isExpanded ? "Ocultar detalhes" : "Ver detalhes";
 
                 return (
                   <Fragment key={review.id}>
@@ -169,32 +212,59 @@ export default function ReviewsPage() {
                       </td>
 
                       <td style={tdStyle}>
-                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        <div data-review-menu-id={review.id} style={{ position: "relative" }}>
                           <button
                             type="button"
-                            style={{
-                              ...approveButtonStyle,
-                              opacity: isApproved ? 0.6 : 1,
-                              cursor: isApproved ? "default" : "pointer",
+                            style={menuButtonStyle}
+                            onClick={(event) => {
+                              event.preventDefault();
+                              event.stopPropagation();
+                              toggleMenu(review.id);
                             }}
-                            onClick={() => handleApprove(review.id)}
-                            disabled={isApproved}
-                            title={
-                              isApproved ? "Esta avaliação já está aprovada" : "Aprovar avaliação"
-                            }
                           >
-                            <Check size={16} />
-                            {isApproved ? "Aprovada" : "Aprovar"}
+                            <MoreVertical size={18} />
                           </button>
 
-                          <button
-                            type="button"
-                            style={deleteButtonStyle}
-                            onClick={() => handleDelete(review.id)}
-                          >
-                            <Trash2 size={16} />
-                            Excluir
-                          </button>
+                          {openMenuReviewId === review.id && (
+                            <div style={actionsMenuStyle}>
+                              <button
+                                type="button"
+                                style={detailsButtonStyle}
+                                onClick={() => handleToggleDetails(review.id)}
+                              >
+                                {detailsLabel}
+                              </button>
+
+                              {!isApproved && (
+                                <button
+                                  type="button"
+                                  style={approveButtonStyle}
+                                  onClick={() => handleApprove(review.id)}
+                                >
+                                  <Check size={16} />
+                                  Aprovar
+                                </button>
+                              )}
+
+                              {review.status !== "Rejeitada" && (
+                                <button
+                                  type="button"
+                                  style={rejectButtonStyle}
+                                  onClick={() => handleReject(review.id)}
+                                >
+                                  Rejeitar
+                                </button>
+                              )}
+
+                              <button
+                                type="button"
+                                style={deleteButtonStyle}
+                                onClick={() => handleDelete(review.id)}
+                              >
+                                Excluir
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -280,6 +350,19 @@ const customerNameStyle: React.CSSProperties = {
   color: "#111827",
 };
 
+const detailsButtonStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
+  border: "none",
+  borderRadius: 10,
+  padding: "8px 12px",
+  background: "#f3f4f6",
+  color: "#111827",
+  cursor: "pointer",
+  fontWeight: 600,
+};
+
 const approveButtonStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
@@ -290,6 +373,40 @@ const approveButtonStyle: React.CSSProperties = {
   background: "#dcfce7",
   color: "#166534",
   fontWeight: 600,
+};
+
+const rejectButtonStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
+  border: "none",
+  borderRadius: 10,
+  padding: "8px 12px",
+  background: "#fee2e2",
+  color: "#991b1b",
+  cursor: "pointer",
+  fontWeight: 600,
+};
+
+const menuButtonStyle: React.CSSProperties = {
+  border: "none",
+  background: "transparent",
+  cursor: "pointer",
+  padding: 6,
+};
+
+const actionsMenuStyle: React.CSSProperties = {
+  position: "absolute",
+  right: 0,
+  top: 32,
+  background: "#ffffff",
+  border: "1px solid #e5e7eb",
+  borderRadius: 10,
+  boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
+  padding: 6,
+  display: "grid",
+  gap: 6,
+  zIndex: 10,
 };
 
 const deleteButtonStyle: React.CSSProperties = {
