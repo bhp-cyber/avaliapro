@@ -323,6 +323,12 @@ router.patch("/:reviewId", async (req, res) => {
       });
     }
 
+    if (!normalizedTitle && !normalizedComment) {
+      return res.status(400).json({
+        error: "title ou comment deve ser informado",
+      });
+    }
+
     const review = await prisma.review.findFirst({
       where: {
         id: normalizedReviewId,
