@@ -792,10 +792,13 @@
     if (summaryLink) {
       summaryLink.onclick = function (event) {
         event.preventDefault();
-        container.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
+
+        if (container && typeof container.scrollIntoView === "function") {
+          container.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
       };
     }
 
