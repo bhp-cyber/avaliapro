@@ -604,13 +604,6 @@
         document.querySelector(".product-detail") ||
         document.querySelector(".product-form");
 
-      if (productForm && productForm.parentNode) {
-        explicit = document.createElement("div");
-        explicit.id = WIDGET_ID;
-        productForm.parentNode.insertBefore(explicit, productForm.nextSibling);
-        return explicit;
-      }
-
       var parent = productSection || productForm;
 
       if (parent) {
