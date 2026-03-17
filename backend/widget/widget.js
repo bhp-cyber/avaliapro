@@ -436,6 +436,18 @@
       if (metaPropertyValue) return metaPropertyValue;
     }
 
+    var canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) {
+      var canonicalHref = normalizeText(canonical.getAttribute("href"));
+      var canonicalMatch = canonicalHref.match(/\/produtos\/[^/]+\/(\d+)/i);
+      if (canonicalMatch && canonicalMatch[1]) return canonicalMatch[1];
+    }
+
+    var pathnameMatch = window.location.pathname.match(
+      /\/produtos\/[^/]+\/(\d+)/i
+    );
+    if (pathnameMatch && pathnameMatch[1]) return pathnameMatch[1];
+
     return null;
   }
 
@@ -571,6 +583,27 @@
     }
 
     if (!explicit) {
+      var productForm =
+        document.querySelector('form[action*="/comprar"]') ||
+        document.querySelector('form[action*="/cart"]') ||
+        document.querySelector(".js-product-form") ||
+        document.querySelector("[data-store='product-form']");
+
+      var productSection =
+        document.querySelector("[data-store='product-page']") ||
+        document.querySelector(".js-product-container") ||
+        document.querySelector(".product-detail") ||
+        document.querySelector(".product-form");
+
+      var parent = productSection || productForm;
+
+      if (parent) {
+        explicit = document.createElement("div");
+        explicit.id = WIDGET_ID;
+        parent.appendChild(explicit);
+        return explicit;
+      }
+
       console.warn(
         "AvaliaPro: container explícito não encontrado. Use #avaliapro-widget, [data-avaliapro-widget] ou data-target no script."
       );
