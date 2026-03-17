@@ -1063,7 +1063,6 @@
     if (!options.silent) {
       renderLoading(container, sku || platformProductId);
     }
-    src = "https://avaliapro-api.onrender.com/widget/widget.js";
 
     if (state.isLoading) {
       state.requestToken++;
