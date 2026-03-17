@@ -1,5 +1,4 @@
-const API_BASE_URL = "http://localhost:4000/api";
-
+const API_BASE_URL = "https://avaliapro-api.onrender.com/api";
 export async function fetchReviews(companyId: string, status?: string) {
   const query = new URLSearchParams({
     companyId,
