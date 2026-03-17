@@ -758,12 +758,36 @@
     }
     var totalReviews = Number(summary.totalReviews || reviews.length || 0);
 
-    var safeReviews = reviews.filter(function (r) {
-      return r && typeof r === "object";
-    });
+    var safeReviews = reviews
+      .filter(function (r) {
+        return r && typeof r === "object";
+      })
+      .sort(function (a, b) {
+        return (b.rating || 0) - (a.rating || 0);
+      });
+
+    var highlightReview = safeReviews.length ? safeReviews[0] : null;
+
+    var highlightHtml = highlightReview
+      ? `
+          <div style="
+            border: 2px solid #f59e0b;
+            background: #fff8e1;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
+          ">
+            <div style="font-weight:700;margin-bottom:6px;">
+              ⭐ Avaliação em destaque
+            </div>
+      
+            ${buildReviewItem(highlightReview)}
+          </div>
+        `
+      : "";
 
     var reviewListHtml = safeReviews.length
-      ? safeReviews.map(buildReviewItem).join("")
+      ? highlightHtml + safeReviews.slice(1).map(buildReviewItem).join("")
       : `<div class="avaliapro-empty">Ainda não há avaliações para este produto.</div>`;
 
     var summaryContainer = document.getElementById("avaliapro-summary");
@@ -795,15 +819,21 @@
         <div class="avaliapro-header">
           <h2 class="avaliapro-title">Avaliações</h2>
           <div class="avaliapro-summary">
-            <span class="avaliapro-average">${safeText(
-              getAverageDisplay(averageRating)
-            )}</span>
-            <span class="avaliapro-stars">${safeText(
-              getStars(averageRating)
-            )}</span>
-            <span class="avaliapro-count">(${totalReviews} avaliação${
-      totalReviews === 1 ? "" : "ões"
-    })</span>
+            <div style="display:flex;align-items:center;gap:10px;">
+  <span class="avaliapro-average" style="font-size:32px;">
+    ${safeText(getAverageDisplay(averageRating))}
+  </span>
+
+  <div style="display:flex;flex-direction:column;gap:2px;">
+    <span class="avaliapro-stars" style="font-size:16px;">
+      ${safeText(getStars(averageRating))}
+    </span>
+
+    <span class="avaliapro-count" style="font-size:13px;">
+      Baseado em ${totalReviews} avaliação${totalReviews === 1 ? "" : "ões"}
+    </span>
+  </div>
+</div>
     ${
       window.AVALIAPRO_DEBUG
         ? `
@@ -820,53 +850,17 @@
 
         <div class="avaliapro-list">${reviewListHtml}</div>
 
-        <form class="avaliapro-form" id="avaliapro-form">
-          <h3 class="avaliapro-form-title">Deixe sua avaliação</h3>
+       <div class="avaliapro-form">
+  <div id="avaliapro-feedback"></div>
 
-          <div id="avaliapro-feedback"></div>
-
-          <div class="avaliapro-field">
-            <label class="avaliapro-label" for="avaliapro-author">Seu nome</label>
-            <input
-              class="avaliapro-input"
-              id="avaliapro-author"
-              name="authorName"
-              type="text"
-              placeholder="Digite seu nome"
-              required
-            />
-          </div>
-
-          <div class="avaliapro-field">
-            <label class="avaliapro-label" for="avaliapro-rating">Nota</label>
-            <select
-              class="avaliapro-select"
-              id="avaliapro-rating"
-              name="rating"
-              required
-            >
-              <option value="">Selecione</option>
-              <option value="5">5 - Excelente</option>
-              <option value="4">4 - Muito bom</option>
-              <option value="3">3 - Bom</option>
-              <option value="2">2 - Regular</option>
-              <option value="1">1 - Ruim</option>
-            </select>
-          </div>
-
-          <div class="avaliapro-field">
-            <label class="avaliapro-label" for="avaliapro-comment">Comentário</label>
-            <textarea
-              class="avaliapro-textarea"
-              id="avaliapro-comment"
-              name="comment"
-              placeholder="Conte sua experiência com o produto"
-              required
-            ></textarea>
-          </div>
-
-          <button class="avaliapro-button" type="submit">Enviar avaliação</button>
-        </form>
+  <button
+    class="avaliapro-button"
+    type="button"
+    id="avaliapro-open-modal"
+  >
+    Avaliar produto
+  </button>
+</div>
       </div>
     `;
 

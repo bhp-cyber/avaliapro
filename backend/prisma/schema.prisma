@@ -20,6 +20,11 @@ model Company {
   name              String
   domain            String?
   apiKey            String            @unique
+
+  // 🔽 Integração Nuvemshop
+ nuvemshopStoreId  String?           @unique
+nuvemshopToken    String?
+
   createdAt         DateTime          @default(now())
 
   users             User[]
@@ -37,7 +42,7 @@ model Product {
 
   platform          String?
   platformProductId String?
-  platformVariantId String?
+  platformVariantId String?           @unique
 
   company           Company           @relation(fields: [companyId], references: [id])
   reviews           Review[]

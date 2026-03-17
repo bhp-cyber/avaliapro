@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teste Widget AvaliaPro</title>
+ 
+  <meta name="product-sku" content="LC259-8" />
+ 
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 40px 20px;
+      color: #111827;
+    }
+ 
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+ 
+    .product {
+      margin-bottom: 24px;
+    }
+ 
+    .product h1 {
+      margin: 0 0 10px;
+      font-size: 32px;
+    }
+ 
+    .product p {
+      margin: 0;
+      color: #6b7280;
+      font-size: 16px;
+    }
+ 
+    #avaliapro-widget {
+      margin-top: 32px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="product">
+      <h1>Peruca Denise Fibra Premium</h1>
+      <p>Produto de teste para validar o widget do AvaliaPro sem publicar na loja.</p>
+    </div>
+ 
+    <div id="avaliapro-widget"></div>
+  </div>
+ 
+  <script
+    src="http://localhost:4000/widget/widget.js"
+    data-api-key="6712d3fb-d91c-4d08-a636-3cf2f12dc9f1"
+  ></script>
+</body>
+</html>

@@ -2,23 +2,37 @@ import { useEffect, useMemo, useState } from "react";
 import { Image, Search, Star, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useReviewsContext } from "../context/ReviewsContext";
-
-const products = [
-  { id: 1, name: "Peruca Lace Humana Denise", sku: "LACE-001" },
-  { id: 2, name: "Prótese Capilar Feminina Premium", sku: "PROT-022" },
-  { id: 3, name: "Aplique Humano Natural", sku: "APL-009" },
-  { id: 4, name: "Peruca Fibra Denise", sku: "FIB-010" },
-];
+import { fetchProducts } from "../services/products";
 
 type Product = {
-  id: number;
+  id: string;
   name: string;
   sku: string;
+  platform?: string | null;
+  platformProductId?: string | null;
+  platformVariantId?: string | null;
 };
 
 export default function NewReviewPage() {
   const navigate = useNavigate();
   const { addReview } = useReviewsContext();
+
+  const COMPANY_ID = "15a89577-fa0e-4ad0-9a7f-1d735a20836a";
+
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const data = await fetchProducts(COMPANY_ID);
+        setProducts(data);
+      } catch (error) {
+        console.error("Erro ao carregar produtos:", error);
+      }
+    }
+
+    loadProducts();
+  }, []);
 
   const [rating, setRating] = useState(5);
   const [hover, setHover] = useState<number | null>(null);
@@ -30,19 +44,31 @@ export default function NewReviewPage() {
   const [customerAvatar, setCustomerAvatar] = useState("");
   const [avatarPreviewError, setAvatarPreviewError] = useState(false);
 
-  const [title, setTitle] = useState("");
   const [comment, setComment] = useState("");
 
   const filteredProducts = useMemo(() => {
     const term = productSearch.trim().toLowerCase();
 
-    if (!term) return products;
+    const realProducts = products.filter((product) => {
+      return product.platform === "nuvemshop" && !!product.platformProductId;
+    });
 
-    return products.filter(
+    const baseProducts = realProducts.filter(
+      (product, index, array) =>
+        index ===
+        array.findIndex(
+          (item) =>
+            item.id === product.id || (item.sku === product.sku && item.name === product.name)
+        )
+    );
+
+    if (!term) return baseProducts;
+
+    return baseProducts.filter(
       (product) =>
         product.name.toLowerCase().includes(term) || product.sku.toLowerCase().includes(term)
     );
-  }, [productSearch]);
+  }, [productSearch, products]);
 
   const customerInitials = useMemo(() => {
     const parts = customerName.trim().split(" ").filter(Boolean).slice(0, 2);
@@ -73,11 +99,6 @@ export default function NewReviewPage() {
       return;
     }
 
-    if (!title.trim()) {
-      alert("Informe o título da avaliação.");
-      return;
-    }
-
     if (!comment.trim()) {
       alert("Informe o comentário da avaliação.");
       return;
@@ -88,7 +109,6 @@ export default function NewReviewPage() {
       customer: customerName.trim(),
       customerAvatar: customerAvatar.trim() || undefined,
       rating,
-      title: title.trim(),
       comment: comment.trim(),
       status: "Aprovada",
       source: "Manual",
@@ -254,17 +274,6 @@ export default function NewReviewPage() {
             <span style={helperTextStyle}>
               Avaliações criadas manualmente são aprovadas automaticamente.
             </span>
-          </div>
-
-          <div style={fieldStyle}>
-            <label style={labelStyle}>Título da avaliação</label>
-            <input
-              type="text"
-              placeholder="Ex: Produto maravilhoso"
-              style={inputStyle}
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
           </div>
 
           <div style={fieldStyle}>

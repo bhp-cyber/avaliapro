@@ -179,19 +179,19 @@ router.get("/reviews", async (req, res) => {
       });
     }
 
-    const summaryWhere =
-      variantId && reviews.length > 0
-        ? {
-            productId: product.id,
-            companyId: company.id,
-            variantId: variantId,
-            status: "approved",
-          }
-        : {
-            productId: product.id,
-            companyId: company.id,
-            status: "approved",
-          };
+    let summaryWhere: any = {
+      productId: product.id,
+      companyId: company.id,
+      status: "approved",
+    };
+
+    if (variantId) {
+      const hasVariantSpecificReviews = reviews.some((review) => {
+        return review && review.variantId === variantId;
+      });
+
+      summaryWhere.variantId = hasVariantSpecificReviews ? variantId : null;
+    }
 
     const reviewsSummary = await prisma.review.aggregate({
       where: summaryWhere,

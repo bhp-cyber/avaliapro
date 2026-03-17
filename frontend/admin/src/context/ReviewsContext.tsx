@@ -65,7 +65,7 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
       ...review,
       customer: review.customer.trim(),
       customerAvatar: review.customerAvatar?.trim() || undefined,
-      title: review.title.trim(),
+      title: review.title?.trim() || "",
       comment: review.comment.trim(),
       id: crypto.randomUUID(),
       date: new Date().toLocaleDateString("pt-BR"),

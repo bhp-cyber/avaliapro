@@ -4,6 +4,7 @@ import companyRoutes from "./company.routes";
 import productRoutes from "./product.routes";
 import reviewRoutes from "./review.routes";
 import widgetRoutes from "./widget.routes";
+import nuvemshopRoutes from "./nuvemshop.routes";
 
 const router = express.Router();
 
@@ -12,5 +13,6 @@ router.use("/companies", companyRoutes);
 router.use("/products", productRoutes);
 router.use("/reviews", reviewRoutes);
 router.use("/widget", widgetRoutes);
+router.use("/nuvemshop", nuvemshopRoutes);
 
 export { router };

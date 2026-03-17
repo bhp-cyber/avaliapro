@@ -15,6 +15,7 @@ router.get("/", async (_req, res) => {
         name: true,
         domain: true,
         apiKey: true,
+        nuvemshopStoreId: true,
         createdAt: true,
       },
     });
@@ -30,6 +31,10 @@ router.post("/", async (req, res) => {
   try {
     const name = String(req.body?.name || "").trim();
     const domain = String(req.body?.domain || "").trim() || null;
+    const nuvemshopStoreId =
+      String(req.body?.nuvemshopStoreId || "").trim() || null;
+    const nuvemshopToken =
+      String(req.body?.nuvemshopToken || "").trim() || null;
 
     if (!name) {
       return res.status(400).json({ error: "Nome da empresa é obrigatório" });
@@ -40,6 +45,8 @@ router.post("/", async (req, res) => {
         name,
         domain,
         apiKey: crypto.randomUUID(),
+        nuvemshopStoreId,
+        nuvemshopToken,
       },
     });
 
@@ -69,6 +76,7 @@ router.get("/:companyId", async (req, res) => {
         name: true,
         domain: true,
         apiKey: true,
+        nuvemshopStoreId: true,
         createdAt: true,
       },
     });

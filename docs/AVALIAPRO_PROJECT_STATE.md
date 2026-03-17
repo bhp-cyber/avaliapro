@@ -21,7 +21,59 @@ Script atual de instalação:
 
 ---
 
-# Estado Atual da Arquitetura
+# ROADMAP TÉCNICO ATUALIZADO
+
+Widget estável  
+✅
+
+Sistema de reviews  
+✅
+
+Sistema de moderação  
+✅
+
+Sistema de edição  
+✅
+
+Painel conectado à API  
+✅
+
+Tela de produtos básica  
+✅
+
+Sincronização de produtos (Nuvemshop)  
+✅ **IMPLEMENTADO E FUNCIONAL**
+
+Cadastro automático via SKU  
+✅ **IMPLEMENTADO (via sync + identificação no widget)**
+
+Paginação de produtos (API SaaS)  
+✅
+
+Integração oficial com Nuvemshop (OAuth completo)  
+✅
+
+Dashboard SaaS completo  
+⏳
+
+Sistema de avaliações com média por produto  
+⏳
+
+Widget embedável avançado (UX + performance)  
+⏳
+
+Sistema de coleta automática de reviews (pós-compra)  
+🚨 PRIORIDADE ALTA
+
+Sistema de notificações (email / webhook)  
+⏳
+
+Multi-plataforma (Shopify / WooCommerce)  
+⏳
+
+---
+
+# ESTADO ATUAL DA ARQUITETURA
 
 ## Backend API
 
@@ -47,12 +99,17 @@ backend/src
 │ ├ review.routes.ts
 │ ├ company.routes.ts
 │ ├ product.routes.ts
+│ ├ nuvemshop.routes.ts
 │ └ health.routes.ts
 └ lib
   └ prisma.ts
 ```
 
-Inicialização do servidor:
+---
+
+## Inicialização do servidor
+
+Arquivo:
 
 ```
 backend/src/app.ts
@@ -70,7 +127,7 @@ Responsável por:
 
 # Rotas da API
 
-Prefixo geral:
+## Prefixo geral
 
 ```
 /api
@@ -78,7 +135,7 @@ Prefixo geral:
 
 ---
 
-# Health
+## Health
 
 ```
 GET /api/health
@@ -88,7 +145,7 @@ Verificação de saúde da API.
 
 ---
 
-# Companies
+## Companies
 
 ```
 GET /api/companies
@@ -102,410 +159,220 @@ Funções:
 - criação de empresas
 - listagem de empresas
 - busca individual
-- resumo estatístico da empresa
+- resumo estatístico
 
 Resumo retorna:
 
-```
-productsCount
-reviewsCount
-customersCount
-averageRating
-```
+- productsCount
+- reviewsCount
+- customersCount
+- averageRating
 
 ---
 
-# Products
+## Products
 
 ```
-GET /api/products
+GET /api/products?companyId=&limit=&offset=
 POST /api/products
+GET /api/products/sku/:sku
+GET /api/products/sku/:sku/reviews
+GET /api/products/:productId/reviews
 ```
 
-Gestão de produtos da empresa.
+### Estado atual:
+
+- sincronização automática com Nuvemshop IMPLEMENTADA
+- produtos reais sendo persistidos no banco
+- identificação via `platformVariantId` (único)
+- suporte completo a SKU
+
+### Paginação:
+
+- `limit` (máx 100)
+- `offset`
+
+Resposta:
+
+```json
+{
+  "total": 941,
+  "limit": 20,
+  "offset": 0,
+  "products": []
+}
+```
 
 ---
 
-# Reviews (painel SaaS)
+## Nuvemshop
 
 ```
-GET /api/reviews?companyId=
+GET /api/nuvemshop/install
+GET /api/nuvemshop/callback
+POST /api/nuvemshop/sync-products
+```
+
+### Funcionalidades:
+
+- OAuth completo funcionando
+- token salvo no banco
+- storeId persistido
+- sincronização completa de produtos
+
+### Sync:
+
+- paginação implementada (page + per_page)
+- suporte a lojas grandes (300+ produtos)
+- prevenção de duplicação via `platformVariantId`
+- upsert funcionando corretamente
+
+Exemplo de retorno:
+
+```json
+{
+  "message": "Produtos sincronizados 🚀",
+  "totalReceived": 341,
+  "totalSaved": 941
+}
+```
+
+---
+
+## Reviews (painel SaaS)
+
+```
+GET /api/reviews?companyId=&status=
 POST /api/reviews
 PATCH /api/reviews/:reviewId
 PATCH /api/reviews/:reviewId/status
 ```
 
-Características:
+### Características:
 
-- isolamento por `companyId`
-- paginação via `limit` e `offset`
-- limite máximo de 50 reviews
-- payload otimizado
-- validação de existência da empresa
-- validação de produto pertencente à empresa
-- validação de cliente pertencente à empresa
+- isolamento por companyId
+- paginação (limit / offset)
+- limite máximo de 50
+- validações completas
 
-Filtro adicional implementado:
+### Status:
 
-```
-GET /api/reviews?companyId=&status=
-```
-
-Status aceitos:
-
-```
-pending
-approved
-rejected
-```
-
-Resposta padronizada:
-
-```json
-{
-  "companyId": "...",
-  "status": "pending|approved|rejected|null",
-  "total": 50,
-  "limit": 50,
-  "offset": 0,
-  "reviews": []
-}
-```
-
-Cada review retorna:
-
-```
-id
-rating
-title
-comment
-authorName
-verifiedPurchase
-status
-createdAt
-product
-customer
-```
-
-Campos filtrados para evitar exposição excessiva de dados.
-
-Remoções de segurança:
-
-- email do customer não é retornado
-
-Validações implementadas:
-
-- rating inteiro
-- rating entre 1 e 5
-- title limitado a 120 caracteres
-- comment limitado a 2000 caracteres
-- normalização de rating
-- normalização de companyId
-
-Proteções adicionais:
-
-- normalização de limit
-- normalização de offset
-- limite máximo de offset
-- limite máximo de limit
+- pending
+- approved
+- rejected
 
 ---
 
-# Widget
-
-Endpoints:
+## Widget
 
 ```
 GET /api/widget/reviews
 POST /api/widget/reviews
 ```
 
-Responsável por:
+### Funções:
 
-- buscar avaliações de produto
-- criar nova avaliação via widget
-
-Validações:
-
-- apiKey obrigatório
-- rating obrigatório
-- produto deve existir
-
-Suporte a identificação de produto:
-
-```
-platformProductId
-platformVariantId
-sku
-```
-
-Proteções:
-
-- rating limitado entre 1 e 5
-- normalização de verifiedPurchase
-- validação da resposta antes de renderizar no widget
-- normalização de rating para inteiro
+- buscar avaliações
+- criar avaliações
+- identificar produto automaticamente
 
 ---
 
 # Widget Frontend
 
-Arquivo principal:
+Arquivo:
 
 ```
 backend/widget/widget.js
 ```
 
-O widget já possui:
+### Funcionalidades:
 
-- carregamento automático de avaliações
-- cálculo de média
-- renderização de reviews
-- formulário de envio de avaliação
-- envio de review para API
-- prevenção de múltiplos envios
-- reload automático após avaliação
+- carregamento automático
+- média de avaliações
+- renderização
+- envio de review
+- prevenção de duplicação
+- reload automático
 
 ---
 
-# Estabilização SPA do Widget
+# Estabilização SPA
 
-Sistema completamente estabilizado para SPA.
+Implementado:
 
-Implementações:
-
-- detecção de mudança de produto
-- suporte a navegação SPA
-- observação de DOM via MutationObserver
-- fallback por polling
-
-Eventos monitorados:
-
-```
-popstate
-hashchange
-history.pushState
-history.replaceState
-```
-
-Proteções:
-
-- evitar múltiplos MutationObserver
-- evitar múltiplos setInterval
-- evitar múltiplos listeners
-- evitar render duplicado
-- evitar render atrasado
-- ignorar mutações do próprio widget
-- prevenir loops de refresh
-- proteção contra race condition
+- MutationObserver
+- eventos de navegação
+- proteção contra loops
+- prevenção de múltiplos listeners
 
 ---
 
 # Identificação de Produto
 
-Detecção automática via:
-
-```
-data-product-sku
-data-sku
-data-variant-sku
-.product-sku
-#product-sku
-meta tags
-data-product-id
-data-platform-variant-id
-```
-
-Fallbacks adicionais:
-
-```
-meta[name="sku"]
-meta[name="variant-sku"]
-meta[name="product-sku"]
-meta[name="platform-product-id"]
-meta[property="platform-product-id"]
-```
-
 Prioridade:
 
-```
-platformProductId + platformVariantId
-platformProductId
-sku + platformVariantId
-sku
-```
+1. platformProductId + platformVariantId
+2. platformProductId
+3. sku + variantId
+4. sku
+
+Observação:
+
+- SKU continua sendo fallback mais confiável
+- integração com Nuvemshop prioriza variantId
 
 ---
 
-# Cache no Widget
+# Cache
 
-Implementado em:
+## Widget
 
-```
-backend/widget/widget.js
-```
+- memória local
+- TTL: 60s
+- limite: 20 produtos
 
-Características:
+## Backend
 
-- cache em memória
-
-Chave composta por:
-
-```
-platformProductId
-platformVariantId
-sku
-```
-
-Configuração:
-
-```
-limite: 20 produtos
-TTL: 60 segundos
-```
-
-Invalidação:
-
-- ao enviar review
-- ao mudar produto
-- ao expirar TTL
-
-Funções de suporte:
-
-```
-removeReviewsCacheKey()
-invalidateReviewsCache()
-```
-
----
-
-# Cache no Backend
-
-Arquivo:
-
-```
-backend/src/routes/widget.routes.ts
-```
-
-Características:
-
-- cache em memória (`Map`)
-
-Chave baseada em:
-
-```
-companyId + productIdentifier
-```
-
-Configuração:
-
-```
-TTL: 60 segundos
-limite: 100 produtos
-```
-
-Proteções:
-
-- remoção automática do item mais antigo
-- invalidação após criação de review
-- limpeza automática de entradas expiradas
-
----
-
-# Otimizações Implementadas
-
-Endpoint de reviews do widget:
-
-Agregação de média via:
-
-```
-prisma.review.aggregate()
-```
-
-Limite:
-
-```
-50 reviews
-```
-
-Média padronizada com:
-
-```
-1 casa decimal
-```
-
-Campos retornados:
-
-```
-id
-rating
-comment
-authorName
-verifiedPurchase
-createdAt
-variantId
-```
+- Map em memória
+- TTL: 60s
+- limite: 100
 
 ---
 
 # Segurança Multi-Tenant
 
-O backend garante isolamento entre empresas.
-
-Medidas:
-
-- companyId obrigatório em endpoints SaaS
-- validação da existência da empresa
-- filtragem por companyId em queries
-- validação de produto pertencente à empresa
-- validação de cliente pertencente à empresa
-- payload limitado para evitar vazamento de dados
+- isolamento por companyId
+- validação de empresa
+- validação de produto
+- validação de cliente
+- payload reduzido
 
 ---
 
-# Schema Prisma Atual
+# Schema Prisma
 
-Modelos principais:
+Modelos:
 
-```
-User
-Company
-Product
-Customer
-Review
-```
+- User
+- Company
+- Product
+- Customer
+- Review
 
-Review possui:
+### Índices importantes:
 
-```
-status String @default("approved")
-```
+Product:
 
-Status possíveis:
+- companyId
+- companyId + sku
+- companyId + platformProductId
+- companyId + platformVariantId (único lógico)
 
-```
-pending
-approved
-rejected
-```
+Review:
 
-Indexações importantes:
-
-### Product
-
-```
-@@index([companyId])
-@@index([companyId, sku])
-@@index([companyId, platformProductId])
-@@index([companyId, platformVariantId])
-```
-
-### Review
-
-```
-@@index([productId, variantId])
-@@index([companyId])
-```
+- productId + variantId
+- companyId
 
 ---
 
@@ -515,347 +382,113 @@ Situação atual:
 
 - widget funcional
 - API funcional
-- criação de review funcional
-- renderização funcional
-- cache no widget implementado
-- cache no backend implementado
-- suporte a avaliações por variante
-- fallback automático para reviews do produto
-- arquitetura preparada para SaaS
-- widget estabilizado para navegação SPA
-- endpoints SaaS iniciais implementados
-- isolamento de dados por empresa
-- payloads otimizados
-- paginação implementada no painel SaaS
-- validações robustas na criação de reviews
-- edição de avaliações via painel implementada
-- persistência de edição conectada à API
-- endpoint `PATCH /api/reviews/:reviewId` implementado
-- estado local do painel atualizado após edição
-- widget ajustado para renderizar apenas em container explícito
+- sincronização automática ativa
+- banco populado (centenas de produtos)
+- paginação implementada
+- cache ativo
+- suporte a variantes
+- arquitetura SaaS pronta
 
 ---
 
-# Sistema de Moderação de Avaliações
+# Sistema de Moderação
 
 Status:
 
-```
 IMPLEMENTADO
-```
-
-Funcionalidades:
-
-- campo `status` na model Review
-- reviews do widget criadas como `pending`
-- widget exibe apenas `approved`
-- reviews criadas via painel entram como `approved`
-- endpoint de moderação implementado
-
-```
-PATCH /api/reviews/:reviewId/status
-```
-
-Permite alterar:
-
-```
-pending
-approved
-rejected
-```
-
-Listagem de reviews suporta:
-
-```
-GET /api/reviews?companyId=&status=
-```
 
 ---
 
-# Sistema de Edição de Avaliação
+# Sistema de Edição
 
 Status:
 
-```
 IMPLEMENTADO
-```
-
-Funcionalidades:
-
-- botão **Editar avaliação** no menu
-- estado React `editingReviewId`
-- abertura de **modal de edição**
-- carregamento automático de:
-
-```
-title
-comment
-```
-
-Campos editáveis no modal:
-
-```
-Título
-Comentário
-```
-
-Persistência:
-
-```
-PATCH /api/reviews/:reviewId
-```
-
-Fluxo completo:
-
-```
-modal -> updateReview() -> API -> banco -> atualização de estado local
-```
 
 ---
 
-# Frontend Admin (Painel SaaS)
+# Sistema de Produtos
 
-Estrutura inicial:
+Status:
 
-```
-frontend/admin
-├ public
-├ src
-│ ├ components
-│ ├ context
-│ ├ data
-│ ├ hooks
-│ ├ layouts
-│ ├ pages
-│ ├ services
-│ ├ types
-│ ├ App.tsx
-│ ├ main.tsx
-│ └ index.css
-```
+✅ COMPLETO
 
-Tecnologia:
+Situação:
 
-```
-React
-TypeScript
-Vite
-```
+- produtos sincronizados automaticamente
+- não depende mais de cadastro manual
+- integração real com loja
+- preparado para escala
 
 ---
 
-# Integração do Painel com API
+# Frontend Admin
 
-Situação atual:
+Stack:
 
-```
-CONEXÃO COM API IMPLEMENTADA
-```
+- React
+- TypeScript
+- Vite
 
-O painel consome:
+Status:
 
-```
-GET /api/reviews
-PATCH /api/reviews/:reviewId
-PATCH /api/reviews/:reviewId/status
-```
-
-Arquivos principais envolvidos:
-
-```
-frontend/admin/src/services/reviews.ts
-frontend/admin/src/context/ReviewsContext.tsx
-frontend/admin/src/pages/ReviewsPage.tsx
-```
-
-Funções implementadas:
-
-```
-fetchReviews()
-approveReview()
-rejectReview()
-deleteReview()
-updateReview()
-```
-
-Contexto React responsável por:
-
-```
-loadReviews()
-approveReview()
-rejectReview()
-deleteReview()
-addReview()
-updateReview()
-```
+FUNCIONAL
 
 ---
 
-# Tela de Moderação
+# Problemas Resolvidos Recentemente
 
-Página:
-
-```
-/reviews
-```
-
-Funcionalidades funcionando:
-
-- listagem de reviews da API
-- normalização de dados para UI
-- exibição de status
-- filtro por status
-- aprovação de reviews
-- rejeição de reviews
-- exclusão de reviews
-- edição de reviews
-- atualização do estado local após moderação ou edição
+- paginação da API Nuvemshop
+- duplicação de produtos
+- conflito TS/Prisma
+- leitura incompleta no Thunder
+- cache de arquivos JS antigos
+- falta de paginação na API interna
 
 ---
 
-# Menu de Ações (Menu Contextual)
+# Próximos Passos (ATUAL)
 
-Botão:
+## PRIORIDADE MÁXIMA
 
-```
-⋮
-```
+1. Sistema de avaliações por produto (média + contagem)
+2. Exibição no widget (UX real de prova social)
+3. Vincular avaliações ao produto correto (variantId)
 
-Menu contextual por review.
+## PRIORIDADE ALTA
 
-Objetivo:
+4. Widget visual profissional (estilo Trustpilot)
+5. Score agregado por produto
+6. Paginação no widget
 
-substituir botões diretos por **menu estilo SaaS**.
+## PRIORIDADE MÉDIA
 
-Referência visual:
+7. Dashboard SaaS completo
+8. Filtros avançados (produto, nota, status)
+9. Relatórios
 
-- Nuvemshop
-- Shopify
-- Stripe Dashboard
+## PRIORIDADE FUTURA
 
-Estado atual:
-
-```
-IMPLEMENTADO E ESTABILIZADO
-```
-
-Características atuais:
-
-- menu aberto via botão `⋮`
-- destaque visual do botão ativo
-- destaque da linha ativa
-- fechamento ao clicar fora
-- fechamento com tecla ESC
-- layout minimalista estilo SaaS
-- ícones nas ações
-- separação visual da ação destrutiva
-
-Ações atuais:
-
-```
-Editar avaliação
-Aprovar avaliação
-Rejeitar avaliação
-------------------
-Excluir avaliação
-```
+10. Envio automático de review (pós-compra)
+11. Webhooks Nuvemshop
+12. Integração Shopify
+13. Sistema de reputação
+14. Anti-spam avançado
+15. CDN para widget
 
 ---
 
-# Roadmap Técnico
+# Situação Atual (Resumo Executivo)
 
-Identidade de produto estável
-✅ IMPLEMENTADO
+AvaliaPro já possui:
 
-Suporte a `platformProductId`
-✅ IMPLEMENTADO
+- integração real com plataforma
+- ingestão de dados
+- persistência estruturada
+- API paginada
+- widget funcional
+- sistema de reviews completo
 
-Suporte a `platformVariantId`
-✅ IMPLEMENTADO
+Estado:
 
-Cache de produto no backend
-✅ IMPLEMENTADO
-
-Otimização de consultas de reviews
-✅ IMPLEMENTADO
-
-Estabilização do widget para sites SPA
-✅ IMPLEMENTADO
-
-Sistema de moderação de avaliações
-✅ IMPLEMENTADO
-
-Sistema de edição de avaliações
-✅ IMPLEMENTADO
-
-Menu contextual profissional
-✅ IMPLEMENTADO
-
-Painel SaaS para lojistas
-🔄 EM DESENVOLVIMENTO
-
-Dashboard SaaS com métricas da empresa
-⏳ PENDENTE
-
-Sistema de reputação e helpful votes
-⏳ PENDENTE
-
-Coleta automática de reviews por email
-⏳ PENDENTE
-
-Solicitação de reviews por WhatsApp
-⏳ PLANEJADO
-
-Integração oficial com Nuvemshop App Store
-⏳ PLANEJADO
-
-Sistema de convites automáticos pós-compra
-⏳ PLANEJADO
-
----
-
-# Commits e Tags Importantes
-
-```
-v0.1.0-widget-spa-stable
-v0.1.1-widget-spa-lifecycle-stable
-v0.1.2-widget-spa-observer-stable
-v0.1.3-widget-cache-stable
-v0.1.4-widget-anti-cache-stable
-v0.1.5-widget-spa-race-condition-stable
-v0.1.6-widget-fetch-timeout-stable
-v0.1.7-widget-error-logging
-v0.1.8-widget-sanitization-hardening
-v0.1.9-widget-render-safety
-v0.1.10-widget-average-safety
-v0.2.0-review-editing
-```
-
----
-
-# Último Passo Executado
-
-PASSO 35
-
-Implementações:
-
-- criação do endpoint `PATCH /api/reviews/:reviewId`
-- integração do botão **Salvar alterações** com a API
-- atualização do estado local após edição
-- widget ajustado para usar container explícito
-- commit e tag `v0.2.0-review-editing`
-
----
-
-# Próximo Passo
-
-Estabilizar instalação do widget em lojas Nuvemshop.
-
-Objetivo:
-
-```
-instalar AvaliaPro em loja real
-validar renderização do widget
-validar coleta de reviews em produção
-preparar integração oficial com Nuvemshop
-```
+👉 **MVP funcional de SaaS pronto para evolução e monetização**
