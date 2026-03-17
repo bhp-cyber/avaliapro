@@ -37,6 +37,7 @@ router.get("/", async (req, res) => {
 
     const limitParam = req.query.limit;
     const offsetParam = req.query.offset;
+    const searchParam = req.query.search;
 
     const limit = Math.min(
       Math.max(
@@ -51,9 +52,31 @@ router.get("/", async (req, res) => {
       0
     );
 
+    const search = Array.isArray(searchParam) ? searchParam[0] : searchParam;
+
+    const normalizedSearch = typeof search === "string" ? search.trim() : "";
+
     const where = {
       companyId: normalizedCompanyId,
       platform: "nuvemshop",
+      ...(normalizedSearch
+        ? {
+            OR: [
+              {
+                name: {
+                  contains: normalizedSearch,
+                  mode: "insensitive" as const,
+                },
+              },
+              {
+                sku: {
+                  contains: normalizedSearch,
+                  mode: "insensitive" as const,
+                },
+              },
+            ],
+          }
+        : {}),
     };
 
     const total = await prisma.product.count({

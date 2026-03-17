@@ -20,11 +20,12 @@ export default function NewReviewPage() {
   const COMPANY_ID = "15a89577-fa0e-4ad0-9a7f-1d735a20836a";
 
   const [products, setProducts] = useState<Product[]>([]);
+  const [productSearch, setProductSearch] = useState("");
 
   useEffect(() => {
     async function loadProducts() {
       try {
-        const data = await fetchProducts(COMPANY_ID);
+        const data = await fetchProducts(COMPANY_ID, productSearch);
         setProducts(data);
       } catch (error) {
         console.error("Erro ao carregar produtos:", error);
@@ -32,12 +33,11 @@ export default function NewReviewPage() {
     }
 
     loadProducts();
-  }, []);
+  }, [productSearch]);
 
   const [rating, setRating] = useState(5);
   const [hover, setHover] = useState<number | null>(null);
 
-  const [productSearch, setProductSearch] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const [customerName, setCustomerName] = useState("");
@@ -50,7 +50,7 @@ export default function NewReviewPage() {
     const term = productSearch.trim().toLowerCase();
 
     const realProducts = products.filter((product) => {
-      return product.platform === "nuvemshop" && !!product.platformProductId;
+      return product.platform === "nuvemshop";
     });
 
     const baseProducts = realProducts.filter(
