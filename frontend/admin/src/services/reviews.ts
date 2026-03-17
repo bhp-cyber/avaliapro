@@ -72,6 +72,22 @@ export async function rejectReview(reviewId: string, companyId: string) {
   return response.json();
 }
 
+export async function deleteReview(reviewId: string, companyId: string) {
+  const query = new URLSearchParams({
+    companyId,
+  });
+
+  const response = await fetch(`${API_BASE_URL}/reviews/${reviewId}?${query.toString()}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Erro ao excluir avaliação");
+  }
+
+  return response.json();
+}
+
 export async function updateReview(
   reviewId: string,
   companyId: string,

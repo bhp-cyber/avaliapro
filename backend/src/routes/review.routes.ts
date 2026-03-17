@@ -439,4 +439,53 @@ router.patch("/:reviewId/status", async (req, res) => {
   }
 });
 
+router.delete("/:reviewId", async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const companyIdParam = req.body?.companyId ?? req.query?.companyId;
+
+    const normalizedReviewId =
+      typeof reviewId === "string" ? reviewId.trim() : "";
+
+    const normalizedCompanyId =
+      typeof companyIdParam === "string" ? companyIdParam.trim() : "";
+
+    if (!normalizedReviewId || !normalizedCompanyId) {
+      return res.status(400).json({
+        error: "reviewId e companyId são obrigatórios",
+      });
+    }
+
+    const review = await prisma.review.findFirst({
+      where: {
+        id: normalizedReviewId,
+        companyId: normalizedCompanyId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!review) {
+      return res.status(404).json({
+        error: "Review não encontrada para esta empresa",
+      });
+    }
+
+    await prisma.review.delete({
+      where: {
+        id: normalizedReviewId,
+      },
+    });
+
+    return res.json({
+      success: true,
+      deletedReviewId: normalizedReviewId,
+    });
+  } catch (error) {
+    console.error("Erro ao excluir review:", error);
+    return res.status(500).json({ error: "Erro interno do servidor" });
+  }
+});
+
 export default router;

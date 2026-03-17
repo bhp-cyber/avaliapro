@@ -5,6 +5,7 @@ import {
   approveReview as approveReviewApi,
   rejectReview as rejectReviewApi,
   updateReview as updateReviewApi,
+  deleteReview as deleteReviewApi,
 } from "../services/reviews";
 
 type NewReviewInput = Omit<Review, "id" | "date">;
@@ -131,8 +132,14 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  function deleteReview(reviewId: string) {
-    setReviews((prev) => prev.filter((review) => review.id !== reviewId));
+  async function deleteReview(reviewId: string) {
+    try {
+      await deleteReviewApi(reviewId, COMPANY_ID);
+
+      setReviews((prev) => prev.filter((review) => review.id !== reviewId));
+    } catch (error) {
+      console.error("Erro ao excluir avaliação:", error);
+    }
   }
 
   return (
