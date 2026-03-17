@@ -39,9 +39,18 @@
   }
 
   var currentScript = getCurrentScript();
+
   var apiKey = currentScript
     ? currentScript.getAttribute("data-api-key")
     : null;
+
+  if (!apiKey && currentScript && currentScript.src) {
+    try {
+      var scriptUrl = new URL(currentScript.src, window.location.href);
+      apiKey = scriptUrl.searchParams.get("apiKey");
+    } catch (error) {}
+  }
+
   var apiBase =
     (currentScript && currentScript.getAttribute("data-api-base")) ||
     "https://avaliapro-api.onrender.com";
@@ -443,10 +452,10 @@
       if (canonicalMatch && canonicalMatch[1]) return canonicalMatch[1];
     }
 
-    var pathnameMatch = window.location.pathname.match(
-      /\/produtos\/[^/]+\/(\d+)/i
-    );
-    if (pathnameMatch && pathnameMatch[1]) return pathnameMatch[1];
+    var pathnameMatch = window.location.pathname.match(/\/produtos\/([^/]+)/i);
+    if (pathnameMatch && pathnameMatch[1]) {
+      return pathnameMatch[1];
+    }
 
     return null;
   }
