@@ -411,6 +411,29 @@
       );
     }
 
+    var variantsElement =
+      document.querySelector(".js-product-container[data-variants]") ||
+      document.querySelector("[data-store='product-detail'][data-variants]");
+
+    if (variantsElement) {
+      try {
+        var variantsRaw = variantsElement.getAttribute("data-variants");
+        var variants = JSON.parse(variantsRaw || "[]");
+
+        if (Array.isArray(variants) && variants.length > 0) {
+          for (var j = 0; j < variants.length; j++) {
+            pushCandidate(
+              variants[j] && variants[j].sku,
+              variantsElement,
+              "data-variants:sku"
+            );
+          }
+        }
+      } catch (error) {
+        console.warn("[AvaliaPro] Não foi possível ler data-variants.");
+      }
+    }
+
     return candidates;
   }
 
