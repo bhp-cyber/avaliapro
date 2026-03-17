@@ -23,7 +23,7 @@ type ReviewsContextType = {
 const ReviewsContext = createContext<ReviewsContextType | undefined>(undefined);
 
 export function ReviewsProvider({ children }: { children: React.ReactNode }) {
-  const COMPANY_ID = "48b20d58-8847-417a-940f-a9793bf40807";
+  const COMPANY_ID = "15a89577-fa0e-4ad0-9a7f-1d735a20836a";
   const [reviews, setReviews] = useState<Review[]>([]);
 
   async function loadReviews(status?: string) {
