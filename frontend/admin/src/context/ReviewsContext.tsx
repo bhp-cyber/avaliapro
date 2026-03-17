@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import type { Review } from "../types/review";
 import {
   fetchReviews,
+  createReview,
   approveReview as approveReviewApi,
   rejectReview as rejectReviewApi,
   updateReview as updateReviewApi,
@@ -23,7 +24,7 @@ type ReviewsContextType = {
 const ReviewsContext = createContext<ReviewsContextType | undefined>(undefined);
 
 export function ReviewsProvider({ children }: { children: React.ReactNode }) {
-  const COMPANY_ID = "15a89577-fa0e-4ad0-9a7f-1d735a20836a";
+  const COMPANY_ID = "48b20d58-8847-417a-940f-a9793bf40807";
   const [reviews, setReviews] = useState<Review[]>([]);
 
   async function loadReviews(status?: string) {
@@ -60,18 +61,26 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
     loadReviews();
   }, []);
 
-  function addReview(review: NewReviewInput) {
-    const newReview: Review = {
-      ...review,
-      customer: review.customer.trim(),
-      customerAvatar: review.customerAvatar?.trim() || undefined,
-      title: review.title?.trim() || "",
-      comment: review.comment.trim(),
-      id: crypto.randomUUID(),
-      date: new Date().toLocaleDateString("pt-BR"),
-    };
+  async function addReview(review: NewReviewInput) {
+    try {
+      if (!review.productId) {
+        alert("Produto inválido.");
+        return;
+      }
 
-    setReviews((prev) => [newReview, ...prev]);
+      const created = await createReview({
+        companyId: COMPANY_ID,
+        productId: review.productId,
+        rating: review.rating,
+        title: review.title,
+        comment: review.comment,
+      });
+
+      await loadReviews();
+    } catch (error) {
+      console.error("Erro ao criar avaliação:", error);
+      alert("Erro ao salvar avaliação.");
+    }
   }
 
   async function approveReview(reviewId: string) {

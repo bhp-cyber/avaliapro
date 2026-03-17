@@ -106,6 +106,7 @@ export default function NewReviewPage() {
 
     addReview({
       product: selectedProduct.name,
+      productId: selectedProduct.id,
       customer: customerName.trim(),
       customerAvatar: customerAvatar.trim() || undefined,
       rating,

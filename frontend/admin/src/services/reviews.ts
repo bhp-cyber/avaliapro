@@ -111,3 +111,31 @@ export async function updateReview(
 
   return response.json();
 }
+
+export async function createReview(data: {
+  companyId: string;
+  productId: string;
+  rating: number;
+  title?: string;
+  comment: string;
+}) {
+  const response = await fetch(`${API_BASE_URL}/reviews`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      companyId: data.companyId,
+      productId: data.productId,
+      rating: data.rating,
+      title: data.title?.trim() || undefined,
+      comment: data.comment,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Erro ao criar avaliação");
+  }
+
+  return response.json();
+}
