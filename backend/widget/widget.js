@@ -1133,9 +1133,7 @@
           typeof data !== "object" ||
           !Array.isArray(data.reviews) ||
           !data.summary ||
-          typeof data.summary !== "object" ||
-          !data.product ||
-          typeof data.product !== "object"
+          typeof data.summary !== "object"
         ) {
           throw new Error("Resposta inválida da API.");
         }
