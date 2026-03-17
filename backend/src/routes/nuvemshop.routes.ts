@@ -54,6 +54,13 @@ router.get("/callback", async (req, res) => {
 
     const data = await response.json();
 
+    if (!data.user_id) {
+      return res.status(400).json({
+        error: "user_id não retornado pela Nuvemshop",
+        details: data,
+      });
+    }
+
     console.log("Resposta token Nuvemshop:", data);
 
     if (!response.ok) {

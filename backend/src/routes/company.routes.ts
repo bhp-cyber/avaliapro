@@ -1,6 +1,5 @@
 import { Router } from "express";
 import prisma from "../lib/prisma";
-import * as crypto from "crypto";
 
 const router = Router();
 
@@ -27,40 +26,10 @@ router.get("/", async (_req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
-  try {
-    const name = String(req.body?.name || "").trim();
-    const domain = String(req.body?.domain || "").trim() || null;
-    const nuvemshopStoreId =
-      String(req.body?.nuvemshopStoreId || "").trim() || null;
-    const nuvemshopToken =
-      String(req.body?.nuvemshopToken || "").trim() || null;
-
-    if (!name) {
-      return res.status(400).json({ error: "Nome da empresa é obrigatório" });
-    }
-
-    const company = await prisma.company.create({
-      data: {
-        name,
-        domain,
-        apiKey: crypto.randomUUID(),
-        nuvemshopStoreId,
-        nuvemshopToken,
-      },
-    });
-
-    return res.status(201).json({
-      id: company.id,
-      name: company.name,
-      domain: company.domain,
-      apiKey: company.apiKey,
-      createdAt: company.createdAt,
-    });
-  } catch (error) {
-    console.error("Erro ao criar empresa:", error);
-    return res.status(500).json({ error: "Erro interno do servidor" });
-  }
+router.post("/", async (_req, res) => {
+  return res.status(403).json({
+    error: "Criação manual de empresa temporariamente desabilitada",
+  });
 });
 
 router.get("/:companyId", async (req, res) => {
