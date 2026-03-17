@@ -439,7 +439,22 @@
 
   function getSku() {
     var candidates = getSkuCandidates();
-    return candidates.length ? candidates[0] : null;
+
+    if (!candidates || !candidates.length) {
+      return null;
+    }
+
+    for (var i = 0; i < candidates.length; i++) {
+      if (
+        candidates[i] &&
+        candidates[i].source &&
+        candidates[i].source.indexOf("data-variants") !== -1
+      ) {
+        return candidates[i];
+      }
+    }
+
+    return candidates[0];
   }
 
   function getPlatformProductId() {
