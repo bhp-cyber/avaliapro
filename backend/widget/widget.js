@@ -985,9 +985,11 @@
       modalRoot.style.display = "none";
     }
 
-    if (openModalButton) openModalButton.onclick = null;
-    if (closeModalButton) closeModalButton.onclick = null;
-    if (modalOverlay) modalOverlay.onclick = null;
+    if (openModalButton && openModalButton.__AVALIAPRO_BOUND__) return;
+
+    if (openModalButton) openModalButton.__AVALIAPRO_BOUND__ = true;
+    if (closeModalButton) closeModalButton.__AVALIAPRO_BOUND__ = true;
+    if (modalOverlay) modalOverlay.__AVALIAPRO_BOUND__ = true;
 
     if (openModalButton && modalRoot) {
       openModalButton.onclick = function () {
