@@ -259,16 +259,18 @@
         resize: vertical;
       }
 
-      .avaliapro-button {
-        border: 0;
-        border-radius: 10px;
-        padding: 12px 16px;
-        background: #111827;
-        color: #ffffff;
-        font-size: 14px;
-        font-weight: 700;
-        cursor: pointer;
-      }
+     .avaliapro-button {
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 18px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  width: fit-content;
+  min-width: 180px;
+}
 
       .avaliapro-button:disabled {
         opacity: 0.65;
@@ -328,25 +330,27 @@
 #avaliapro-modal-box {
   position: relative;
   background: #fff;
-  padding: 24px;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  padding: 28px;
+  border-radius: 20px;
+  width: calc(100% - 32px);
+  max-width: 560px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.22);
 }
 
 #avaliapro-modal-box .avaliapro-form {
   display: grid;
-  gap: 12px;
+  gap: 16px;
   width: 100%;
   border-top: 0;
   padding-top: 0;
-  margin-top: 16px;
+  margin-top: 18px;
 }
 
 #avaliapro-modal-box .avaliapro-field {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
 }
 
@@ -358,13 +362,34 @@
   box-sizing: border-box;
 }
 
+#avaliapro-modal-box .avaliapro-input,
 #avaliapro-modal-box .avaliapro-textarea {
-  min-height: 140px;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 15px;
+  border: 1px solid #cfd5df;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+#avaliapro-modal-box .avaliapro-input:focus,
+#avaliapro-modal-box .avaliapro-textarea:focus {
+  border-color: #111827;
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
+}
+
+#avaliapro-modal-box .avaliapro-textarea {
+  min-height: 170px;
+}
+
+#avaliapro-modal-box .avaliapro-button {
+  min-height: 52px;
+  border-radius: 12px;
+  font-size: 15px;
 }
 
 #avaliapro-stars-input {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
 }
 
@@ -411,8 +436,42 @@
       }
 
       #avaliapro-stars-input span:hover {
-        transform: scale(1.12);
-      }
+  transform: scale(1.12);
+}
+
+.avaliapro-star {
+  position: relative;
+  display: inline-block;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.avaliapro-star.full {
+  color: #f59e0b;
+}
+
+.avaliapro-star.empty {
+  color: #d1d5db;
+}
+
+.avaliapro-star.half {
+  color: #d1d5db;
+}
+
+.avaliapro-star.half::before {
+  content: "★";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50%;
+  overflow: hidden;
+  color: #f59e0b;
+}
+
+@keyframes avaliapro-spin {
+  to { transform: rotate(360deg); }
+}
+
     `;
     document.head.appendChild(style);
   }
@@ -428,13 +487,42 @@
 
   function getStars(rating) {
     var numeric = Number(rating) || 0;
-    var rounded = Math.max(0, Math.min(5, Math.round(numeric)));
-    return "★".repeat(rounded) + "☆".repeat(5 - rounded);
+
+    var full = Math.floor(numeric);
+    var hasHalf = numeric - full >= 0.5;
+    var empty = 5 - full - (hasHalf ? 1 : 0);
+
+    var html = "";
+
+    for (var i = 0; i < full; i++) {
+      html += '<span class="avaliapro-star full">★</span>';
+    }
+
+    if (hasHalf) {
+      html += '<span class="avaliapro-star half">★</span>';
+    }
+
+    for (var j = 0; j < empty; j++) {
+      html += '<span class="avaliapro-star empty">★</span>';
+    }
+
+    return html;
   }
 
   function getAverageDisplay(value) {
     var numeric = Number(value) || 0;
     return numeric.toFixed(1);
+  }
+
+  function getRatingLabel(value) {
+    var rating = Number(value) || 0;
+
+    if (rating >= 4.5) return "Excelente";
+    if (rating >= 4) return "Muito bom";
+    if (rating >= 3) return "Bom";
+    if (rating >= 2) return "Regular";
+    if (rating > 0) return "Ruim";
+    return "";
   }
 
   function getSkuCandidates() {
@@ -840,8 +928,8 @@
           )}</div>
         </div>
 
-        <div class="avaliapro-review-stars">${safeText(
-          getStars(review && review.rating)
+        <div class="avaliapro-review-stars">${getStars(
+          review && review.rating
         )}</div>
         ${titleHtml}
         <div class="avaliapro-review-comment">${safeText(
@@ -931,42 +1019,63 @@
     }
 
     container.innerHTML = `
-      <div class="avaliapro-widget" data-sku="${safeText(sku)}">
-        <div class="avaliapro-header">
-          <h2 class="avaliapro-title">Avaliações</h2>
-          <div class="avaliapro-summary">
-            <div style="display:flex;align-items:center;gap:10px;">
-  <span class="avaliapro-average" style="font-size:32px;">
+  <h2 class="avaliapro-title" style="margin:0 0 14px 0;">Avaliações</h2>
+
+  <div class="avaliapro-widget" data-sku="${safeText(sku)}">
+    <div class="avaliapro-header">
+      <div class="avaliapro-summary" style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;width:100%;">
+
+       <div style="display:grid;grid-template-columns:auto auto;align-items:center;column-gap:16px;">
+  <span class="avaliapro-average" style="font-size:34px;font-weight:700;line-height:1;display:block;">
     ${safeText(getAverageDisplay(averageRating))}
   </span>
 
-  <div style="display:flex;flex-direction:column;gap:2px;">
-    <span class="avaliapro-stars" style="font-size:16px;">
-      ${safeText(getStars(averageRating))}
-    </span>
+  <div style="display:grid;align-content:center;row-gap:6px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+  <span class="avaliapro-stars" style="font-size:18px;line-height:1;">
+    ${getStars(averageRating)}
+  </span>
 
-    <span class="avaliapro-count" style="font-size:13px;">
-      Baseado em ${totalReviews} avaliação${totalReviews === 1 ? "" : "ões"}
+  <span style="font-size:14px;font-weight:600;color:#111827;">
+    ${safeText(getRatingLabel(averageRating))}
+  </span>
+</div>
+
+    <span class="avaliapro-count" style="font-size:13px;line-height:1;display:block;">
+    ${
+      totalReviews === 0
+        ? "Ainda sem avaliações"
+        : `Baseado em ${totalReviews} ${
+            totalReviews === 1 ? "avaliação" : "avaliações"
+          }`
+    }
     </span>
   </div>
 </div>
-    ${debugHtml}
-          </div>
-        </div>
 
-        <div class="avaliapro-list">${reviewListHtml}</div>
+        <button
+          class="avaliapro-button"
+          type="button"
+          id="avaliapro-open-modal"
+          aria-label="Abrir formulário para avaliar produto"
+        >
+          ✍️ Escrever avaliação
+        </button>
+
+        ${debugHtml}
+      </div>
+    </div>
+
+   <div style="
+  margin: 18px 0 16px 0;
+  border-top: 1px solid #e5e7eb;
+"></div>
+
+<div class="avaliapro-list">${reviewListHtml}</div>
 
                <div class="avaliapro-form">
-          <div id="avaliapro-feedback"></div>
-
-          <button
-            class="avaliapro-button"
-            type="button"
-            id="avaliapro-open-modal"
-          >
-            Avaliar produto
-          </button>
-        </div>
+  <div id="avaliapro-feedback"></div>
+</div>
 
         <div id="avaliapro-modal-root" style="display:none;">
           <div id="avaliapro-modal-overlay">
@@ -979,9 +1088,14 @@
   &times;
 </button>
 
-              <h3 style="margin:0;font-size:18px;font-weight:700;color:#111827;">
-  Deixe sua avaliação
-</h3>
+ <div style="display:grid;gap:6px;padding-right:28px;">
+  <h3 style="margin:0;font-size:18px;font-weight:700;color:#111827;">
+    Deixe sua avaliação
+  </h3>
+  <p style="margin:0;font-size:14px;line-height:1.4;color:#6b7280;">
+    Sua opinião ajuda outros clientes a comprarem com mais segurança.
+  </p>
+</div>
 
                            <form id="avaliapro-form" class="avaliapro-form">
                 <div class="avaliapro-field">
@@ -997,15 +1111,15 @@
                                           <div class="avaliapro-field">
                   <label class="avaliapro-label">Nota</label>
 
-                  <div
-                    id="avaliapro-stars-input"
-                    style="font-size:22px;color:#f59e0b;display:flex;gap:6px;cursor:pointer;"
-                  >                     <span data-value="1">★</span>
-                    <span data-value="2">★</span>
-                    <span data-value="3">★</span>
-                    <span data-value="4">★</span>
-                    <span data-value="5">★</span>
-                  </div>
+                <div
+  id="avaliapro-stars-input"
+  style="font-size:22px;line-height:1;color:#f59e0b;display:flex;gap:10px;cursor:pointer;user-select:none;"
+>                    
+<span data-value="1" aria-label="1 estrela" title="1 estrela">★</span>
+<span data-value="2" aria-label="2 estrelas" title="2 estrelas">★</span>
+<span data-value="3" aria-label="3 estrelas" title="3 estrelas">★</span>
+<span data-value="4" aria-label="4 estrelas" title="4 estrelas">★</span>
+<span data-value="5" aria-label="5 estrelas" title="5 estrelas">★</span>
 
                                   <select
                     class="avaliapro-select"
@@ -1022,15 +1136,14 @@
                   </select>
                 </div>
 
-                <div class="avaliapro-field">
-                  <label class="avaliapro-label">Avaliação</label>
-               <textarea
+               <div class="avaliapro-field">
+<textarea
   class="avaliapro-textarea"
   name="comment"
   placeholder="Escreva sua avaliação"
   required
 ></textarea>
-                </div>
+</div>
 
                 <button class="avaliapro-button" type="submit">
                   Enviar avaliação
@@ -1068,6 +1181,12 @@
     if (openModalButton && modalRoot) {
       openModalButton.onclick = function () {
         modalRoot.style.display = "block";
+        modalRoot.style.opacity = "0";
+
+        setTimeout(function () {
+          modalRoot.style.opacity = "1";
+        }, 10);
+
         document.body.style.overflow = "hidden";
 
         var feedback = container.querySelector("#avaliapro-feedback");
@@ -1086,16 +1205,28 @@
 
     if (closeModalButton && modalRoot) {
       closeModalButton.onclick = function () {
-        modalRoot.style.display = "none";
-        document.body.style.overflow = "";
+        modalRoot.style.opacity = "0";
+        modalRoot.style.transition = "opacity 0.2s ease";
+
+        setTimeout(function () {
+          modalRoot.style.display = "none";
+          modalRoot.style.opacity = "1";
+          document.body.style.overflow = "";
+        }, 200);
       };
     }
 
     if (modalOverlay && modalRoot) {
       modalOverlay.onclick = function (event) {
         if (event.target === modalOverlay) {
-          modalRoot.style.display = "none";
-          document.body.style.overflow = "";
+          modalRoot.style.opacity = "0";
+          modalRoot.style.transition = "opacity 0.2s ease";
+
+          setTimeout(function () {
+            modalRoot.style.display = "none";
+            modalRoot.style.opacity = "1";
+            document.body.style.overflow = "";
+          }, 200);
         }
       };
 
@@ -1119,8 +1250,14 @@
           var modalRoot = document.getElementById("avaliapro-modal-root");
           if (!modalRoot || modalRoot.style.display !== "block") return;
 
-          modalRoot.style.display = "none";
-          document.body.style.overflow = "";
+          modalRoot.style.opacity = "0";
+          modalRoot.style.transition = "opacity 0.2s ease";
+
+          setTimeout(function () {
+            modalRoot.style.display = "none";
+            modalRoot.style.opacity = "1";
+            document.body.style.overflow = "";
+          }, 200);
         });
       }
     }
@@ -1298,7 +1435,33 @@
         return;
       }
 
-      if (!authorName || !rating || !comment) {
+      // limpa estados anteriores
+      var inputNameEl = form.querySelector('[name="authorName"]');
+      var ratingEl = form.querySelector('[name="rating"]');
+      var commentEl = form.querySelector('[name="comment"]');
+
+      [inputNameEl, ratingEl, commentEl].forEach(function (el) {
+        if (el) el.style.borderColor = "#d1d5db";
+      });
+
+      var hasError = false;
+
+      if (!authorName) {
+        if (inputNameEl) inputNameEl.style.borderColor = "#dc2626";
+        hasError = true;
+      }
+
+      if (!rating) {
+        if (ratingEl) ratingEl.style.outline = "2px solid #dc2626";
+        hasError = true;
+      }
+
+      if (!comment) {
+        if (commentEl) commentEl.style.borderColor = "#dc2626";
+        hasError = true;
+      }
+
+      if (hasError) {
         setFeedback(
           container,
           "error",
@@ -1309,7 +1472,22 @@
       if (submitButton.disabled) return;
 
       submitButton.disabled = true;
-      submitButton.textContent = "Enviando...";
+
+      submitButton.innerHTML = `
+  <span style="display:inline-flex;align-items:center;gap:8px;">
+    <span style="
+      width:14px;
+      height:14px;
+      border:2px solid #fff;
+      border-top-color: transparent;
+      border-radius:50%;
+      display:inline-block;
+      animation:avaliapro-spin 0.6s linear infinite;
+    "></span>
+    Enviando...
+  </span>
+`;
+
       setFeedback(container, "", "");
 
       (function () {
@@ -1334,12 +1512,22 @@
           );
 
           setFeedback(container, "success", "Avaliação enviada com sucesso.");
+
+          submitButton.innerHTML = "✔ Avaliação enviada";
+          submitButton.style.background = "#059669";
+
           form.reset();
 
           var modalRoot = container.querySelector("#avaliapro-modal-root");
           if (modalRoot) {
-            modalRoot.style.display = "none";
-            document.body.style.overflow = "";
+            modalRoot.style.opacity = "0";
+            modalRoot.style.transition = "opacity 0.2s ease";
+
+            setTimeout(function () {
+              modalRoot.style.display = "none";
+              modalRoot.style.opacity = "1";
+              document.body.style.overflow = "";
+            }, 200);
           }
 
           return loadAndRenderSku(state.currentSku || sku, {
@@ -1355,8 +1543,11 @@
           );
         })
         .finally(function () {
-          submitButton.disabled = false;
-          submitButton.textContent = "Enviar avaliação";
+          setTimeout(function () {
+            submitButton.disabled = false;
+            submitButton.innerHTML = "Enviar avaliação";
+            submitButton.style.background = "";
+          }, 1200);
         });
     });
   }
