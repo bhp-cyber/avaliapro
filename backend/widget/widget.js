@@ -303,11 +303,44 @@
         margin-top: 10px;
       }
 
-      .avaliapro-review-image img {
+         .avaliapro-review-image img {
         max-width: 120px;
         border-radius: 10px;
         border: 1px solid #e5e7eb;
         display: block;
+      }
+
+      #avaliapro-modal-root {
+        position: fixed;
+        inset: 0;
+        z-index: 999999;
+      }
+
+      #avaliapro-modal-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #avaliapro-modal-box {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 400px;
+      }
+
+      #avaliapro-close-modal {
+        position: absolute;
+        top: 10px;
+        right: 14px;
+        border: none;
+        background: transparent;
+        font-size: 20px;
+        cursor: pointer;
       }
     `;
     document.head.appendChild(style);
@@ -850,17 +883,70 @@
 
         <div class="avaliapro-list">${reviewListHtml}</div>
 
-       <div class="avaliapro-form">
-  <div id="avaliapro-feedback"></div>
+               <div class="avaliapro-form">
+          <div id="avaliapro-feedback"></div>
 
-  <button
-    class="avaliapro-button"
-    type="button"
-    id="avaliapro-open-modal"
-  >
-    Avaliar produto
-  </button>
-</div>
+          <button
+            class="avaliapro-button"
+            type="button"
+            id="avaliapro-open-modal"
+          >
+            Avaliar produto
+          </button>
+        </div>
+
+        <div id="avaliapro-modal-root" style="display:none;">
+          <div id="avaliapro-modal-overlay">
+            <div id="avaliapro-modal-box">
+              <button
+                type="button"
+                id="avaliapro-close-modal"
+                aria-label="Fechar modal"
+              >
+                ×
+              </button>
+
+              <h3>Avaliar produto</h3>
+
+                           <form id="avaliapro-form" class="avaliapro-form">
+                <div class="avaliapro-field">
+                  <label class="avaliapro-label">Seu nome</label>
+                  <input
+                    class="avaliapro-input"
+                    type="text"
+                    name="authorName"
+                    placeholder="Seu nome"
+                  />
+                </div>
+
+                <div class="avaliapro-field">
+                  <label class="avaliapro-label">Nota</label>
+                  <select class="avaliapro-select" name="rating">
+                    <option value="">Selecione uma nota</option>
+                    <option value="5">5</option>
+                    <option value="4">4</option>
+                    <option value="3">3</option>
+                    <option value="2">2</option>
+                    <option value="1">1</option>
+                  </select>
+                </div>
+
+                <div class="avaliapro-field">
+                  <label class="avaliapro-label">Avaliação</label>
+                  <textarea
+                    class="avaliapro-textarea"
+                    name="comment"
+                    placeholder="Escreva sua avaliação"
+                  ></textarea>
+                </div>
+
+                <button class="avaliapro-button" type="submit">
+                  Enviar avaliação
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
     `;
 
@@ -876,6 +962,34 @@
           });
         }
       };
+    }
+
+    var openModalButton = container.querySelector("#avaliapro-open-modal");
+    var closeModalButton = container.querySelector("#avaliapro-close-modal");
+    var modalRoot = container.querySelector("#avaliapro-modal-root");
+    var modalOverlay = container.querySelector("#avaliapro-modal-overlay");
+
+    if (openModalButton && modalRoot) {
+      openModalButton.addEventListener("click", function () {
+        modalRoot.style.display = "block";
+        document.body.style.overflow = "hidden";
+      });
+    }
+
+    if (closeModalButton && modalRoot) {
+      closeModalButton.addEventListener("click", function () {
+        modalRoot.style.display = "none";
+        document.body.style.overflow = "";
+      });
+    }
+
+    if (modalOverlay && modalRoot) {
+      modalOverlay.addEventListener("click", function (event) {
+        if (event.target === modalOverlay) {
+          modalRoot.style.display = "none";
+          document.body.style.overflow = "";
+        }
+      });
     }
 
     bindForm(container, state.currentSku);
@@ -1033,6 +1147,12 @@
 
           setFeedback(container, "success", "Avaliação enviada com sucesso.");
           form.reset();
+
+          var modalRoot = container.querySelector("#avaliapro-modal-root");
+          if (modalRoot) {
+            modalRoot.style.display = "none";
+            document.body.style.overflow = "";
+          }
 
           return loadAndRenderSku(state.currentSku || sku, {
             preserveFeedback: true,
