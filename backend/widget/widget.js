@@ -31,6 +31,8 @@
     reviewsCacheLimit: 20,
     reviewsCacheTTL: 60000,
     activeInsightFilter: null,
+    reviewsPerPage: 5,
+    currentPage: 1,
   };
 
   function getCurrentScript() {
@@ -1253,9 +1255,11 @@
     var summary = (data && data.summary) || {};
     var reviews = Array.isArray(data && data.reviews) ? data.reviews : [];
     var averageRating = Number(summary.averageRating);
+
     if (!Number.isFinite(averageRating)) {
       averageRating = 0;
     }
+
     var totalReviews = Number(summary.totalReviews || reviews.length || 0);
 
     var safeReviews = reviews
@@ -1272,6 +1276,56 @@
 
     var recommendationRate = getRecommendationRate(safeReviews);
     var reviewInsights = getReviewInsights(safeReviews);
+    var highlightReview = safeReviews.length ? safeReviews[0] : null;
+    var hasHighlightSlot = !!highlightReview && !state.activeInsightFilter;
+
+    var listReviews = filteredReviews.filter(function (review) {
+      return !highlightReview || review !== highlightReview;
+    });
+
+    var totalListReviews = listReviews.length;
+
+    var totalPages = hasHighlightSlot
+      ? Math.max(
+          1,
+          1 +
+            Math.ceil(
+              Math.max(0, totalListReviews - (state.reviewsPerPage - 1)) /
+                state.reviewsPerPage
+            )
+        )
+      : Math.max(1, Math.ceil(totalListReviews / state.reviewsPerPage));
+
+    if (state.currentPage > totalPages) {
+      state.currentPage = totalPages;
+    }
+
+    if (state.currentPage < 1) {
+      state.currentPage = 1;
+    }
+
+    var shouldShowHighlight = hasHighlightSlot && state.currentPage === 1;
+
+    var pageStart = 0;
+    var pageEnd = 0;
+
+    if (hasHighlightSlot) {
+      if (state.currentPage === 1) {
+        pageStart = 0;
+        pageEnd = Math.max(0, state.reviewsPerPage - 1);
+      } else {
+        pageStart =
+          state.reviewsPerPage -
+          1 +
+          (state.currentPage - 2) * state.reviewsPerPage;
+        pageEnd = pageStart + state.reviewsPerPage;
+      }
+    } else {
+      pageStart = (state.currentPage - 1) * state.reviewsPerPage;
+      pageEnd = pageStart + state.reviewsPerPage;
+    }
+
+    var paginatedReviews = listReviews.slice(pageStart, pageEnd);
 
     var reviewInsightsHtml =
       Array.isArray(reviewInsights) && reviewInsights.length
@@ -1282,42 +1336,40 @@
     </div>
 
     <div style="display:flex;flex-wrap:wrap;gap:10px;">
-  ${reviewInsights
-    .slice(0, 4)
-    .map(function (item) {
-      var normalizedItem = safeText(item).toLowerCase();
-      var isActive = state.activeInsightFilter === normalizedItem;
+      ${reviewInsights
+        .slice(0, 4)
+        .map(function (item) {
+          var normalizedItem = safeText(item).toLowerCase();
+          var isActive = state.activeInsightFilter === normalizedItem;
 
-      return `
-        <span
-  data-avaliapro-filter="${normalizedItem}"
-  style="
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    padding:4px 15px;
-    border-radius:999px;
-    background:${isActive ? "#111827" : "#f9fafb"};
-    border:1px solid ${isActive ? "#111827" : "#e5e7eb"};
-    font-size:13px;
-    font-weight:500;
-    color:${isActive ? "#ffffff" : "#374151"};
-    line-height:1;
-    cursor:pointer;
-    transition:all 0.2s ease;
-  "
-  onmouseover="this.style.background='${isActive ? "#111827" : "#f3f4f6"}'"
-  onmouseout="this.style.background='${isActive ? "#111827" : "#f9fafb"}'"
->
-  <span style="font-size:11px;color:${
-    isActive ? "rgba(255,255,255,0.7)" : "#9ca3af"
-  };">✦</span>
-  ${safeText(item)}
-</span>
-      `;
-    })
-    .join("")}
-</div>
+          return `
+            <span
+              data-avaliapro-filter="${normalizedItem}"
+              style="
+                display:inline-flex;
+                align-items:center;
+                gap:6px;
+                padding:4px 15px;
+                border-radius:999px;
+                background:${isActive ? "#111827" : "#f9fafb"};
+                border:1px solid ${isActive ? "#111827" : "#e5e7eb"};
+                font-size:13px;
+                font-weight:500;
+                color:${isActive ? "#ffffff" : "#374151"};
+                line-height:1;
+                cursor:pointer;
+                transition:all 0.2s ease;
+              "
+            >
+              <span style="font-size:11px;color:${
+                isActive ? "rgba(255,255,255,0.7)" : "#9ca3af"
+              };">✦</span>
+              ${safeText(item)}
+            </span>
+          `;
+        })
+        .join("")}
+    </div>
   </div>
 `
         : "";
@@ -1343,14 +1395,12 @@
             recomendam este produto
           </span>
         </div>
-    
+
         <div style="font-size:13px;line-height:1.5;color:#6b7280;">
           ${socialProofLabel}
         </div>
       </div>
     `;
-
-    var highlightReview = safeReviews.length ? safeReviews[0] : null;
 
     var highlightHtml = highlightReview
       ? `
@@ -1370,14 +1420,44 @@
         `
       : "";
 
-    var listReviews = filteredReviews.filter(function (review) {
-      return !highlightReview || review !== highlightReview;
-    });
+    var reviewListHtml =
+      (shouldShowHighlight ? highlightHtml : "") +
+      (paginatedReviews.length
+        ? paginatedReviews.map(buildReviewItem).join("")
+        : shouldShowHighlight
+        ? ""
+        : `<div class="avaliapro-empty">Nenhuma avaliação encontrada para esta característica.</div>`);
 
-    var reviewListHtml = listReviews.length
-      ? highlightHtml + listReviews.map(buildReviewItem).join("")
-      : highlightHtml ||
-        `<div class="avaliapro-empty">Nenhuma avaliação encontrada para esta característica.</div>`;
+    var paginationHtml =
+      totalPages > 1
+        ? `
+          <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap;">
+            <button
+              type="button"
+              data-avaliapro-page="prev"
+              class="avaliapro-button"
+              style="min-width:auto;padding:10px 14px;"
+              ${state.currentPage === 1 ? "disabled" : ""}
+            >
+              ← Anterior
+            </button>
+
+            <span style="font-size:13px;color:#6b7280;">
+              Página ${state.currentPage} de ${totalPages}
+            </span>
+
+            <button
+              type="button"
+              data-avaliapro-page="next"
+              class="avaliapro-button"
+              style="min-width:auto;padding:10px 14px;"
+              ${state.currentPage === totalPages ? "disabled" : ""}
+            >
+              Próxima →
+            </button>
+          </div>
+        `
+        : "";
 
     var debugHtml = "";
 
@@ -1395,8 +1475,8 @@
     if (summaryContainer) {
       summaryContainer.innerHTML = `
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;">
-        <span style="color:#f59e0b;font-weight:700;">${safeText(
-          getStars(averageRating)
+        <span style="color:#f59e0b;font-weight:700;">${getStars(
+          averageRating
         )}</span>
         <span style="font-weight:600;color:#111827;">${safeText(
           getAverageDisplay(averageRating)
@@ -1404,13 +1484,13 @@
         <span style="color:#6b7280;">(${totalReviews} avaliação${
         totalReviews === 1 ? "" : "ões"
       })</span>
-                  <a
-            href="#avaliapro-widget"
-            id="avaliapro-summary-link"
-            style="color:#111827;text-decoration:underline;font-weight:600;"
-          >
-            Ver avaliações
-          </a>
+        <a
+          href="#avaliapro-widget"
+          id="avaliapro-summary-link"
+          style="color:#111827;text-decoration:underline;font-weight:600;"
+        >
+          Ver avaliações
+        </a>
       </div>
     `;
     }
@@ -1421,44 +1501,43 @@
   <div class="avaliapro-widget" data-sku="${safeText(sku)}">
     <div class="avaliapro-header">
       <div class="avaliapro-summary" style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;width:100%;">
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,280px);align-items:start;column-gap:28px;row-gap:12px;">
+          <div style="display:grid;row-gap:8px;">
+            <div style="display:grid;grid-template-columns:auto auto;align-items:center;column-gap:16px;width:max-content;">
+              <span class="avaliapro-average" style="font-size:34px;font-weight:800;letter-spacing:-0.5px;line-height:1;display:block;">
+                ${safeText(getAverageDisplay(averageRating))}
+              </span>
 
-                           <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,280px);align-items:start;column-gap:28px;row-gap:12px;">
-  <div style="display:grid;row-gap:8px;">
-    <div style="display:grid;grid-template-columns:auto auto;align-items:center;column-gap:16px;width:max-content;">
-      <span class="avaliapro-average" style="font-size:34px;font-weight:800;letter-spacing:-0.5px;line-height:1;display:block;">
-        ${safeText(getAverageDisplay(averageRating))}
-      </span>
+              <div style="display:grid;align-content:center;row-gap:6px;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                  <span class="avaliapro-stars" style="font-size:18px;line-height:1;">
+                    ${getStars(averageRating)}
+                  </span>
 
-      <div style="display:grid;align-content:center;row-gap:6px;">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <span class="avaliapro-stars" style="font-size:18px;line-height:1;">
-            ${getStars(averageRating)}
-          </span>
+                  <span style="font-size:14px;font-weight:600;color:#111827;">
+                    ${safeText(getRatingLabel(averageRating))}
+                  </span>
+                </div>
 
-          <span style="font-size:14px;font-weight:600;color:#111827;">
-            ${safeText(getRatingLabel(averageRating))}
-          </span>
+                <span class="avaliapro-count" style="font-size:13px;line-height:1.3;display:block;">
+                  ${
+                    totalReviews === 0
+                      ? "Ainda sem avaliações"
+                      : `Baseado em ${totalReviews} ${
+                          totalReviews === 1 ? "avaliação" : "avaliações"
+                        }`
+                  }
+                </span>
+              </div>
+            </div>
+
+            ${reviewInsightsHtml}
+          </div>
+
+          <div>
+            ${socialProofHtml}
+          </div>
         </div>
-
-        <span class="avaliapro-count" style="font-size:13px;line-height:1.3;display:block;">
-          ${
-            totalReviews === 0
-              ? "Ainda sem avaliações"
-              : `Baseado em ${totalReviews} ${
-                  totalReviews === 1 ? "avaliação" : "avaliações"
-                }`
-          }
-        </span>
-      </div>
-    </div>
-
-    ${reviewInsightsHtml}
-  </div>
-
-  <div>
-    ${socialProofHtml}
-  </div>
-</div>
 
         <button
           class="avaliapro-button"
@@ -1473,93 +1552,92 @@
       </div>
     </div>
 
-   <div style="
-  margin: 18px 0 16px 0;
-  border-top: 1px solid #e5e7eb;
-"></div>
+    <div style="margin: 18px 0 16px 0; border-top: 1px solid #e5e7eb;"></div>
 
-<div class="avaliapro-list">${reviewListHtml}</div>
+    <div class="avaliapro-list">${reviewListHtml}${paginationHtml}</div>
 
-               <div class="avaliapro-form">
-  <div id="avaliapro-feedback"></div>
-</div>
+    <div class="avaliapro-form">
+      <div id="avaliapro-feedback"></div>
+    </div>
 
-        <div id="avaliapro-modal-root" style="display:none;">
-          <div id="avaliapro-modal-overlay">
-            <div id="avaliapro-modal-box">
-              <button
-                type="button"
-                id="avaliapro-close-modal"
-                aria-label="Fechar modal"
-           >
-  &times;
-</button>
+    <div id="avaliapro-modal-root" style="display:none;">
+      <div id="avaliapro-modal-overlay">
+        <div id="avaliapro-modal-box">
+          <button
+            type="button"
+            id="avaliapro-close-modal"
+            aria-label="Fechar modal"
+          >
+            &times;
+          </button>
 
- <div style="display:grid;gap:6px;padding-right:28px;">
-  <h3 style="margin:0;font-size:18px;font-weight:700;color:#111827;">
-    Deixe sua avaliação
-  </h3>
-  <p style="margin:0;font-size:14px;line-height:1.4;color:#6b7280;">
-    Sua opinião ajuda outros clientes a comprarem com mais segurança.
-  </p>
-</div>
-
-                           <form id="avaliapro-form" class="avaliapro-form">
-                <div class="avaliapro-field">
-                  <label class="avaliapro-label">Seu nome</label>
-                <input
-  class="avaliapro-input"
-  type="text"
-  name="authorName"
-  placeholder="Seu nome"
-  required
-/>
-                </div>
-                                          <div class="avaliapro-field">
-                  <label class="avaliapro-label">Nota</label>
-
-                <div
-  id="avaliapro-stars-input"
-  style="font-size:22px;line-height:1;color:#f59e0b;display:flex;gap:10px;cursor:pointer;user-select:none;"
->                    
-<span data-value="1" aria-label="1 estrela" title="1 estrela">★</span>
-<span data-value="2" aria-label="2 estrelas" title="2 estrelas">★</span>
-<span data-value="3" aria-label="3 estrelas" title="3 estrelas">★</span>
-<span data-value="4" aria-label="4 estrelas" title="4 estrelas">★</span>
-<span data-value="5" aria-label="5 estrelas" title="5 estrelas">★</span>
-
-                                  <select
-                    class="avaliapro-select"
-                    name="rating"
-                    required
-                    style="display:none;"
-                  >
-                    <option value="">Selecione uma nota</option>
-                    <option value="5" selected>5</option>
-                    <option value="4">4</option>
-                    <option value="3">3</option>
-                    <option value="2">2</option>
-                    <option value="1">1</option>
-                  </select>
-                </div>
-
-               <div class="avaliapro-field">
-<textarea
-  class="avaliapro-textarea"
-  name="comment"
-  placeholder="Escreva sua avaliação"
-  required
-></textarea>
-</div>
-
-                <button class="avaliapro-button" type="submit">
-                  Enviar avaliação
-                </button>
-              </form>
-            </div>
+          <div style="display:grid;gap:6px;padding-right:28px;">
+            <h3 style="margin:0;font-size:18px;font-weight:700;color:#111827;">
+              Deixe sua avaliação
+            </h3>
+            <p style="margin:0;font-size:14px;line-height:1.4;color:#6b7280;">
+              Sua opinião ajuda outros clientes a comprarem com mais segurança.
+            </p>
           </div>
+
+          <form id="avaliapro-form" class="avaliapro-form">
+            <div class="avaliapro-field">
+              <label class="avaliapro-label">Seu nome</label>
+              <input
+                class="avaliapro-input"
+                type="text"
+                name="authorName"
+                placeholder="Seu nome"
+                required
+              />
+            </div>
+
+            <div class="avaliapro-field">
+              <label class="avaliapro-label">Nota</label>
+
+              <div
+                id="avaliapro-stars-input"
+                style="font-size:22px;line-height:1;color:#f59e0b;display:flex;gap:10px;cursor:pointer;user-select:none;"
+              >
+                <span data-value="1" aria-label="1 estrela" title="1 estrela">★</span>
+                <span data-value="2" aria-label="2 estrelas" title="2 estrelas">★</span>
+                <span data-value="3" aria-label="3 estrelas" title="3 estrelas">★</span>
+                <span data-value="4" aria-label="4 estrelas" title="4 estrelas">★</span>
+                <span data-value="5" aria-label="5 estrelas" title="5 estrelas">★</span>
+
+                <select
+                  class="avaliapro-select"
+                  name="rating"
+                  required
+                  style="display:none;"
+                >
+                  <option value="">Selecione uma nota</option>
+                  <option value="5" selected>5</option>
+                  <option value="4">4</option>
+                  <option value="3">3</option>
+                  <option value="2">2</option>
+                  <option value="1">1</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="avaliapro-field">
+              <textarea
+                class="avaliapro-textarea"
+                name="comment"
+                placeholder="Escreva sua avaliação"
+                required
+              ></textarea>
+            </div>
+
+            <button class="avaliapro-button" type="submit">
+              Enviar avaliação
+            </button>
+          </form>
         </div>
       </div>
+    </div>
+  </div>
     `;
 
     var summaryLink = document.getElementById("avaliapro-summary-link");
@@ -1677,7 +1755,6 @@
     if (starsContainer && select) {
       var stars = starsContainer.querySelectorAll("span");
 
-      // estado inicial (5 estrelas)
       var initialValue = Number(select.value || 5);
       select.value = initialValue;
 
@@ -1695,6 +1772,7 @@
           setTimeout(function () {
             star.style.transform = "";
           }, 120);
+
           select.value = value;
 
           stars.forEach(function (s) {
@@ -1733,7 +1811,33 @@
           state.activeInsightFilter = value;
         }
 
+        state.currentPage = 1;
         renderWidget(container, data, sku);
+      };
+    });
+
+    var paginationButtons = container.querySelectorAll("[data-avaliapro-page]");
+
+    paginationButtons.forEach(function (button) {
+      button.onclick = function () {
+        var action = button.getAttribute("data-avaliapro-page");
+
+        if (action === "prev" && state.currentPage > 1) {
+          state.currentPage--;
+        }
+
+        if (action === "next" && state.currentPage < totalPages) {
+          state.currentPage++;
+        }
+
+        renderWidget(container, data, sku);
+
+        if (container && typeof container.scrollIntoView === "function") {
+          container.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
       };
     });
 
@@ -1984,6 +2088,14 @@
     if (!sku && !platformProductId) return Promise.resolve();
 
     var renderKey = sku || platformProductId;
+
+    if (
+      state.currentSku !== sku ||
+      state.currentPlatformProductId !== platformProductId ||
+      state.currentPlatformVariantId !== platformVariantId
+    ) {
+      state.currentPage = 1;
+    }
     var cacheKey = getProductCacheKey(sku);
     var hasCacheEntry = !!(cacheKey && state.reviewsCache[cacheKey]);
     var isSameIdentity =
