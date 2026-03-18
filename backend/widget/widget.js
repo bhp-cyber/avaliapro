@@ -1022,16 +1022,19 @@
       }
     }
 
-    document.addEventListener("keydown", function (event) {
-      if (
-        event.key === "Escape" &&
-        modalRoot &&
-        modalRoot.style.display === "block"
-      ) {
+    if (!window.__AVALIAPRO_MODAL_ESC_BOUND__) {
+      window.__AVALIAPRO_MODAL_ESC_BOUND__ = true;
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key !== "Escape") return;
+
+        var modalRoot = document.getElementById("avaliapro-modal-root");
+        if (!modalRoot || modalRoot.style.display !== "block") return;
+
         modalRoot.style.display = "none";
         document.body.style.overflow = "";
-      }
-    });
+      });
+    }
 
     bindForm(container, state.currentSku);
     state.lastRenderedSku = sku;
@@ -1210,12 +1213,6 @@
         .finally(function () {
           submitButton.disabled = false;
           submitButton.textContent = "Enviar avaliação";
-
-          var modalRoot = container.querySelector("#avaliapro-modal-root");
-          if (modalRoot) {
-            modalRoot.style.display = "none";
-            document.body.style.overflow = "";
-          }
         });
     });
   }
