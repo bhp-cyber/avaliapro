@@ -981,6 +981,10 @@
     var modalRoot = container.querySelector("#avaliapro-modal-root");
     var modalOverlay = container.querySelector("#avaliapro-modal-overlay");
 
+    if (modalRoot) {
+      modalRoot.style.display = "none";
+    }
+
     if (openModalButton) openModalButton.onclick = null;
     if (closeModalButton) closeModalButton.onclick = null;
     if (modalOverlay) modalOverlay.onclick = null;
