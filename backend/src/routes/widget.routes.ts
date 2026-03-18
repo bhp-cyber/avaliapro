@@ -67,11 +67,16 @@ router.get("/reviews", async (req, res) => {
       where: {
         apiKey: String(apiKey),
       },
+      select: {
+        id: true,
+        name: true,
+        apiKey: true,
+      },
     });
 
     if (!company) {
       return res.status(404).json({
-        error: "Empresa não encontrada",
+        error: "Empresa não encontrada para esta apiKey",
       });
     }
 
@@ -87,12 +92,12 @@ router.get("/reviews", async (req, res) => {
       product = await prisma.product.findFirst({
         where: {
           companyId: company.id,
-          OR: [
-            ...(platformProductId
-              ? [{ platformProductId: String(platformProductId) }]
-              : []),
-            ...(sku ? [{ sku: String(sku) }] : []),
-          ],
+          ...(platformProductId && {
+            platformProductId: String(platformProductId),
+          }),
+          ...(sku && {
+            sku: String(sku),
+          }),
         },
       });
 
