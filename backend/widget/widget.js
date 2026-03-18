@@ -325,7 +325,8 @@
         justify-content: center;
       }
 
-      #avaliapro-modal-box {
+          #avaliapro-modal-box {
+        position: relative;
         background: #fff;
         padding: 20px;
         border-radius: 12px;
@@ -969,27 +970,31 @@
     var modalRoot = container.querySelector("#avaliapro-modal-root");
     var modalOverlay = container.querySelector("#avaliapro-modal-overlay");
 
+    if (openModalButton) openModalButton.onclick = null;
+    if (closeModalButton) closeModalButton.onclick = null;
+    if (modalOverlay) modalOverlay.onclick = null;
+
     if (openModalButton && modalRoot) {
-      openModalButton.addEventListener("click", function () {
+      openModalButton.onclick = function () {
         modalRoot.style.display = "block";
         document.body.style.overflow = "hidden";
-      });
+      };
     }
 
     if (closeModalButton && modalRoot) {
-      closeModalButton.addEventListener("click", function () {
+      closeModalButton.onclick = function () {
         modalRoot.style.display = "none";
         document.body.style.overflow = "";
-      });
+      };
     }
 
     if (modalOverlay && modalRoot) {
-      modalOverlay.addEventListener("click", function (event) {
+      modalOverlay.onclick = function (event) {
         if (event.target === modalOverlay) {
           modalRoot.style.display = "none";
           document.body.style.overflow = "";
         }
-      });
+      };
     }
 
     bindForm(container, state.currentSku);
