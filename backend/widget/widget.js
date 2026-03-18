@@ -981,8 +981,6 @@
     if (closeModalButton) closeModalButton.onclick = null;
     if (modalOverlay) modalOverlay.onclick = null;
 
-    document.onkeydown = null;
-
     if (openModalButton && modalRoot) {
       openModalButton.onclick = function () {
         modalRoot.style.display = "block";
@@ -1020,12 +1018,24 @@
       }
     }
 
-    document.onkeydown = function (event) {
+    if (window.__AVALIAPRO_MODAL_ESC_HANDLER__) {
+      document.removeEventListener(
+        "keydown",
+        window.__AVALIAPRO_MODAL_ESC_HANDLER__
+      );
+    }
+
+    window.__AVALIAPRO_MODAL_ESC_HANDLER__ = function (event) {
       if (event.key === "Escape" && modalRoot) {
         modalRoot.style.display = "none";
         document.body.style.overflow = "";
       }
     };
+
+    document.addEventListener(
+      "keydown",
+      window.__AVALIAPRO_MODAL_ESC_HANDLER__
+    );
 
     bindForm(container, state.currentSku);
     state.lastRenderedSku = sku;
