@@ -648,88 +648,25 @@
 
   function getReviewInsights(reviews) {
     var list = Array.isArray(reviews) ? reviews : [];
-    var joined = list
-      .map(function (review) {
-        return normalizeText(review && review.comment).toLowerCase();
-      })
-      .join(" ");
 
-    var patterns = [
-      {
-        label: "Natural",
-        keywords: ["natural", "naturais", "naturalidade", "realista"],
-      },
-      {
-        label: "Macio",
-        keywords: ["macio", "macia", "maciez", "suave"],
-      },
-      {
-        label: "Confortável",
-        keywords: [
-          "confortável",
-          "confortavel",
-          "leve",
-          "ajuste",
-          "ajustável",
-          "ajustavel",
-        ],
-      },
-      {
-        label: "Entrega rápida",
-        keywords: [
-          "entrega rápida",
-          "entrega rapida",
-          "chegou rápido",
-          "chegou rapido",
-          "rápida",
-          "rapida",
-        ],
-      },
-      {
-        label: "Visual bonito",
-        keywords: [
-          "lindo",
-          "linda",
-          "bonito",
-          "bonita",
-          "perfeito",
-          "perfeita",
-        ],
-      },
-      {
-        label: "Bem embalado",
-        keywords: ["bem embalado", "bem embalada", "embalado", "embalada"],
-      },
-      {
-        label: "Ótimo atendimento",
-        keywords: [
-          "atendimento",
-          "atencioso",
-          "atenciosa",
-          "me atenderam bem",
-          "atendeu super bem",
-        ],
-      },
-      {
-        label: "Veio com brinde",
-        keywords: ["brinde", "brindes", "veio com brinde", "mandaram brinde"],
-      },
+    var labels = [
+      "Natural",
+      "Macio",
+      "Confortável",
+      "Entrega rápida",
+      "Visual bonito",
+      "Bem embalado",
+      "Ótimo atendimento",
+      "Veio com brinde",
     ];
 
     var results = [];
 
-    for (var i = 0; i < patterns.length; i++) {
-      var found = false;
+    for (var i = 0; i < labels.length; i++) {
+      var filtered = filterReviewsByInsight(list, labels[i]);
 
-      for (var j = 0; j < patterns[i].keywords.length; j++) {
-        if (joined.indexOf(patterns[i].keywords[j]) !== -1) {
-          found = true;
-          break;
-        }
-      }
-
-      if (found) {
-        results.push(patterns[i].label);
+      if (filtered.length > 0) {
+        results.push(labels[i]);
       }
 
       if (results.length >= 4) {
@@ -748,7 +685,7 @@
 
     var keywordMap = {
       natural: ["natural", "naturais", "naturalidade", "realista"],
-      macio: ["macio", "macia", "maciez", "suave"],
+      macio: ["macio", "macia", "maciez", "sedoso", "sedosa", "suave"],
       confortável: [
         "confortável",
         "confortavel",
@@ -772,6 +709,9 @@
         "bonita",
         "perfeito",
         "perfeita",
+        "maravilho",
+        "maravilha",
+        "amei",
       ],
       "bem embalado": ["bem embalado", "bem embalada", "embalado", "embalada"],
       "ótimo atendimento": [
@@ -1276,11 +1216,15 @@
 
     var recommendationRate = getRecommendationRate(safeReviews);
     var reviewInsights = getReviewInsights(safeReviews);
+
     var highlightReview = safeReviews.length ? safeReviews[0] : null;
     var hasHighlightSlot = !!highlightReview && !state.activeInsightFilter;
 
     var listReviews = filteredReviews.filter(function (review) {
-      return !highlightReview || review !== highlightReview;
+      if (!highlightReview) return true;
+      if (state.activeInsightFilter) return true;
+
+      return review !== highlightReview;
     });
 
     var totalListReviews = listReviews.length;
