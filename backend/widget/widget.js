@@ -908,11 +908,13 @@
                 type="button"
                 id="avaliapro-close-modal"
                 aria-label="Fechar modal"
-              >
-                ×
-              </button>
+           >
+  &times;
+</button>
 
-              <h3>Avaliar produto</h3>
+              <h3 style="margin:0;font-size:18px;font-weight:700;color:#111827;">
+  Deixe sua avaliação
+</h3>
 
                            <form id="avaliapro-form" class="avaliapro-form">
                 <div class="avaliapro-field">
