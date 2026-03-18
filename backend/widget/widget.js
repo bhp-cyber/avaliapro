@@ -404,6 +404,15 @@
         align-items: center;
         flex-wrap: wrap;
       }
+
+      #avaliapro-stars-input span {
+        transition: transform 0.12s ease, opacity 0.12s ease;
+        transform-origin: center;
+      }
+
+      #avaliapro-stars-input span:hover {
+        transform: scale(1.12);
+      }
     `;
     document.head.appendChild(style);
   }
@@ -1137,6 +1146,11 @@
         var value = Number(star.getAttribute("data-value"));
 
         star.onclick = function () {
+          star.style.transform = "scale(1.25)";
+
+          setTimeout(function () {
+            star.style.transform = "";
+          }, 120);
           select.value = value;
 
           stars.forEach(function (s) {
