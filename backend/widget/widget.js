@@ -325,7 +325,7 @@
         justify-content: center;
       }
 
-   #avaliapro-modal-box {
+#avaliapro-modal-box {
   position: relative;
   background: #fff;
   padding: 24px;
@@ -333,21 +333,77 @@
   width: 100%;
   max-width: 420px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
 }
 
-     #avaliapro-close-modal {
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  border: none;
-  background: transparent;
-  font-size: 22px;
-  cursor: pointer;
-  color: #6b7280;
+#avaliapro-modal-box .avaliapro-form {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 16px;
 }
+
+#avaliapro-modal-box .avaliapro-field {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+}
+
+#avaliapro-modal-box .avaliapro-input,
+#avaliapro-modal-box .avaliapro-textarea,
+#avaliapro-modal-box .avaliapro-button {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#avaliapro-modal-box .avaliapro-textarea {
+  min-height: 140px;
+}
+
+#avaliapro-stars-input {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+       #avaliapro-close-modal {
+        position: absolute;
+        top: 12px;
+        right: 14px;
+        border: none;
+        background: transparent;
+        font-size: 22px;
+        cursor: pointer;
+        color: #6b7280;
+      }
+
+      #avaliapro-modal-box .avaliapro-form {
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      #avaliapro-modal-box .avaliapro-field {
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      #avaliapro-modal-box .avaliapro-input,
+      #avaliapro-modal-box .avaliapro-textarea,
+      #avaliapro-modal-box .avaliapro-select,
+      #avaliapro-modal-box .avaliapro-button {
+        width: 100%;
+        box-sizing: border-box;
+        display: block;
+      }
+
+      #avaliapro-stars-input {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -929,12 +985,27 @@
   required
 />
                 </div>
-
-                <div class="avaliapro-field">
+                                          <div class="avaliapro-field">
                   <label class="avaliapro-label">Nota</label>
-                <select class="avaliapro-select" name="rating" required>
+
+                  <div
+                    id="avaliapro-stars-input"
+                    style="font-size:22px;color:#f59e0b;display:flex;gap:6px;cursor:pointer;"
+                  >                     <span data-value="1">★</span>
+                    <span data-value="2">★</span>
+                    <span data-value="3">★</span>
+                    <span data-value="4">★</span>
+                    <span data-value="5">★</span>
+                  </div>
+
+                                  <select
+                    class="avaliapro-select"
+                    name="rating"
+                    required
+                    style="display:none;"
+                  >
                     <option value="">Selecione uma nota</option>
-                    <option value="5">5</option>
+                    <option value="5" selected>5</option>
                     <option value="4">4</option>
                     <option value="3">3</option>
                     <option value="2">2</option>
@@ -1043,6 +1114,53 @@
           document.body.style.overflow = "";
         });
       }
+    }
+
+    var starsContainer = container.querySelector("#avaliapro-stars-input");
+    var select = container.querySelector(
+      '#avaliapro-form select[name="rating"]'
+    );
+
+    if (starsContainer && select) {
+      var stars = starsContainer.querySelectorAll("span");
+
+      // estado inicial (5 estrelas)
+      var initialValue = Number(select.value || 5);
+      select.value = initialValue;
+
+      stars.forEach(function (s) {
+        var v = Number(s.getAttribute("data-value"));
+        s.textContent = v <= initialValue ? "★" : "☆";
+      });
+
+      stars.forEach(function (star) {
+        var value = Number(star.getAttribute("data-value"));
+
+        star.onclick = function () {
+          select.value = value;
+
+          stars.forEach(function (s) {
+            var v = Number(s.getAttribute("data-value"));
+            s.textContent = v <= value ? "★" : "☆";
+          });
+        };
+
+        star.onmouseenter = function () {
+          stars.forEach(function (s) {
+            var v = Number(s.getAttribute("data-value"));
+            s.textContent = v <= value ? "★" : "☆";
+          });
+        };
+
+        star.onmouseleave = function () {
+          var selected = Number(select.value || 5);
+
+          stars.forEach(function (s) {
+            var v = Number(s.getAttribute("data-value"));
+            s.textContent = v <= selected ? "★" : "☆";
+          });
+        };
+      });
     }
 
     bindForm(container, state.currentSku);
@@ -1157,7 +1275,7 @@
 
       var submitButton = form.querySelector('button[type="submit"]');
       var authorName = normalizeText(form.authorName.value);
-      var rating = Number(form.rating.value);
+      var rating = Number(form.querySelector('[name="rating"]').value);
       var comment = normalizeText(form.comment.value);
       var platformProductId = getPlatformProductId();
 
