@@ -819,7 +819,7 @@
             <div style="font-weight:700;margin-bottom:6px;">
               ⭐ Avaliação em destaque
             </div>
-      
+
             ${buildReviewItem(highlightReview)}
           </div>
         `
@@ -828,6 +828,18 @@
     var reviewListHtml = safeReviews.length
       ? highlightHtml + safeReviews.slice(1).map(buildReviewItem).join("")
       : `<div class="avaliapro-empty">Ainda não há avaliações para este produto.</div>`;
+
+    var debugHtml = "";
+
+    if (window.AVALIAPRO_DEBUG) {
+      debugHtml = `
+        <div class="avaliapro-debug">
+          sku: ${safeText(sku || "")} | platformProductId: ${safeText(
+        platformProductId || ""
+      )} | platformVariantId: ${safeText(platformVariantId || "")}
+        </div>
+      `;
+    }
 
     var summaryContainer = document.getElementById("avaliapro-summary");
     if (summaryContainer) {
@@ -873,17 +885,7 @@
     </span>
   </div>
 </div>
-    ${
-      window.AVALIAPRO_DEBUG
-        ? `
-            <div class="avaliapro-debug">
-        sku: ${safeText(sku || "")} | platformProductId: ${safeText(
-            platformProductId || ""
-          )} | platformVariantId: ${safeText(platformVariantId || "")}
-      </div>
-      `
-        : ""
-    }
+    ${debugHtml}
           </div>
         </div>
 
@@ -1208,6 +1210,12 @@
         .finally(function () {
           submitButton.disabled = false;
           submitButton.textContent = "Enviar avaliação";
+
+          var modalRoot = container.querySelector("#avaliapro-modal-root");
+          if (modalRoot) {
+            modalRoot.style.display = "none";
+            document.body.style.overflow = "";
+          }
         });
     });
   }
