@@ -985,11 +985,17 @@
       modalRoot.style.display = "none";
     }
 
-    if (openModalButton && openModalButton.__AVALIAPRO_BOUND__) return;
+    if (openModalButton && !openModalButton.__AVALIAPRO_BOUND__) {
+      openModalButton.__AVALIAPRO_BOUND__ = true;
+    }
 
-    if (openModalButton) openModalButton.__AVALIAPRO_BOUND__ = true;
-    if (closeModalButton) closeModalButton.__AVALIAPRO_BOUND__ = true;
-    if (modalOverlay) modalOverlay.__AVALIAPRO_BOUND__ = true;
+    if (closeModalButton && !closeModalButton.__AVALIAPRO_BOUND__) {
+      closeModalButton.__AVALIAPRO_BOUND__ = true;
+    }
+
+    if (modalOverlay && !modalOverlay.__AVALIAPRO_BOUND__) {
+      modalOverlay.__AVALIAPRO_BOUND__ = true;
+    }
 
     if (openModalButton && modalRoot) {
       openModalButton.onclick = function () {
