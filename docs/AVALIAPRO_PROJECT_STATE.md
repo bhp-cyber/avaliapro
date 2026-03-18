@@ -8,89 +8,100 @@ Caminho da pasta raiz do projeto:
 
 ```bash
 cd ~/Documents/Programas/AvaliaPro
-```
 
 Script atual de instalação:
 
-```html
 <script
   src="https://avaliapro-api.onrender.com/widget/widget.js"
   data-api-key="API_KEY"
 ></script>
-```
+ROADMAP TÉCNICO ATUALIZADO
 
----
-
-# ROADMAP TÉCNICO ATUALIZADO
-
-Widget estável  
+Widget estável
 ✅
 
-Sistema de reviews  
+Sistema de reviews
 ✅
 
-Sistema de moderação  
+Sistema de moderação
 ✅
 
-Sistema de edição  
+Sistema de edição
 ✅
 
-Painel conectado à API  
+Painel conectado à API
 ✅
 
-Tela de produtos básica  
+Tela de produtos básica
 ✅
 
-Sincronização de produtos (Nuvemshop)  
-✅ **IMPLEMENTADO E FUNCIONAL**
-
-Cadastro automático via SKU  
-✅ **IMPLEMENTADO (via sync + identificação no widget)**
-
-Paginação de produtos (API SaaS)  
+Sincronização de produtos (Nuvemshop)
 ✅
 
-Integração oficial com Nuvemshop (OAuth completo)  
+Cadastro automático via SKU / platformId
 ✅
 
-Dashboard SaaS completo  
+Paginação de produtos (API SaaS)
+✅
+
+Integração oficial com Nuvemshop (OAuth completo)
+✅
+
+Isolamento multi-tenant (companyId + apiKey)
+✅ RECENTEMENTE CORRIGIDO E VALIDADO
+
+Validação de produto por company no widget
+✅ IMPLEMENTADO (CRÍTICO PARA SAAS)
+
+Correção de inconsistência de múltiplas companies
+✅
+
+Limpeza de banco (dados inválidos / duplicados)
+✅
+
+Widget funcionando com produto real da loja
+✅
+
+Widget com cache inteligente (TTL + limite)
+✅
+
+Dashboard SaaS completo
 ⏳
 
-Sistema de avaliações com média por produto  
+Sistema de média e agregação por produto
 ⏳
 
-Widget embedável avançado (UX + performance)  
+Widget embedável avançado (UX + conversão)
 ⏳
 
-Sistema de coleta automática de reviews (pós-compra)  
-🚨 PRIORIDADE ALTA
+Sistema de coleta automática de reviews (pós-compra)
+🚨 PRIORIDADE MÁXIMA
 
-Sistema de notificações (email / webhook)  
+Sistema de notificações (email / webhook)
 ⏳
 
-Multi-plataforma (Shopify / WooCommerce)  
+Multi-plataforma (Shopify / WooCommerce)
 ⏳
 
----
-
-# ESTADO ATUAL DA ARQUITETURA
-
-## Backend API
+ESTADO ATUAL DA ARQUITETURA
+Backend API
 
 Stack atual:
 
-- Node.js
-- Express
-- Prisma
-- PostgreSQL
+Node.js
+
+Express
+
+Prisma
+
+PostgreSQL (Supabase)
 
 Deploy:
 
-- Render
+Render
 
 Estrutura principal:
 
-```
 backend/src
 ├ app.ts
 ├ routes
@@ -103,311 +114,310 @@ backend/src
 │ └ health.routes.ts
 └ lib
   └ prisma.ts
-```
-
----
-
-## Inicialização do servidor
+Inicialização do servidor
 
 Arquivo:
 
-```
 backend/src/app.ts
-```
 
 Responsável por:
 
-- configurar Express
-- habilitar CORS
-- JSON parser
-- servir widget estático
-- registrar rotas `/api`
+configurar Express
 
----
+habilitar CORS
 
-# Rotas da API
+JSON parser
 
-## Prefixo geral
+servir widget estático
 
-```
+registrar rotas /api
+
+Rotas da API
+Prefixo geral
 /api
-```
-
----
-
-## Health
-
-```
+Health
 GET /api/health
-```
 
 Verificação de saúde da API.
 
----
-
-## Companies
-
-```
+Companies
 GET /api/companies
 POST /api/companies
 GET /api/companies/:companyId
 GET /api/companies/:companyId/summary
-```
 
 Funções:
 
-- criação de empresas
-- listagem de empresas
-- busca individual
-- resumo estatístico
+criação de empresas
+
+listagem de empresas
+
+busca individual
+
+resumo estatístico
 
 Resumo retorna:
 
-- productsCount
-- reviewsCount
-- customersCount
-- averageRating
+productsCount
 
----
+reviewsCount
 
-## Products
+customersCount
 
-```
+averageRating
+
+Products
 GET /api/products?companyId=&limit=&offset=
 POST /api/products
 GET /api/products/sku/:sku
 GET /api/products/sku/:sku/reviews
 GET /api/products/:productId/reviews
-```
+Estado atual:
 
-### Estado atual:
+sincronização automática com Nuvemshop IMPLEMENTADA
 
-- sincronização automática com Nuvemshop IMPLEMENTADA
-- produtos reais sendo persistidos no banco
-- identificação via `platformVariantId` (único)
-- suporte completo a SKU
+produtos reais sendo persistidos no banco
 
-### Paginação:
+identificação via platformVariantId
 
-- `limit` (máx 100)
-- `offset`
+fallback por SKU
+
+queries corrigidas para multi-tenant
+
+Paginação:
+
+limit (máx 100)
+
+offset
 
 Resposta:
 
-```json
 {
   "total": 941,
   "limit": 20,
   "offset": 0,
   "products": []
 }
-```
-
----
-
-## Nuvemshop
-
-```
+Nuvemshop
 GET /api/nuvemshop/install
 GET /api/nuvemshop/callback
 POST /api/nuvemshop/sync-products
-```
+Funcionalidades:
 
-### Funcionalidades:
+OAuth completo funcionando
 
-- OAuth completo funcionando
-- token salvo no banco
-- storeId persistido
-- sincronização completa de produtos
+token salvo no banco
 
-### Sync:
+storeId persistido
 
-- paginação implementada (page + per_page)
-- suporte a lojas grandes (300+ produtos)
-- prevenção de duplicação via `platformVariantId`
-- upsert funcionando corretamente
+sincronização completa de produtos
 
-Exemplo de retorno:
+Sync:
 
-```json
-{
-  "message": "Produtos sincronizados 🚀",
-  "totalReceived": 341,
-  "totalSaved": 941
-}
-```
+paginação implementada (page + per_page)
 
----
+suporte a lojas grandes
 
-## Reviews (painel SaaS)
+upsert via platformVariantId
 
-```
+evita duplicação
+
+Reviews (painel SaaS)
 GET /api/reviews?companyId=&status=
 POST /api/reviews
 PATCH /api/reviews/:reviewId
 PATCH /api/reviews/:reviewId/status
-```
+DELETE /api/reviews/:reviewId
+Características:
 
-### Características:
+isolamento por companyId
 
-- isolamento por companyId
-- paginação (limit / offset)
-- limite máximo de 50
-- validações completas
+paginação (limit / offset)
 
-### Status:
+limite máximo de 50
 
-- pending
-- approved
-- rejected
+validações completas
 
----
+Status:
 
-## Widget
+pending
 
-```
+approved
+
+rejected
+
+Widget
 GET /api/widget/reviews
 POST /api/widget/reviews
-```
+Funções:
 
-### Funções:
+buscar avaliações
 
-- buscar avaliações
-- criar avaliações
-- identificar produto automaticamente
+criar avaliações
 
----
+identificar produto automaticamente
 
-# Widget Frontend
+validação por apiKey → companyId
+
+proteção multi-tenant completa
+
+Widget Frontend
 
 Arquivo:
 
-```
 backend/widget/widget.js
-```
+Funcionalidades:
 
-### Funcionalidades:
+carregamento automático
 
-- carregamento automático
-- média de avaliações
-- renderização
-- envio de review
-- prevenção de duplicação
-- reload automático
+renderização de reviews
 
----
+média e contagem
 
-# Estabilização SPA
+destaque de review
+
+envio de review
+
+cache local inteligente
+
+reload automático
+
+compatível com SPA
+
+Estabilização SPA
 
 Implementado:
 
-- MutationObserver
-- eventos de navegação
-- proteção contra loops
-- prevenção de múltiplos listeners
+MutationObserver
 
----
+interceptação de history (pushState / replaceState)
 
-# Identificação de Produto
+polling leve
+
+prevenção de loops
+
+Identificação de Produto
 
 Prioridade:
 
-1. platformProductId + platformVariantId
-2. platformProductId
-3. sku + variantId
-4. sku
+platformProductId + platformVariantId
+
+platformProductId
+
+sku + variantId
+
+sku
 
 Observação:
 
-- SKU continua sendo fallback mais confiável
-- integração com Nuvemshop prioriza variantId
+SKU = fallback
 
----
+variantId = mais preciso
 
-# Cache
+sistema já preparado para múltiplas plataformas
 
-## Widget
+Cache
+Widget
 
-- memória local
-- TTL: 60s
-- limite: 20 produtos
+memória local
 
-## Backend
+TTL: 60s
 
-- Map em memória
-- TTL: 60s
-- limite: 100
+limite: 20 produtos
 
----
+Backend
 
-# Segurança Multi-Tenant
+Map em memória
 
-- isolamento por companyId
-- validação de empresa
-- validação de produto
-- validação de cliente
-- payload reduzido
+TTL: 60s
 
----
+limite: 100
 
-# Schema Prisma
+Segurança Multi-Tenant
+
+Estado atual:
+
+isolamento por companyId
+
+apiKey vinculada à company
+
+validação de produto por company
+
+validação de review por company
+
+remoção de companies inválidas
+
+queries protegidas contra vazamento
+
+Status:
+
+👉 100% funcional e validado
+
+Schema Prisma
 
 Modelos:
 
-- User
-- Company
-- Product
-- Customer
-- Review
+User
 
-### Índices importantes:
+Company
+
+Product
+
+Customer
+
+Review
+
+Índices importantes:
 
 Product:
 
-- companyId
-- companyId + sku
-- companyId + platformProductId
-- companyId + platformVariantId (único lógico)
+companyId
+
+companyId + sku
+
+companyId + platformProductId
+
+companyId + platformVariantId
 
 Review:
 
-- productId + variantId
-- companyId
+companyId
 
----
+productId
 
-# Estado Atual do Sistema
+Estado Atual do Sistema
 
 Situação atual:
 
-- widget funcional
-- API funcional
-- sincronização automática ativa
-- banco populado (centenas de produtos)
-- paginação implementada
-- cache ativo
-- suporte a variantes
-- arquitetura SaaS pronta
+widget funcional
 
----
+API funcional
 
-# Sistema de Moderação
+integração com Nuvemshop ativa
 
-Status:
+banco consistente
 
-IMPLEMENTADO
+multi-tenant seguro
 
----
+cache ativo
 
-# Sistema de Edição
+produto real validado
+
+estrutura pronta para escalar
+
+Sistema de Moderação
 
 Status:
 
 IMPLEMENTADO
 
----
+Sistema de Edição
 
-# Sistema de Produtos
+Status:
+
+IMPLEMENTADO
+
+Sistema de Produtos
 
 Status:
 
@@ -415,80 +425,118 @@ Status:
 
 Situação:
 
-- produtos sincronizados automaticamente
-- não depende mais de cadastro manual
-- integração real com loja
-- preparado para escala
+sincronização automática
 
----
+dados reais
 
-# Frontend Admin
+sem dependência manual
+
+preparado para escala
+
+Frontend Admin
 
 Stack:
 
-- React
-- TypeScript
-- Vite
+React
+
+TypeScript
+
+Vite
 
 Status:
 
 FUNCIONAL
 
----
+Problemas Resolvidos Recentemente
 
-# Problemas Resolvidos Recentemente
+produtos não carregando corretamente
 
-- paginação da API Nuvemshop
-- duplicação de produtos
-- conflito TS/Prisma
-- leitura incompleta no Thunder
-- cache de arquivos JS antigos
-- falta de paginação na API interna
+inconsistência entre local e produção
 
----
+duplicação de companies
 
-# Próximos Passos (ATUAL)
+uso incorreto de apiKey
 
-## PRIORIDADE MÁXIMA
+widget não carregando produto correto
 
-1. Sistema de avaliações por produto (média + contagem)
-2. Exibição no widget (UX real de prova social)
-3. Vincular avaliações ao produto correto (variantId)
+falha de isolamento multi-tenant
 
-## PRIORIDADE ALTA
+limpeza de banco
 
-4. Widget visual profissional (estilo Trustpilot)
-5. Score agregado por produto
-6. Paginação no widget
+erro de leitura da API de produtos
 
-## PRIORIDADE MÉDIA
+falha de sincronização parcial
 
-7. Dashboard SaaS completo
-8. Filtros avançados (produto, nota, status)
-9. Relatórios
+Problemas Atuais
 
-## PRIORIDADE FUTURA
+botão "Avaliar produto" não abre modal
 
-10. Envio automático de review (pós-compra)
-11. Webhooks Nuvemshop
-12. Integração Shopify
-13. Sistema de reputação
-14. Anti-spam avançado
-15. CDN para widget
+formulário popup ainda não implementado corretamente
 
----
+Próximos Passos (ATUAL)
+PRIORIDADE MÁXIMA
 
-# Situação Atual (Resumo Executivo)
+Implementar modal de avaliação (popup real)
+
+Conectar botão "Avaliar produto" ao modal
+
+Melhorar UX de envio de review
+
+PRIORIDADE ALTA
+
+Sistema de média por produto persistido
+
+Exibição de score agregado
+
+Paginação no widget
+
+layout profissional (Trustpilot-like)
+
+PRIORIDADE MÉDIA
+
+Dashboard SaaS completo
+
+filtros avançados
+
+relatórios
+
+PRIORIDADE FUTURA
+
+envio automático pós-compra
+
+webhooks Nuvemshop
+
+integração Shopify
+
+sistema anti-spam
+
+reputação por loja
+
+CDN para widget
+
+sistema de imagens em reviews
+
+analytics de conversão (impacto das avaliações)
+
+Situação Atual (Resumo Executivo)
 
 AvaliaPro já possui:
 
-- integração real com plataforma
-- ingestão de dados
-- persistência estruturada
-- API paginada
-- widget funcional
-- sistema de reviews completo
+integração real com plataforma
+
+ingestão de dados confiável
+
+persistência estruturada
+
+API robusta e paginada
+
+widget funcional e isolado
+
+sistema de reviews completo
+
+base pronta para escalar SaaS
 
 Estado:
 
-👉 **MVP funcional de SaaS pronto para evolução e monetização**
+👉 MVP funcional, seguro e pronto para evolução e monetização
+```

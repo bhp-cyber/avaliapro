@@ -912,17 +912,18 @@
                            <form id="avaliapro-form" class="avaliapro-form">
                 <div class="avaliapro-field">
                   <label class="avaliapro-label">Seu nome</label>
-                  <input
-                    class="avaliapro-input"
-                    type="text"
-                    name="authorName"
-                    placeholder="Seu nome"
-                  />
+                <input
+  class="avaliapro-input"
+  type="text"
+  name="authorName"
+  placeholder="Seu nome"
+  required
+/>
                 </div>
 
                 <div class="avaliapro-field">
                   <label class="avaliapro-label">Nota</label>
-                  <select class="avaliapro-select" name="rating">
+                <select class="avaliapro-select" name="rating" required>
                     <option value="">Selecione uma nota</option>
                     <option value="5">5</option>
                     <option value="4">4</option>
@@ -934,11 +935,12 @@
 
                 <div class="avaliapro-field">
                   <label class="avaliapro-label">Avaliação</label>
-                  <textarea
-                    class="avaliapro-textarea"
-                    name="comment"
-                    placeholder="Escreva sua avaliação"
-                  ></textarea>
+               <textarea
+  class="avaliapro-textarea"
+  name="comment"
+  placeholder="Escreva sua avaliação"
+  required
+></textarea>
                 </div>
 
                 <button class="avaliapro-button" type="submit">
