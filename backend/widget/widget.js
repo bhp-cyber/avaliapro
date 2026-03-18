@@ -974,6 +974,8 @@
     if (closeModalButton) closeModalButton.onclick = null;
     if (modalOverlay) modalOverlay.onclick = null;
 
+    document.onkeydown = null;
+
     if (openModalButton && modalRoot) {
       openModalButton.onclick = function () {
         modalRoot.style.display = "block";
@@ -996,6 +998,13 @@
         }
       };
     }
+
+    document.onkeydown = function (event) {
+      if (event.key === "Escape" && modalRoot) {
+        modalRoot.style.display = "none";
+        document.body.style.overflow = "";
+      }
+    };
 
     bindForm(container, state.currentSku);
     state.lastRenderedSku = sku;
