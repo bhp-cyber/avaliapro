@@ -10,7 +10,9 @@ Criar um SaaS de avaliações para e-commerce, com widget embedável via script,
 
 ```bash
 cd ~/Documents/Programas/AvaliaPro
+
 Script de Instalação
+
 <script
   src="https://avaliapro-api.onrender.com/widget/widget.js"
   data-api-key="API_KEY"
@@ -69,18 +71,51 @@ Widget com cache inteligente (TTL + limite)
 Widget UX / Conversão
 
 Modal funcional de avaliação
-✅ IMPLEMENTADO
+✅
 
 Sistema de estrelas interativas (hover + clique)
-✅ IMPLEMENTADO
+✅
 
-Experiência de envio (UX melhorado)
+Envio com feedback visual (loading + sucesso)
 ✅
 
 Micro-animações (hover + click feedback)
 ✅
 
 Select substituído por estrelas (UX moderno)
+✅
+
+Correção de validação de formulário (campos obrigatórios)
+✅
+
+Melhoria visual do modal (layout premium)
+✅
+
+CTA otimizado (Escrever avaliação)
+✅
+
+Reposicionamento do botão (topo do widget)
+✅
+
+Separação visual (header vs conteúdo)
+✅
+
+Correção de pluralização e estados vazios
+✅
+
+Exibição “Baseado em X avaliações”
+✅
+
+Label qualitativo (Excelente, Bom, etc.)
+✅
+
+Renderização de estrelas com precisão (floor)
+✅
+
+Sistema de meia estrela com CSS (visual profissional)
+✅
+
+Correção de escape HTML nas estrelas
 ✅
 
 Em Andamento
@@ -108,11 +143,8 @@ Backend API
 Stack
 
 Node.js
-
 Express
-
 Prisma
-
 PostgreSQL (Supabase)
 
 Deploy
@@ -135,7 +167,6 @@ backend/src
 Inicialização
 
 Arquivo:
-
 backend/src/app.ts
 
 Responsável por:
@@ -151,11 +182,16 @@ servir widget estático
 registrar rotas /api
 
 ROTAS DA API
+
 Prefixo
 /api
+
 Health
+
 GET /api/health
+
 Companies
+
 GET /api/companies
 POST /api/companies
 GET /api/companies/:companyId
@@ -172,12 +208,14 @@ customersCount
 averageRating
 
 Products
+
 GET /api/products?companyId=&limit=&offset=
 POST /api/products
 GET /api/products/sku/:sku
 GET /api/products/sku/:sku/reviews
 GET /api/products/:productId/reviews
-Estado
+
+Estado:
 
 sincronização com Nuvemshop funcionando
 
@@ -187,14 +225,19 @@ identificação via platformVariantId
 
 fallback por SKU
 
-Paginação
+Paginação:
+
 limit (máx 100)
+
 offset
+
 Nuvemshop
+
 GET /api/nuvemshop/install
 GET /api/nuvemshop/callback
 POST /api/nuvemshop/sync-products
-Funcionalidades
+
+Funcionalidades:
 
 OAuth completo
 
@@ -205,6 +248,7 @@ storeId salvo
 sync completo
 
 Reviews (Painel)
+
 GET /api/reviews
 POST /api/reviews
 PATCH /api/reviews/:reviewId
@@ -220,13 +264,15 @@ approved
 rejected
 
 Widget API
+
 GET /api/widget/reviews
 POST /api/widget/reviews
+
 WIDGET FRONTEND
 
 Arquivo:
-
 backend/widget/widget.js
+
 Funcionalidades
 
 carregamento automático
@@ -237,11 +283,13 @@ média e contagem
 
 destaque de review
 
-envio de review via modal
+envio via modal
 
-estrelas interativas
+estrelas dinâmicas (full + half + empty)
 
-cache local
+label qualitativo (Excelente, etc.)
+
+cache local inteligente
 
 compatível com SPA
 
@@ -340,9 +388,11 @@ multi-tenant seguro
 
 cache ativo
 
-UX moderna com estrelas
+UX premium (modal + estrelas + animações)
 
-modal funcional
+meia estrela funcional (nível marketplace)
+
+feedback visual de envio (loading + sucesso)
 
 SISTEMAS IMPLEMENTADOS
 
@@ -353,16 +403,14 @@ Sistema de Edição
 ✅
 
 Sistema de Produtos
-✅ COMPLETO
+✅
 
 FRONTEND ADMIN
 
 Stack:
 
 React
-
 TypeScript
-
 Vite
 
 Status:
@@ -391,15 +439,23 @@ estrelas não funcionando
 
 UX ruim do formulário
 
-PROBLEMAS ATUAIS
+render incorreto de estrelas (safeText)
 
-layout do widget ainda simples
+pluralização incorreta (“avaliaçãoões”)
+
+timeout curto no fetch (Render cold start)
+
+PROBLEMAS ATUAIS
 
 ausência de paginação no widget
 
-ausência de ranking visual (ex: barras de avaliação)
+ausência de ranking visual completo
 
-ausência de prova social forte (ex: “X pessoas compraram”)
+ausência de prova social avançada
+
+ausência de distribuição persistida no backend
+
+dependência de cold start da API (Render)
 
 PRÓXIMOS PASSOS
 PRIORIDADE MÁXIMA 🚨
@@ -412,17 +468,21 @@ envio de email automático
 
 link direto para avaliação
 
+marcação de “Compra verificada”
+
 PRIORIDADE ALTA
 
 score agregado persistido
 
-distribuição de avaliações (5⭐ → 1⭐)
+distribuição de avaliações (backend)
 
 paginação no widget
 
-layout estilo Trustpilot
+layout estilo Trustpilot completo
 
 badges (Compra verificada, Top review)
+
+sistema de reputação por produto
 
 PRIORIDADE MÉDIA
 
@@ -432,6 +492,8 @@ filtros e relatórios
 
 exportação de dados
 
+notificações (email / webhook)
+
 PRIORIDADE FUTURA
 
 Shopify
@@ -440,29 +502,31 @@ WooCommerce
 
 sistema anti-spam
 
-reputação por loja
-
 CDN para widget
 
-upload de imagens em reviews (expandido)
+upload de imagens avançado
 
 analytics de conversão
 
-A/B testing de widget
+A/B testing do widget
 
 MELHORIAS ESTRATÉGICAS SUGERIDAS
 
-widget com foco em conversão (CRO)
+widget com foco extremo em conversão (CRO)
 
 lazy loading de reviews
 
-carregamento parcial (primeira dobra)
+carregamento parcial (above the fold)
 
-schema.org (SEO rich snippets ⭐)
-
-heatmap de avaliações
+schema.org (rich snippets ⭐)
 
 prova social dinâmica
+
+fallback inteligente em caso de API lenta
+
+pré-carregamento de avaliações
+
+cache distribuído (edge/CDN)
 
 RESUMO EXECUTIVO
 
@@ -476,15 +540,15 @@ persistência estruturada
 
 API robusta
 
-widget funcional e inteligente
+widget altamente otimizado
 
 sistema de reviews completo
 
-UX moderna (modal + estrelas)
+UX premium (nível marketplace)
 
-arquitetura SaaS pronta
+arquitetura SaaS pronta para escala
 
 STATUS FINAL
 
-👉 MVP avançado, validado, pronto para escala e monetização
+👉 MVP avançado, validado, com UX premium e pronto para escala e monetização
 ```

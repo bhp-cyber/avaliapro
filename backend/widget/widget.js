@@ -30,6 +30,7 @@
     reviewsCacheOrder: [],
     reviewsCacheLimit: 20,
     reviewsCacheTTL: 60000,
+    activeInsightFilter: null,
   };
 
   function getCurrentScript() {
@@ -84,15 +85,15 @@
     style.id = STYLE_ID;
     style.textContent = `
       .avaliapro-widget {
-        font-family: Arial, sans-serif;
-        margin: 24px 0;
-        padding: 20px;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        background: #ffffff;
-        color: #111827;
-        box-sizing: border-box;
-      }
+  font-family: Arial, sans-serif;
+  margin: 24px 0;
+  padding: 20px;
+  border: none;
+  border-radius: 0;
+  background: #ffffff;
+  color: #111827;
+  box-sizing: border-box;
+}
 
       .avaliapro-header {
         display: flex;
@@ -152,26 +153,14 @@
       }
 
       .avaliapro-list {
-        display: grid;
-        gap: 14px;
+        display: block;
         margin: 18px 0 22px;
       }
 
-      .avaliapro-review {
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 14px;
-        background: #fafafa;
-      }
-
-      .avaliapro-review-top {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin-bottom: 8px;
-      }
+    .avaliapro-review {
+  padding: 18px 0;
+  background: transparent;
+}
 
       .avaliapro-author {
         font-weight: 600;
@@ -185,9 +174,12 @@
       }
 
       .avaliapro-review-stars {
-        font-size: 14px;
-        margin-bottom: 8px;
-      }
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
 
       .avaliapro-review-title {
         font-size: 15px;
@@ -439,37 +431,49 @@
   transform: scale(1.12);
 }
 
-.avaliapro-star {
-  position: relative;
-  display: inline-block;
-  font-size: 18px;
+.avaliapro-stars,
+.avaliapro-review-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   line-height: 1;
+  vertical-align: middle;
 }
 
-.avaliapro-star.full {
-  color: #f59e0b;
+/* padrão (reviews) */
+.avaliapro-star-svg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
 }
 
-.avaliapro-star.empty {
-  color: #d1d5db;
+.avaliapro-star-svg svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  overflow: visible;
 }
 
-.avaliapro-star.half {
-  color: #d1d5db;
+.avaliapro-stars .avaliapro-star-svg {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
 }
 
-.avaliapro-star.half::before {
-  content: "★";
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 50%;
-  overflow: hidden;
-  color: #f59e0b;
+.avaliapro-stars .avaliapro-star-svg svg {
+  width: 26px;
+  height: 26px;
 }
 
 @keyframes avaliapro-spin {
   to { transform: rotate(360deg); }
+}
+
+.avaliapro-review:last-child div[style*="border-bottom"] {
+  border-bottom: none !important;
 }
 
     `;
@@ -492,18 +496,82 @@
     var hasHalf = numeric - full >= 0.5;
     var empty = 5 - full - (hasHalf ? 1 : 0);
 
+    function buildStar(type, index) {
+      var gradientId =
+        "avaliapro-star-half-" +
+        index +
+        "-" +
+        Math.random().toString(36).slice(2, 8);
+      var fillColor = "#f5a623";
+      var emptyFill = "#ffffff";
+      var emptyStroke = "#f5a623";
+
+      if (type === "full") {
+        return `
+          <span class="avaliapro-star-svg" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18">
+              <path
+                d="M12 2.35l2.91 5.9 6.51.95-4.71 4.59 1.11 6.49L12 17.77l-5.82 3.06 1.11-6.49L2.58 9.2l6.51-.95L12 2.35z"
+                fill="${fillColor}"
+                stroke="${fillColor}"
+                stroke-width="1.7"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+        `;
+      }
+
+      if (type === "half") {
+        return `
+          <span class="avaliapro-star-svg" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18">
+              <defs>
+                <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="50%" stop-color="${fillColor}"></stop>
+                  <stop offset="50%" stop-color="${emptyFill}"></stop>
+                  <stop offset="100%" stop-color="${emptyFill}"></stop>
+                </linearGradient>
+              </defs>
+              <path
+                d="M12 2.35l2.91 5.9 6.51.95-4.71 4.59 1.11 6.49L12 17.77l-5.82 3.06 1.11-6.49L2.58 9.2l6.51-.95L12 2.35z"
+                fill="url(#${gradientId})"
+                stroke="${fillColor}"
+                stroke-width="1.7"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+        `;
+      }
+
+      return `
+        <span class="avaliapro-star-svg" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18">
+            <path
+              d="M12 2.35l2.91 5.9 6.51.95-4.71 4.59 1.11 6.49L12 17.77l-5.82 3.06 1.11-6.49L2.58 9.2l6.51-.95L12 2.35z"
+              fill="${emptyFill}"
+              stroke="${emptyStroke}"
+              stroke-width="1.7"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+      `;
+    }
+
     var html = "";
 
     for (var i = 0; i < full; i++) {
-      html += '<span class="avaliapro-star full">★</span>';
+      html += buildStar("full", i);
     }
 
     if (hasHalf) {
-      html += '<span class="avaliapro-star half">★</span>';
+      html += buildStar("half", full);
     }
 
     for (var j = 0; j < empty; j++) {
-      html += '<span class="avaliapro-star empty">★</span>';
+      html += buildStar("empty", full + (hasHalf ? 1 : 0) + j);
     }
 
     return html;
@@ -523,6 +591,215 @@
     if (rating >= 2) return "Regular";
     if (rating > 0) return "Ruim";
     return "";
+  }
+
+  function getRatingBreakdown(reviews) {
+    var list = Array.isArray(reviews) ? reviews : [];
+    var counts = {
+      5: 0,
+      4: 0,
+      3: 0,
+      2: 0,
+      1: 0,
+    };
+
+    for (var i = 0; i < list.length; i++) {
+      var review = list[i];
+      var rating = Math.floor(Number(review && review.rating) || 0);
+
+      if (counts[rating] != null) {
+        counts[rating]++;
+      }
+    }
+
+    var total = list.length || 0;
+
+    return [5, 4, 3, 2, 1].map(function (star) {
+      var count = counts[star] || 0;
+      var percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+
+      return {
+        star: star,
+        count: count,
+        percentage: percentage,
+      };
+    });
+  }
+
+  function getRecommendationRate(reviews) {
+    var list = Array.isArray(reviews) ? reviews : [];
+
+    if (!list.length) return 0;
+
+    var positive = 0;
+
+    for (var i = 0; i < list.length; i++) {
+      var rating = Number(list[i] && list[i].rating) || 0;
+
+      if (rating >= 4) {
+        positive++;
+      }
+    }
+
+    return Math.round((positive / list.length) * 100);
+  }
+
+  function getReviewInsights(reviews) {
+    var list = Array.isArray(reviews) ? reviews : [];
+    var joined = list
+      .map(function (review) {
+        return normalizeText(review && review.comment).toLowerCase();
+      })
+      .join(" ");
+
+    var patterns = [
+      {
+        label: "Natural",
+        keywords: ["natural", "naturais", "naturalidade", "realista"],
+      },
+      {
+        label: "Macio",
+        keywords: ["macio", "macia", "maciez", "suave"],
+      },
+      {
+        label: "Confortável",
+        keywords: [
+          "confortável",
+          "confortavel",
+          "leve",
+          "ajuste",
+          "ajustável",
+          "ajustavel",
+        ],
+      },
+      {
+        label: "Entrega rápida",
+        keywords: [
+          "entrega rápida",
+          "entrega rapida",
+          "chegou rápido",
+          "chegou rapido",
+          "rápida",
+          "rapida",
+        ],
+      },
+      {
+        label: "Visual bonito",
+        keywords: [
+          "lindo",
+          "linda",
+          "bonito",
+          "bonita",
+          "perfeito",
+          "perfeita",
+        ],
+      },
+      {
+        label: "Bem embalado",
+        keywords: ["bem embalado", "bem embalada", "embalado", "embalada"],
+      },
+      {
+        label: "Ótimo atendimento",
+        keywords: [
+          "atendimento",
+          "atencioso",
+          "atenciosa",
+          "me atenderam bem",
+          "atendeu super bem",
+        ],
+      },
+      {
+        label: "Veio com brinde",
+        keywords: ["brinde", "brindes", "veio com brinde", "mandaram brinde"],
+      },
+    ];
+
+    var results = [];
+
+    for (var i = 0; i < patterns.length; i++) {
+      var found = false;
+
+      for (var j = 0; j < patterns[i].keywords.length; j++) {
+        if (joined.indexOf(patterns[i].keywords[j]) !== -1) {
+          found = true;
+          break;
+        }
+      }
+
+      if (found) {
+        results.push(patterns[i].label);
+      }
+
+      if (results.length >= 4) {
+        break;
+      }
+    }
+
+    return results;
+  }
+
+  function filterReviewsByInsight(reviews, insightLabel) {
+    var list = Array.isArray(reviews) ? reviews : [];
+    var label = normalizeText(insightLabel).toLowerCase();
+
+    if (!label) return list;
+
+    var keywordMap = {
+      natural: ["natural", "naturais", "naturalidade", "realista"],
+      macio: ["macio", "macia", "maciez", "suave"],
+      confortável: [
+        "confortável",
+        "confortavel",
+        "leve",
+        "ajuste",
+        "ajustável",
+        "ajustavel",
+      ],
+      "entrega rápida": [
+        "entrega rápida",
+        "entrega rapida",
+        "chegou rápido",
+        "chegou rapido",
+        "rápida",
+        "rapida",
+      ],
+      "visual bonito": [
+        "lindo",
+        "linda",
+        "bonito",
+        "bonita",
+        "perfeito",
+        "perfeita",
+      ],
+      "bem embalado": ["bem embalado", "bem embalada", "embalado", "embalada"],
+      "ótimo atendimento": [
+        "atendimento",
+        "atencioso",
+        "atenciosa",
+        "me atenderam bem",
+        "atendeu super bem",
+      ],
+      "veio com brinde": [
+        "brinde",
+        "brindes",
+        "veio com brinde",
+        "mandaram brinde",
+      ],
+    };
+
+    var keywords = keywordMap[label] || [label];
+
+    return list.filter(function (review) {
+      var comment = normalizeText(review && review.comment).toLowerCase();
+
+      for (var i = 0; i < keywords.length; i++) {
+        if (comment.indexOf(keywords[i]) !== -1) {
+          return true;
+        }
+      }
+
+      return false;
+    });
   }
 
   function getSkuCandidates() {
@@ -818,7 +1095,9 @@
     if (!explicit) {
       explicit =
         document.getElementById("avaliapro-widget") ||
-        document.querySelector("[data-avaliapro-widget]");
+        document.querySelector("[data-avaliapro-widget]") ||
+        document.querySelector("main") ||
+        document.body;
     }
 
     if (!explicit) {
@@ -914,28 +1193,57 @@
       `
         : "";
 
+    var authorName = safeText((review && review.authorName) || "Cliente");
+    var authorInitial = safeText(
+      normalizeText((review && review.authorName) || "C")
+        .charAt(0)
+        .toUpperCase()
+    );
+
     return `
       <div class="avaliapro-review">
-        <div class="avaliapro-review-top">
-          <div style="display:grid;gap:4px;">
-            <div class="avaliapro-author">${safeText(
-              (review && review.authorName) || "Cliente"
-            )}</div>
-            ${verifiedHtml}
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="
+  width:40px;
+  height:40px;
+  min-width:40px;
+  border-radius:999px;
+  background:#f3f4f6;
+  color:#111827;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  font-weight:700;
+  border:1px solid #e5e7eb;
+  margin-top:2px;
+">
+            ${authorInitial}
           </div>
-          <div class="avaliapro-date">${safeText(
-            formatDate(review && review.createdAt)
-          )}</div>
-        </div>
 
-        <div class="avaliapro-review-stars">${getStars(
-          review && review.rating
-        )}</div>
-        ${titleHtml}
-        <div class="avaliapro-review-comment">${safeText(
-          normalizeText((review && review.comment) || "")
-        )}</div>
-        ${imageHtml}
+          <div style="flex:1;min-width:0;border-bottom:1px solid #e5e7eb;padding-bottom:18px;">
+            <div class="avaliapro-review-top">
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;line-height:1;">
+    <div class="avaliapro-author">${authorName}</div>
+
+    <div style="font-size:12px;color:#9ca3af;">
+      ${safeText(formatDate(review && review.createdAt))}
+    </div>
+  </div>
+
+  ${verifiedHtml}
+</div>
+
+            <div class="avaliapro-review-stars" style="margin-top:6px;margin-bottom:6px;">
+  ${getStars(review && review.rating)}
+</div>
+            ${titleHtml}
+            <div class="avaliapro-review-comment">${safeText(
+              normalizeText((review && review.comment) || "")
+            )}</div>
+            ${imageHtml}
+          </div>
+        </div>
       </div>
     `;
   }
@@ -958,6 +1266,90 @@
         return (b.rating || 0) - (a.rating || 0);
       });
 
+    var filteredReviews = state.activeInsightFilter
+      ? filterReviewsByInsight(safeReviews, state.activeInsightFilter)
+      : safeReviews;
+
+    var recommendationRate = getRecommendationRate(safeReviews);
+    var reviewInsights = getReviewInsights(safeReviews);
+
+    var reviewInsightsHtml =
+      Array.isArray(reviewInsights) && reviewInsights.length
+        ? `
+  <div style="display:grid;gap:8px;margin-top:14px;">
+    <div style="font-size:12px;color:#9ca3af;font-weight:600;">
+      Principais características percebidas nas avaliações
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:10px;">
+  ${reviewInsights
+    .slice(0, 4)
+    .map(function (item) {
+      var normalizedItem = safeText(item).toLowerCase();
+      var isActive = state.activeInsightFilter === normalizedItem;
+
+      return `
+        <span
+  data-avaliapro-filter="${normalizedItem}"
+  style="
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:4px 15px;
+    border-radius:999px;
+    background:${isActive ? "#111827" : "#f9fafb"};
+    border:1px solid ${isActive ? "#111827" : "#e5e7eb"};
+    font-size:13px;
+    font-weight:500;
+    color:${isActive ? "#ffffff" : "#374151"};
+    line-height:1;
+    cursor:pointer;
+    transition:all 0.2s ease;
+  "
+  onmouseover="this.style.background='${isActive ? "#111827" : "#f3f4f6"}'"
+  onmouseout="this.style.background='${isActive ? "#111827" : "#f9fafb"}'"
+>
+  <span style="font-size:11px;color:${
+    isActive ? "rgba(255,255,255,0.7)" : "#9ca3af"
+  };">✦</span>
+  ${safeText(item)}
+</span>
+      `;
+    })
+    .join("")}
+</div>
+  </div>
+`
+        : "";
+
+    var socialProofLabel =
+      totalReviews === 0
+        ? "Ainda sem avaliações suficientes"
+        : recommendationRate >= 95
+        ? "Aprovação praticamente unânime"
+        : recommendationRate >= 85
+        ? "Altamente recomendado pelos clientes"
+        : recommendationRate >= 70
+        ? "Boa avaliação geral"
+        : "Percepções variadas entre as avaliações";
+
+    var socialProofHtml = `
+      <div style="display:grid;gap:6px;align-content:start;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span style="font-size:26px;font-weight:800;line-height:1;color:#111827;">
+            ${recommendationRate}%
+          </span>
+          <span style="font-size:14px;color:#111827;">
+            recomendam este produto
+          </span>
+        </div>
+    
+        <div style="font-size:13px;line-height:1.5;color:#6b7280;">
+          ${socialProofLabel}
+        </div>
+      </div>
+    `;
+
     var highlightReview = safeReviews.length ? safeReviews[0] : null;
 
     var highlightHtml = highlightReview
@@ -978,9 +1370,14 @@
         `
       : "";
 
-    var reviewListHtml = safeReviews.length
-      ? highlightHtml + safeReviews.slice(1).map(buildReviewItem).join("")
-      : `<div class="avaliapro-empty">Ainda não há avaliações para este produto.</div>`;
+    var listReviews = filteredReviews.filter(function (review) {
+      return !highlightReview || review !== highlightReview;
+    });
+
+    var reviewListHtml = listReviews.length
+      ? highlightHtml + listReviews.map(buildReviewItem).join("")
+      : highlightHtml ||
+        `<div class="avaliapro-empty">Nenhuma avaliação encontrada para esta característica.</div>`;
 
     var debugHtml = "";
 
@@ -1025,31 +1422,41 @@
     <div class="avaliapro-header">
       <div class="avaliapro-summary" style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;width:100%;">
 
-       <div style="display:grid;grid-template-columns:auto auto;align-items:center;column-gap:16px;">
-  <span class="avaliapro-average" style="font-size:34px;font-weight:700;line-height:1;display:block;">
-    ${safeText(getAverageDisplay(averageRating))}
-  </span>
+                           <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,280px);align-items:start;column-gap:28px;row-gap:12px;">
+  <div style="display:grid;row-gap:8px;">
+    <div style="display:grid;grid-template-columns:auto auto;align-items:center;column-gap:16px;width:max-content;">
+      <span class="avaliapro-average" style="font-size:34px;font-weight:800;letter-spacing:-0.5px;line-height:1;display:block;">
+        ${safeText(getAverageDisplay(averageRating))}
+      </span>
 
-  <div style="display:grid;align-content:center;row-gap:6px;">
-    <div style="display:flex;align-items:center;gap:8px;">
-  <span class="avaliapro-stars" style="font-size:18px;line-height:1;">
-    ${getStars(averageRating)}
-  </span>
+      <div style="display:grid;align-content:center;row-gap:6px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span class="avaliapro-stars" style="font-size:18px;line-height:1;">
+            ${getStars(averageRating)}
+          </span>
 
-  <span style="font-size:14px;font-weight:600;color:#111827;">
-    ${safeText(getRatingLabel(averageRating))}
-  </span>
-</div>
+          <span style="font-size:14px;font-weight:600;color:#111827;">
+            ${safeText(getRatingLabel(averageRating))}
+          </span>
+        </div>
 
-    <span class="avaliapro-count" style="font-size:13px;line-height:1;display:block;">
-    ${
-      totalReviews === 0
-        ? "Ainda sem avaliações"
-        : `Baseado em ${totalReviews} ${
-            totalReviews === 1 ? "avaliação" : "avaliações"
-          }`
-    }
-    </span>
+        <span class="avaliapro-count" style="font-size:13px;line-height:1.3;display:block;">
+          ${
+            totalReviews === 0
+              ? "Ainda sem avaliações"
+              : `Baseado em ${totalReviews} ${
+                  totalReviews === 1 ? "avaliação" : "avaliações"
+                }`
+          }
+        </span>
+      </div>
+    </div>
+
+    ${reviewInsightsHtml}
+  </div>
+
+  <div>
+    ${socialProofHtml}
   </div>
 </div>
 
@@ -1313,6 +1720,22 @@
         };
       });
     }
+
+    var insightFilters = container.querySelectorAll("[data-avaliapro-filter]");
+
+    insightFilters.forEach(function (chip) {
+      chip.onclick = function () {
+        var value = normalizeText(chip.getAttribute("data-avaliapro-filter"));
+
+        if (state.activeInsightFilter === value) {
+          state.activeInsightFilter = null;
+        } else {
+          state.activeInsightFilter = value;
+        }
+
+        renderWidget(container, data, sku);
+      };
+    });
 
     bindForm(container, state.currentSku);
     state.lastRenderedSku = sku;
