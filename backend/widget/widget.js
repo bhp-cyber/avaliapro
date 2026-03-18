@@ -990,6 +990,11 @@
         modalRoot.style.display = "block";
         document.body.style.overflow = "hidden";
 
+        var feedback = container.querySelector("#avaliapro-feedback");
+        if (feedback) {
+          feedback.innerHTML = "";
+        }
+
         var inputName = container.querySelector('[name="authorName"]');
         if (inputName) {
           setTimeout(function () {
