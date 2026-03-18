@@ -985,18 +985,6 @@
       modalRoot.style.display = "none";
     }
 
-    if (openModalButton && !openModalButton.__AVALIAPRO_BOUND__) {
-      openModalButton.__AVALIAPRO_BOUND__ = true;
-    }
-
-    if (closeModalButton && !closeModalButton.__AVALIAPRO_BOUND__) {
-      closeModalButton.__AVALIAPRO_BOUND__ = true;
-    }
-
-    if (modalOverlay && !modalOverlay.__AVALIAPRO_BOUND__) {
-      modalOverlay.__AVALIAPRO_BOUND__ = true;
-    }
-
     if (openModalButton && modalRoot) {
       openModalButton.onclick = function () {
         modalRoot.style.display = "block";
@@ -1042,15 +1030,19 @@
     if (!window.__AVALIAPRO_MODAL_ESC_BOUND__) {
       window.__AVALIAPRO_MODAL_ESC_BOUND__ = true;
 
-      document.addEventListener("keydown", function (event) {
-        if (event.key !== "Escape") return;
+      if (!window.__AVALIAPRO_ESC_BOUND__) {
+        window.__AVALIAPRO_ESC_BOUND__ = true;
 
-        var modalRoot = document.getElementById("avaliapro-modal-root");
-        if (!modalRoot || modalRoot.style.display !== "block") return;
+        document.addEventListener("keydown", function (event) {
+          if (event.key !== "Escape") return;
 
-        modalRoot.style.display = "none";
-        document.body.style.overflow = "";
-      });
+          var modalRoot = document.getElementById("avaliapro-modal-root");
+          if (!modalRoot || modalRoot.style.display !== "block") return;
+
+          modalRoot.style.display = "none";
+          document.body.style.overflow = "";
+        });
+      }
     }
 
     bindForm(container, state.currentSku);
