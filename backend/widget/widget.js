@@ -982,6 +982,13 @@
       openModalButton.onclick = function () {
         modalRoot.style.display = "block";
         document.body.style.overflow = "hidden";
+
+        var inputName = container.querySelector('[name="authorName"]');
+        if (inputName) {
+          setTimeout(function () {
+            inputName.focus();
+          }, 50);
+        }
       };
     }
 
