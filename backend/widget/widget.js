@@ -1145,6 +1145,9 @@
     var form = container.querySelector("#avaliapro-form");
     if (!form) return;
 
+    if (form.__AVALIAPRO_BOUND__) return;
+    form.__AVALIAPRO_BOUND__ = true;
+
     form.addEventListener("submit", function (event) {
       event.preventDefault();
 
