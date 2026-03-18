@@ -325,24 +325,29 @@
         justify-content: center;
       }
 
-          #avaliapro-modal-box {
-        position: relative;
-        background: #fff;
-        padding: 20px;
-        border-radius: 12px;
-        width: 100%;
-        max-width: 400px;
-      }
+   #avaliapro-modal-box {
+  position: relative;
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
 
-      #avaliapro-close-modal {
-        position: absolute;
-        top: 10px;
-        right: 14px;
-        border: none;
-        background: transparent;
-        font-size: 20px;
-        cursor: pointer;
-      }
+     #avaliapro-close-modal {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+  color: #6b7280;
+}
     `;
     document.head.appendChild(style);
   }
@@ -1006,6 +1011,13 @@
           document.body.style.overflow = "";
         }
       };
+
+      var modalBox = container.querySelector("#avaliapro-modal-box");
+      if (modalBox) {
+        modalBox.onclick = function (event) {
+          event.stopPropagation();
+        };
+      }
     }
 
     document.onkeydown = function (event) {
