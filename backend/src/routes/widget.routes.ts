@@ -230,6 +230,24 @@ router.get("/reviews", async (req, res) => {
       totalReviews,
     };
 
+    const normalizedReviews = reviews.map((review) => ({
+      ...review,
+      authorName:
+        typeof review.authorName === "string" && review.authorName.trim()
+          ? review.authorName.trim()
+          : "Cliente",
+      avatarType:
+        review.avatarType === "preset" ||
+        review.avatarType === "image" ||
+        review.avatarType === "initial"
+          ? review.avatarType
+          : "initial",
+      avatarPreset:
+        review.avatarType === "preset" ? review.avatarPreset ?? null : null,
+      avatarUrl:
+        review.avatarType === "image" ? review.avatarUrl ?? null : null,
+    }));
+
     return res.json({
       company: {
         id: company.id,
@@ -237,7 +255,7 @@ router.get("/reviews", async (req, res) => {
       },
       product: productResponse,
       summary,
-      reviews,
+      reviews: normalizedReviews,
     });
   } catch (error) {
     console.error("Erro ao buscar reviews do widget:", error);
