@@ -91,7 +91,21 @@ router.get("/", async (req, res) => {
       },
       take: effectiveLimit,
       skip: normalizedOffset,
-      include: {
+
+      select: {
+        id: true,
+        rating: true,
+        title: true,
+        comment: true,
+        authorName: true,
+        verifiedPurchase: true,
+        status: true,
+        createdAt: true,
+
+        avatarType: true,
+        avatarPreset: true,
+        avatarUrl: true,
+
         product: {
           select: {
             id: true,
@@ -120,6 +134,10 @@ router.get("/", async (req, res) => {
       verifiedPurchase: review.verifiedPurchase,
       status: review.status,
       createdAt: review.createdAt,
+
+      avatarType: review.avatarType,
+      avatarPreset: review.avatarPreset,
+      avatarUrl: review.avatarUrl,
       product: review.product
         ? {
             id: review.product.id,
@@ -163,8 +181,19 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { rating, title, comment, productId, companyId, customerId } =
-      req.body;
+    const {
+      rating,
+      title,
+      comment,
+      productId,
+      companyId,
+      customerId,
+      authorName,
+      avatarType,
+      avatarPreset,
+      avatarUrl,
+      verifiedPurchase,
+    } = req.body;
 
     const normalizedCompanyId =
       typeof companyId === "string" ? companyId.trim() : "";
@@ -273,6 +302,19 @@ router.post("/", async (req, res) => {
         productId: normalizedProductId,
         companyId: normalizedCompanyId,
         customerId: normalizedCustomerId,
+
+        authorName:
+          typeof authorName === "string" && authorName.trim()
+            ? authorName.trim()
+            : "Cliente",
+
+        avatarType: typeof avatarType === "string" ? avatarType : null,
+
+        avatarPreset: typeof avatarPreset === "string" ? avatarPreset : null,
+
+        avatarUrl: typeof avatarUrl === "string" ? avatarUrl : null,
+
+        verifiedPurchase: Boolean(verifiedPurchase),
       },
       select: {
         id: true,
