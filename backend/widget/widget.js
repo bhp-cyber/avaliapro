@@ -1084,9 +1084,7 @@
     if (!explicit) {
       explicit =
         document.getElementById("avaliapro-widget") ||
-        document.querySelector("[data-avaliapro-widget]") ||
-        document.querySelector("main") ||
-        document.body;
+        document.querySelector("[data-avaliapro-widget]");
     }
 
     if (!explicit) {
@@ -1105,9 +1103,14 @@
       var parent = productSection || productForm;
 
       if (parent) {
-        explicit = document.createElement("div");
-        explicit.id = WIDGET_ID;
-        parent.appendChild(explicit);
+        explicit = document.getElementById(WIDGET_ID);
+
+        if (!explicit || !parent.contains(explicit)) {
+          explicit = document.createElement("div");
+          explicit.id = WIDGET_ID;
+          parent.appendChild(explicit);
+        }
+
         return explicit;
       }
 
@@ -1189,26 +1192,70 @@
         .toUpperCase()
     );
 
+    var avatarHtml = "";
+
+    var avatarType = review && review.avatarType;
+    var avatarPreset = review && review.avatarPreset;
+    var avatarUrl = review && review.avatarUrl;
+
+    if (avatarType === "preset" && avatarPreset) {
+      avatarHtml = `
+    <img
+      src="${safeText(avatarPreset)}"
+      alt="Avatar"
+      style="
+        width:40px;
+        height:40px;
+        min-width:40px;
+        border-radius:999px;
+        object-fit:cover;
+        border:1px solid #e5e7eb;
+        margin-top:2px;
+      "
+    />
+  `;
+    } else if (avatarType === "image" && avatarUrl) {
+      avatarHtml = `
+    <img
+      src="${safeText(avatarUrl)}"
+      alt="Avatar"
+      style="
+        width:40px;
+        height:40px;
+        min-width:40px;
+        border-radius:999px;
+        object-fit:cover;
+        border:1px solid #e5e7eb;
+        margin-top:2px;
+      "
+    />
+  `;
+    } else {
+      avatarHtml = `
+    <div style="
+      width:40px;
+      height:40px;
+      min-width:40px;
+      border-radius:999px;
+      background:#f3f4f6;
+      color:#111827;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:14px;
+      font-weight:700;
+      border:1px solid #e5e7eb;
+      margin-top:2px;
+    ">
+      ${authorInitial}
+    </div>
+  `;
+    }
+
     return `
       <div class="avaliapro-review">
         <div style="display:flex;gap:12px;align-items:flex-start;">
-          <div style="
-  width:40px;
-  height:40px;
-  min-width:40px;
-  border-radius:999px;
-  background:#f3f4f6;
-  color:#111827;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:14px;
-  font-weight:700;
-  border:1px solid #e5e7eb;
-  margin-top:2px;
-">
-            ${authorInitial}
-          </div>
+        ${avatarHtml}
 
           <div style="flex:1;min-width:0;border-bottom:1px solid #e5e7eb;padding-bottom:18px;">
             <div class="avaliapro-review-top">
@@ -1530,6 +1577,39 @@
             </div>
 
             <div class="avaliapro-field">
+  <label class="avaliapro-label">Escolha seu avatar</label>
+
+  <div id="avaliapro-avatar-selector" style="display:flex;gap:10px;flex-wrap:wrap;">
+    ${[
+      "https://i.pravatar.cc/100?img=1",
+      "https://i.pravatar.cc/100?img=2",
+      "https://i.pravatar.cc/100?img=3",
+      "https://i.pravatar.cc/100?img=4",
+      "https://i.pravatar.cc/100?img=5",
+    ]
+      .map(
+        (url, index) => `
+      <img
+        src="${url}"
+        data-avatar="${url}"
+        style="
+          width:42px;
+          height:42px;
+          border-radius:999px;
+          cursor:pointer;
+          border:2px solid transparent;
+          transition:all 0.2s ease;
+        "
+      />
+    `
+      )
+      .join("")}
+
+    <input type="hidden" name="avatarPreset" />
+  </div>
+</div>
+
+            <div class="avaliapro-field">
   <label class="avaliapro-label">Nota</label>
 
   <div
@@ -1695,6 +1775,31 @@
     var select = container.querySelector(
       '#avaliapro-form select[name="rating"]'
     );
+
+    var avatarSelector = container.querySelector("#avaliapro-avatar-selector");
+
+    if (avatarSelector) {
+      var avatars = avatarSelector.querySelectorAll("[data-avatar]");
+      var input = avatarSelector.querySelector('[name="avatarPreset"]');
+
+      avatars.forEach(function (img) {
+        img.onclick = function () {
+          var selected = img.getAttribute("data-avatar");
+
+          avatars.forEach(function (el) {
+            el.style.border = "2px solid transparent";
+            el.style.transform = "scale(1)";
+          });
+
+          img.style.border = "2px solid #111827";
+          img.style.transform = "scale(1.08)";
+
+          if (input) {
+            input.value = selected;
+          }
+        };
+      });
+    }
 
     if (starsContainer && select) {
       var stars = starsContainer.querySelectorAll("[data-value]");
@@ -1907,6 +2012,9 @@
       var authorName = normalizeText(form.authorName.value);
       var rating = Number(form.querySelector('[name="rating"]').value);
       var comment = normalizeText(form.comment.value);
+      var avatarPreset = normalizeText(
+        (form.querySelector('[name="avatarPreset"]') || {}).value
+      );
       var platformProductId = getPlatformProductId();
 
       if (!sku && !platformProductId) {
@@ -1981,6 +2089,8 @@
           rating: rating,
           comment: comment,
           verifiedPurchase: false,
+          avatarType: avatarPreset ? "preset" : "initial",
+          avatarPreset: avatarPreset || null,
         });
       })()
         .then(function () {

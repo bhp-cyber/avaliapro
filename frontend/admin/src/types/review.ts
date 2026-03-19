@@ -14,8 +14,11 @@ export type Review = {
   productId?: string;
   customer: string;
   customerAvatar?: string;
+  avatarType?: string;
+  avatarPreset?: string;
+  avatarUrl?: string;
   rating: number;
-  title?: string;
+  title: string;
   comment: string;
   status: ReviewStatus;
   source: ReviewSource;

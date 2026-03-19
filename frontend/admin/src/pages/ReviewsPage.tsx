@@ -236,7 +236,13 @@ export default function ReviewsPage() {
                         <div style={customerCellStyle}>
                           <CustomerAvatar
                             name={review.customer}
-                            imageUrl={review.customerAvatar}
+                            imageUrl={
+                              review.avatarType === "preset"
+                                ? review.avatarPreset
+                                : review.avatarType === "image"
+                                  ? review.avatarUrl
+                                  : undefined
+                            }
                             size={40}
                           />
 
