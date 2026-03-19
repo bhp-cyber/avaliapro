@@ -42,17 +42,15 @@ export default function NewReviewPage() {
 
   const [customerName, setCustomerName] = useState("");
   const [avatarPreset, setAvatarPreset] = useState<string | null>(null);
-  const [avatarUrlInput, setAvatarUrlInput] = useState("");
+
   const [customerAvatar, setCustomerAvatar] = useState("");
   const [avatarPreviewError, setAvatarPreviewError] = useState(false);
 
   useEffect(() => {
     if (avatarPreset) {
       setCustomerAvatar(avatarPreset);
-    } else {
-      setCustomerAvatar(avatarUrlInput);
     }
-  }, [avatarPreset, avatarUrlInput]);
+  }, [avatarPreset]);
 
   const [comment, setComment] = useState("");
 
@@ -79,18 +77,6 @@ export default function NewReviewPage() {
         product.name.toLowerCase().includes(term) || product.sku.toLowerCase().includes(term)
     );
   }, [productSearch, products]);
-
-  const customerInitials = useMemo(() => {
-    const parts = customerName.trim().split(" ").filter(Boolean).slice(0, 2);
-
-    if (parts.length === 0) return "CL";
-
-    return parts.map((part) => part[0]?.toUpperCase() ?? "").join("");
-  }, [customerName]);
-
-  const avatarBackground = useMemo(() => {
-    return getAvatarColor(customerName || customerAvatar || "cliente");
-  }, [customerName, customerAvatar]);
 
   useEffect(() => {
     setAvatarPreviewError(false);
@@ -223,14 +209,10 @@ export default function NewReviewPage() {
                   <div
                     style={{
                       ...avatarFallbackStyle,
-                      background: avatarBackground,
+                      background: "#7c3aed",
                     }}
                   >
-                    {customerName.trim() ? (
-                      <span style={avatarInitialsStyle}>{customerInitials}</span>
-                    ) : (
-                      <User size={20} color="#ffffff" />
-                    )}
+                    <User size={24} color="#ffffff" />
                   </div>
                 )}
               </div>
@@ -269,25 +251,6 @@ export default function NewReviewPage() {
                     );
                   })}
                 </div>
-
-                <div style={urlInputWrapperStyle}>
-                  <Image size={18} color="#6b7280" />
-                  <input
-                    type="url"
-                    placeholder="https://exemplo.com/foto-do-cliente.jpg"
-                    style={urlInputStyle}
-                    value={avatarUrlInput}
-                    onChange={(e) => {
-                      setAvatarPreset(null);
-                      setAvatarUrlInput(e.target.value);
-                      setAvatarPreviewError(false);
-                    }}
-                  />
-                </div>
-
-                <span style={helperTextStyle}>
-                  Você pode escolher um avatar pronto ou colar a URL de uma foto do cliente.
-                </span>
 
                 {customerAvatar.trim() !== "" && avatarPreviewError && (
                   <span style={errorTextStyle}>
@@ -352,29 +315,6 @@ export default function NewReviewPage() {
       </div>
     </div>
   );
-}
-
-function getAvatarColor(value: string) {
-  const palette = [
-    "#111827",
-    "#1f2937",
-    "#374151",
-    "#4b5563",
-    "#7c3aed",
-    "#2563eb",
-    "#0f766e",
-    "#be185d",
-    "#b45309",
-    "#059669",
-  ];
-
-  let hash = 0;
-
-  for (let i = 0; i < value.length; i += 1) {
-    hash = value.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  return palette[Math.abs(hash) % palette.length];
 }
 
 const fieldGridStyle: React.CSSProperties = {
@@ -547,13 +487,6 @@ const avatarFallbackStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-};
-
-const avatarInitialsStyle: React.CSSProperties = {
-  color: "#ffffff",
-  fontSize: 22,
-  fontWeight: 700,
-  letterSpacing: 0.4,
 };
 
 const urlInputWrapperStyle: React.CSSProperties = {
