@@ -598,13 +598,13 @@
          <span
   class="avaliapro-star-svg"
   aria-hidden="true"
-  style="width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 24px;"
+  style="width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 24px;"
 >
   <svg
   viewBox="0 0 24 24"
-  width="24"
-  height="24"
-  style="width:24px;height:24px;min-width:24px;min-height:24px;display:block;"
+  width="26"
+  height="26"
+  style="width:26px;height:26px;display:block;"
 >
               <path
                 d="M12 2.35l2.91 5.9 6.51.95-4.71 4.59 1.11 6.49L12 17.77l-5.82 3.06 1.11-6.49L2.58 9.2l6.51-.95L12 2.35z"
@@ -756,7 +756,7 @@
         "bonita",
         "perfeito",
         "perfeita",
-        "maravilho",
+        "maravilhosa",
         "maravilha",
         "amei",
       ],
@@ -1363,7 +1363,7 @@
 
     var reviewListHtml = paginatedReviews.length
       ? paginatedReviews.map(buildReviewItem).join("")
-      : `<div class="avaliapro-empty">Nenhuma avaliação encontrada para esta`;
+      : `<div class="avaliapro-empty">Nenhuma avaliação encontrada para este filtro.</div>`;
 
     var paginationHtml =
       totalPages > 1
@@ -1612,10 +1612,21 @@
           feedback.innerHTML = "";
         }
 
-        var inputName = container.querySelector('[name="authorName"]');
-        if (inputName) {
+        var inputNameEl = container.querySelector('[name="authorName"]');
+        var ratingEl = container.querySelector('[name="rating"]');
+        var commentEl = container.querySelector('[name="comment"]');
+
+        [inputNameEl, commentEl].forEach(function (el) {
+          if (el) el.style.borderColor = "#d1d5db";
+        });
+
+        if (ratingEl) {
+          ratingEl.style.outline = "";
+        }
+
+        if (inputNameEl) {
           setTimeout(function () {
-            inputName.focus();
+            inputNameEl.focus();
           }, 50);
         }
       };
@@ -1747,6 +1758,13 @@
 
         state.currentPage = 1;
         renderWidget(container, data, sku);
+
+        if (container && typeof container.scrollIntoView === "function") {
+          container.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
       };
     });
 
@@ -1978,6 +1996,34 @@
           submitButton.style.background = "#059669";
 
           form.reset();
+
+          var ratingSelect = form.querySelector('[name="rating"]');
+          var starsContainer = container.querySelector(
+            "#avaliapro-stars-input"
+          );
+
+          if (ratingSelect) {
+            ratingSelect.value = "5";
+          }
+
+          if (starsContainer) {
+            var stars = starsContainer.querySelectorAll("[data-value]");
+
+            stars.forEach(function (star) {
+              var value = Number(star.getAttribute("data-value"));
+              var path = star.querySelector("path");
+
+              if (!path) return;
+
+              if (value <= 5) {
+                path.setAttribute("fill", "#f5a623");
+                path.setAttribute("stroke", "#f5a623");
+              } else {
+                path.setAttribute("fill", "#ffffff");
+                path.setAttribute("stroke", "#f5a623");
+              }
+            });
+          }
 
           var modalRoot = container.querySelector("#avaliapro-modal-root");
           if (modalRoot) {

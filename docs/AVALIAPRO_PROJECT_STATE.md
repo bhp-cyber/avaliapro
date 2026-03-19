@@ -17,7 +17,9 @@ Script de Instalação
   src="https://avaliapro-api.onrender.com/widget/widget.js"
   data-api-key="API_KEY"
 ></script>
+
 ROADMAP TÉCNICO ATUALIZADO
+
 Núcleo do Sistema
 
 Widget estável
@@ -76,31 +78,37 @@ Modal funcional de avaliação
 Sistema de estrelas interativas (hover + clique)
 ✅
 
+Estrelas do formulário alinhadas visualmente com as estrelas da lista (SVG unificado)
+✅
+
+Remoção da avaliação em destaque (simplificação de UI e preparação para carrossel)
+✅
+
 Envio com feedback visual (loading + sucesso)
 ✅
 
-Micro-animações (hover + click feedback)
+Micro-animações
 ✅
 
-Select substituído por estrelas (UX moderno)
+Select substituído por estrelas
 ✅
 
-Correção de validação de formulário (campos obrigatórios)
+Validação de formulário corrigida
 ✅
 
-Melhoria visual do modal (layout premium)
+Layout premium do modal
 ✅
 
-CTA otimizado (Escrever avaliação)
+CTA otimizado
 ✅
 
-Reposicionamento do botão (topo do widget)
+Reposicionamento do botão
 ✅
 
-Separação visual (header vs conteúdo)
+Separação visual header/conteúdo
 ✅
 
-Correção de pluralização e estados vazios
+Pluralização corrigida
 ✅
 
 Exibição “Baseado em X avaliações”
@@ -109,37 +117,96 @@ Exibição “Baseado em X avaliações”
 Label qualitativo (Excelente, Bom, etc.)
 ✅
 
-Renderização de estrelas com precisão (floor)
+Renderização de estrelas precisa
 ✅
 
-Sistema de meia estrela com CSS (visual profissional)
+Meia estrela com SVG
 ✅
 
-Correção de escape HTML nas estrelas
+Correção de escape HTML
 ✅
 
-Em Andamento
+Sistema de Reviews (Avançado)
+
+Avaliação em destaque fixa
+❌ (removida para simplificação da UI)
+
+Sistema de insights (keywords)
+✅
+
+Chips interativos (filtros)
+✅
+
+Filtro dinâmico funcional
+✅
+
+Evita duplicação da review destacada
+❌ (não aplicável após remoção do highlight)
+
+Layout clean moderno
+✅
+
+Alinhamento refinado
+✅
+
+Lista horizontal de características
+✅
+
+Correção crítica:
+
+Filtro agora inclui corretamente a review em destaque quando ativo
+❌ (substituído por lógica simplificada sem highlight)
+
+Widget — Avanços Recentes (CRÍTICO)
+
+Paginação local
+✅
+
+Estado global persistente
+✅
+
+Correção de reset de página
+✅
+
+Correção de variáveis indefinidas
+✅
+
+Unificação da lógica de paginação
+✅
+
+Remoção da lógica de highlight da paginação (simplificação estrutural)
+✅
+
+Render estável
+✅
+
+Re-render seguro
+✅
+
+EM ANDAMENTO
 
 Dashboard SaaS completo
 ⏳
 
-Sistema de média e agregação por produto
+Sistema de agregação persistida
 ⏳
 
-Widget embedável avançado (layout e conversão)
+Widget avançado (layout + conversão)
 ⏳
 
-Sistema de coleta automática de reviews (pós-compra)
+Sistema de coleta automática pós-compra
 🚨 PRIORIDADE MÁXIMA
 
-Sistema de notificações (email / webhook)
+Sistema de notificações
 ⏳
 
-Multi-plataforma (Shopify / WooCommerce)
+Multi-plataforma
 ⏳
 
 ESTADO ATUAL DA ARQUITETURA
+
 Backend API
+
 Stack
 
 Node.js
@@ -152,6 +219,7 @@ Deploy
 Render
 
 Estrutura
+
 backend/src
 ├ app.ts
 ├ routes
@@ -164,26 +232,11 @@ backend/src
 │ └ health.routes.ts
 └ lib
   └ prisma.ts
-Inicialização
-
-Arquivo:
-backend/src/app.ts
-
-Responsável por:
-
-configurar Express
-
-habilitar CORS
-
-JSON parser
-
-servir widget estático
-
-registrar rotas /api
 
 ROTAS DA API
 
 Prefixo
+
 /api
 
 Health
@@ -197,71 +250,19 @@ POST /api/companies
 GET /api/companies/:companyId
 GET /api/companies/:companyId/summary
 
-Resumo retorna:
-
-productsCount
-
-reviewsCount
-
-customersCount
-
-averageRating
-
 Products
 
-GET /api/products?companyId=&limit=&offset=
+GET /api/products
 POST /api/products
 GET /api/products/sku/:sku
-GET /api/products/sku/:sku/reviews
 GET /api/products/:productId/reviews
 
-Estado:
-
-sincronização com Nuvemshop funcionando
-
-persistência correta
-
-identificação via platformVariantId
-
-fallback por SKU
-
-Paginação:
-
-limit (máx 100)
-
-offset
-
-Nuvemshop
-
-GET /api/nuvemshop/install
-GET /api/nuvemshop/callback
-POST /api/nuvemshop/sync-products
-
-Funcionalidades:
-
-OAuth completo
-
-token persistido
-
-storeId salvo
-
-sync completo
-
-Reviews (Painel)
+Reviews
 
 GET /api/reviews
 POST /api/reviews
 PATCH /api/reviews/:reviewId
-PATCH /api/reviews/:reviewId/status
 DELETE /api/reviews/:reviewId
-
-Status:
-
-pending
-
-approved
-
-rejected
 
 Widget API
 
@@ -275,280 +276,172 @@ backend/widget/widget.js
 
 Funcionalidades
 
-carregamento automático
-
-renderização de reviews
-
-média e contagem
-
-destaque de review
-
+render automático
+reviews dinâmicos
+média + contagem
+paginação local
 envio via modal
+estrelas dinâmicas (SVG padronizado)
+label qualitativo
+cache local
+SPA ready
 
-estrelas dinâmicas (full + half + empty)
+Diferenciais
 
-label qualitativo (Excelente, etc.)
-
-cache local inteligente
-
-compatível com SPA
+insights automáticos
+chips interativos
+UX premium
+design estilo Stripe / Apple
+alta conversão
 
 SPA Handling
 
 MutationObserver
-
-interceptação de history
-
+history intercept
 polling leve
 
-prevenção de loops
-
-Identificação de Produto
-
-Prioridade:
-
-platformProductId + platformVariantId
-
-platformProductId
-
-sku + variantId
-
-sku
-
 Cache
+
 Widget
-
-memória local
-
 TTL: 60s
-
 limite: 20
 
 Backend
-
-Map em memória
-
 TTL: 60s
-
 limite: 100
 
 SEGURANÇA MULTI-TENANT
 
-Estado:
-
 isolamento por companyId
-
-apiKey vinculada à company
-
-validação completa no widget
-
+apiKey vinculada
 queries protegidas
 
 Status:
-
-👉 100% funcional
+✅ 100% funcional
 
 SCHEMA PRISMA
 
-Modelos:
-
 User
-
 Company
-
 Product
-
 Customer
-
 Review
 
-Índices:
-
-companyId
-
-companyId + sku
-
-companyId + platformProductId
-
-companyId + platformVariantId
+Índices otimizados por companyId
 
 ESTADO ATUAL DO SISTEMA
 
-Situação:
-
-widget funcional
+Situação
 
 API estável
-
+widget estável
 integração ativa
-
 banco consistente
-
 multi-tenant seguro
-
 cache ativo
+paginação estável
 
-UX premium (modal + estrelas + animações)
+UX
 
-meia estrela funcional (nível marketplace)
-
-feedback visual de envio (loading + sucesso)
-
-SISTEMAS IMPLEMENTADOS
-
-Sistema de Moderação
-✅
-
-Sistema de Edição
-✅
-
-Sistema de Produtos
-✅
-
-FRONTEND ADMIN
-
-Stack:
-
-React
-TypeScript
-Vite
-
-Status:
-
-✅ funcional
+nível marketplace premium
+interação fluida
+alta conversão
 
 PROBLEMAS RESOLVIDOS RECENTEMENTE
 
 duplicação de produtos
-
-inconsistência local vs produção
-
 erro de API
-
-multi-tenant falho
-
-widget não identificando produto
-
-problemas de SKU vs variantId
-
+multi-tenant inconsistente
+problemas SKU vs variantId
 modal quebrado
-
-conflito de scripts duplicados
-
-estrelas não funcionando
-
-UX ruim do formulário
-
-render incorreto de estrelas (safeText)
-
-pluralização incorreta (“avaliaçãoões”)
-
-timeout curto no fetch (Render cold start)
+conflito de scripts
+render de estrelas incorreto
+pluralização
+timeout de API
+remoção completa do sistema de highlight sem quebrar paginação
+correção de sobrescrita de SVG das estrelas no formulário
 
 PROBLEMAS ATUAIS
 
-ausência de paginação no widget
-
-ausência de ranking visual completo
-
-ausência de prova social avançada
-
-ausência de distribuição persistida no backend
-
-dependência de cold start da API (Render)
+cold start da API (Render)
+insights ainda client-side
+sem agregação persistida
+sem distribuição de estrelas
 
 PRÓXIMOS PASSOS
+
 PRIORIDADE MÁXIMA 🚨
 
-Sistema de coleta automática pós-compra
+Sistema pós-compra automático:
 
 integração com pedidos
-
-envio de email automático
-
+email automático
 link direto para avaliação
-
-marcação de “Compra verificada”
+“Compra verificada”
 
 PRIORIDADE ALTA
 
-score agregado persistido
-
-distribuição de avaliações (backend)
-
-paginação no widget
-
-layout estilo Trustpilot completo
-
-badges (Compra verificada, Top review)
-
-sistema de reputação por produto
+agregação persistida
+distribuição de estrelas
+insights no backend
+badges
+reputação por produto
+carrossel de fotos nas avaliações
+upload de imagens nas reviews
 
 PRIORIDADE MÉDIA
 
 dashboard avançado
-
-filtros e relatórios
-
-exportação de dados
-
-notificações (email / webhook)
+relatórios
+exportação
+notificações
 
 PRIORIDADE FUTURA
 
 Shopify
-
 WooCommerce
+anti-spam
+CDN widget
+upload de imagens
+analytics
+A/B testing
 
-sistema anti-spam
+MELHORIAS ESTRATÉGICAS
 
-CDN para widget
+lazy loading
+pré-carregamento
+render parcial
+schema.org ⭐
+fallback API lenta
+cache CDN
+redução de egress
+compressão payload
 
-upload de imagens avançado
+NOVAS IDEIAS
 
-analytics de conversão
-
-A/B testing do widget
-
-MELHORIAS ESTRATÉGICAS SUGERIDAS
-
-widget com foco extremo em conversão (CRO)
-
-lazy loading de reviews
-
-carregamento parcial (above the fold)
-
-schema.org (rich snippets ⭐)
-
-prova social dinâmica
-
-fallback inteligente em caso de API lenta
-
-pré-carregamento de avaliações
-
-cache distribuído (edge/CDN)
+resumo automático (IA leve)
+“o que mais falam”
+ranking de características
+heatmap de sentimento
+detecção de fake review
+score de confiabilidade
+comparação entre produtos
 
 RESUMO EXECUTIVO
 
-AvaliaPro já possui:
+AvaliaPro possui:
 
-integração real com e-commerce
-
-ingestão confiável de dados
-
+integração real
+dados confiáveis
 persistência estruturada
-
 API robusta
-
-widget altamente otimizado
-
-sistema de reviews completo
-
-UX premium (nível marketplace)
-
-arquitetura SaaS pronta para escala
+widget premium
+UX acima do mercado
+insights dinâmicos
+paginação pronta
+arquitetura SaaS escalável
 
 STATUS FINAL
 
-👉 MVP avançado, validado, com UX premium e pronto para escala e monetização
+👉 MVP avançado, estável e pronto para escalar, otimizar conversão e iniciar monetização
 ```
