@@ -579,6 +579,53 @@
     return html;
   }
 
+  function getInteractiveStars(selectedRating) {
+    var rating = Math.max(0, Math.min(5, Number(selectedRating) || 0));
+    var html = "";
+
+    function buildStar(isFilled, index) {
+      var fillColor = "#f5a623";
+      var emptyFill = "#ffffff";
+      var emptyStroke = "#f5a623";
+
+      return `
+        <span
+          data-value="${index}"
+          aria-label="${index} ${index === 1 ? "estrela" : "estrelas"}"
+          title="${index} ${index === 1 ? "estrela" : "estrelas"}"
+          style="display:inline-flex;"
+        >
+         <span
+  class="avaliapro-star-svg"
+  aria-hidden="true"
+  style="width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 24px;"
+>
+  <svg
+  viewBox="0 0 24 24"
+  width="24"
+  height="24"
+  style="width:24px;height:24px;min-width:24px;min-height:24px;display:block;"
+>
+              <path
+                d="M12 2.35l2.91 5.9 6.51.95-4.71 4.59 1.11 6.49L12 17.77l-5.82 3.06 1.11-6.49L2.58 9.2l6.51-.95L12 2.35z"
+                fill="${isFilled ? fillColor : emptyFill}"
+                stroke="${isFilled ? fillColor : emptyStroke}"
+                stroke-width="1.7"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+        </span>
+      `;
+    }
+
+    for (var i = 1; i <= 5; i++) {
+      html += buildStar(i <= rating, i);
+    }
+
+    return html;
+  }
+
   function getAverageDisplay(value) {
     var numeric = Number(value) || 0;
     return numeric.toFixed(1);
@@ -1217,28 +1264,12 @@
     var recommendationRate = getRecommendationRate(safeReviews);
     var reviewInsights = getReviewInsights(safeReviews);
 
-    var highlightReview = safeReviews.length ? safeReviews[0] : null;
-    var hasHighlightSlot = !!highlightReview && !state.activeInsightFilter;
+    var totalListReviews = filteredReviews.length;
 
-    var listReviews = filteredReviews.filter(function (review) {
-      if (!highlightReview) return true;
-      if (state.activeInsightFilter) return true;
-
-      return review !== highlightReview;
-    });
-
-    var totalListReviews = listReviews.length;
-
-    var totalPages = hasHighlightSlot
-      ? Math.max(
-          1,
-          1 +
-            Math.ceil(
-              Math.max(0, totalListReviews - (state.reviewsPerPage - 1)) /
-                state.reviewsPerPage
-            )
-        )
-      : Math.max(1, Math.ceil(totalListReviews / state.reviewsPerPage));
+    var totalPages = Math.max(
+      1,
+      Math.ceil(totalListReviews / state.reviewsPerPage)
+    );
 
     if (state.currentPage > totalPages) {
       state.currentPage = totalPages;
@@ -1248,28 +1279,10 @@
       state.currentPage = 1;
     }
 
-    var shouldShowHighlight = hasHighlightSlot && state.currentPage === 1;
+    var pageStart = (state.currentPage - 1) * state.reviewsPerPage;
+    var pageEnd = pageStart + state.reviewsPerPage;
 
-    var pageStart = 0;
-    var pageEnd = 0;
-
-    if (hasHighlightSlot) {
-      if (state.currentPage === 1) {
-        pageStart = 0;
-        pageEnd = Math.max(0, state.reviewsPerPage - 1);
-      } else {
-        pageStart =
-          state.reviewsPerPage -
-          1 +
-          (state.currentPage - 2) * state.reviewsPerPage;
-        pageEnd = pageStart + state.reviewsPerPage;
-      }
-    } else {
-      pageStart = (state.currentPage - 1) * state.reviewsPerPage;
-      pageEnd = pageStart + state.reviewsPerPage;
-    }
-
-    var paginatedReviews = listReviews.slice(pageStart, pageEnd);
+    var paginatedReviews = filteredReviews.slice(pageStart, pageEnd);
 
     var reviewInsightsHtml =
       Array.isArray(reviewInsights) && reviewInsights.length
@@ -1346,31 +1359,11 @@
       </div>
     `;
 
-    var highlightHtml = highlightReview
-      ? `
-          <div style="
-            border: 2px solid #f59e0b;
-            background: #fff8e1;
-            border-radius: 14px;
-            padding: 16px;
-            margin-bottom: 16px;
-          ">
-            <div style="font-weight:700;margin-bottom:6px;">
-              ⭐ Avaliação em destaque
-            </div>
+    var highlightHtml = "";
 
-            ${buildReviewItem(highlightReview)}
-          </div>
-        `
-      : "";
-
-    var reviewListHtml =
-      (shouldShowHighlight ? highlightHtml : "") +
-      (paginatedReviews.length
-        ? paginatedReviews.map(buildReviewItem).join("")
-        : shouldShowHighlight
-        ? ""
-        : `<div class="avaliapro-empty">Nenhuma avaliação encontrada para esta característica.</div>`);
+    var reviewListHtml = paginatedReviews.length
+      ? paginatedReviews.map(buildReviewItem).join("")
+      : `<div class="avaliapro-empty">Nenhuma avaliação encontrada para esta`;
 
     var paginationHtml =
       totalPages > 1
@@ -1537,33 +1530,29 @@
             </div>
 
             <div class="avaliapro-field">
-              <label class="avaliapro-label">Nota</label>
+  <label class="avaliapro-label">Nota</label>
 
-              <div
-                id="avaliapro-stars-input"
-                style="font-size:22px;line-height:1;color:#f59e0b;display:flex;gap:10px;cursor:pointer;user-select:none;"
-              >
-                <span data-value="1" aria-label="1 estrela" title="1 estrela">★</span>
-                <span data-value="2" aria-label="2 estrelas" title="2 estrelas">★</span>
-                <span data-value="3" aria-label="3 estrelas" title="3 estrelas">★</span>
-                <span data-value="4" aria-label="4 estrelas" title="4 estrelas">★</span>
-                <span data-value="5" aria-label="5 estrelas" title="5 estrelas">★</span>
+  <div
+  id="avaliapro-stars-input"
+  style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;"
+>
+  ${getInteractiveStars(5)}
 
-                <select
-                  class="avaliapro-select"
-                  name="rating"
-                  required
-                  style="display:none;"
-                >
-                  <option value="">Selecione uma nota</option>
-                  <option value="5" selected>5</option>
-                  <option value="4">4</option>
-                  <option value="3">3</option>
-                  <option value="2">2</option>
-                  <option value="1">1</option>
-                </select>
-              </div>
-            </div>
+  <select
+    class="avaliapro-select"
+    name="rating"
+    required
+    style="display:none;"
+  >
+      <option value="">Selecione uma nota</option>
+      <option value="5" selected>5</option>
+      <option value="4">4</option>
+      <option value="3">3</option>
+      <option value="2">2</option>
+      <option value="1">1</option>
+    </select>
+  </div>
+</div>
 
             <div class="avaliapro-field">
               <textarea
@@ -1697,48 +1686,49 @@
     );
 
     if (starsContainer && select) {
-      var stars = starsContainer.querySelectorAll("span");
+      var stars = starsContainer.querySelectorAll("[data-value]");
+
+      function paintStars(activeValue) {
+        stars.forEach(function (star) {
+          var value = Number(star.getAttribute("data-value"));
+          var path = star.querySelector("path");
+
+          if (!path) return;
+
+          if (value <= activeValue) {
+            path.setAttribute("fill", "#f5a623");
+            path.setAttribute("stroke", "#f5a623");
+          } else {
+            path.setAttribute("fill", "#ffffff");
+            path.setAttribute("stroke", "#f5a623");
+          }
+        });
+      }
 
       var initialValue = Number(select.value || 5);
-      select.value = initialValue;
-
-      stars.forEach(function (s) {
-        var v = Number(s.getAttribute("data-value"));
-        s.textContent = v <= initialValue ? "★" : "☆";
-      });
+      select.value = String(initialValue);
+      paintStars(initialValue);
 
       stars.forEach(function (star) {
         var value = Number(star.getAttribute("data-value"));
 
         star.onclick = function () {
-          star.style.transform = "scale(1.25)";
+          star.style.transform = "scale(1.12)";
 
           setTimeout(function () {
             star.style.transform = "";
           }, 120);
 
-          select.value = value;
-
-          stars.forEach(function (s) {
-            var v = Number(s.getAttribute("data-value"));
-            s.textContent = v <= value ? "★" : "☆";
-          });
+          select.value = String(value);
+          paintStars(value);
         };
 
         star.onmouseenter = function () {
-          stars.forEach(function (s) {
-            var v = Number(s.getAttribute("data-value"));
-            s.textContent = v <= value ? "★" : "☆";
-          });
+          paintStars(value);
         };
 
         star.onmouseleave = function () {
-          var selected = Number(select.value || 5);
-
-          stars.forEach(function (s) {
-            var v = Number(s.getAttribute("data-value"));
-            s.textContent = v <= selected ? "★" : "☆";
-          });
+          paintStars(Number(select.value || 5));
         };
       });
     }
