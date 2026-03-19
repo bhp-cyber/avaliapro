@@ -155,6 +155,9 @@ router.get("/reviews", async (req, res) => {
         verifiedPurchase: true,
         createdAt: true,
         variantId: true,
+        avatarType: true,
+        avatarPreset: true,
+        avatarUrl: true,
       },
     });
 
@@ -180,6 +183,9 @@ router.get("/reviews", async (req, res) => {
           verifiedPurchase: true,
           createdAt: true,
           variantId: true,
+          avatarType: true,
+          avatarPreset: true,
+          avatarUrl: true,
         },
       });
     }
@@ -250,6 +256,9 @@ router.post("/reviews", async (req, res) => {
       verifiedPurchase,
       platformProductId,
       platformVariantId,
+      avatarType,
+      avatarPreset,
+      avatarUrl,
     } = req.body;
     const variantId = platformVariantId ? String(platformVariantId) : null;
 
@@ -347,6 +356,9 @@ router.post("/reviews", async (req, res) => {
         variantId: variantId || null,
         productId: product.id,
         companyId: company.id,
+        avatarType: avatarType || "initial",
+        avatarPreset: avatarPreset || null,
+        avatarUrl: avatarUrl || null,
       },
     });
 

@@ -16,36 +16,36 @@ model User {
 }
 
 model Company {
-  id                String            @id @default(uuid())
-  name              String
-  domain            String?
-  apiKey            String            @unique
+  id     String  @id @default(uuid())
+  name   String
+  domain String?
+  apiKey String  @unique
 
   // 🔽 Integração Nuvemshop
- nuvemshopStoreId  String?           @unique
-nuvemshopToken    String?
+  nuvemshopStoreId String? @unique
+  nuvemshopToken   String?
 
-  createdAt         DateTime          @default(now())
+  createdAt DateTime @default(now())
 
-  users             User[]
-  products          Product[]
-  customers         Customer[]
-  reviews           Review[]
+  users     User[]
+  products  Product[]
+  customers Customer[]
+  reviews   Review[]
 }
 
 model Product {
-  id                String            @id @default(uuid())
-  name              String
-  sku               String
-  createdAt         DateTime          @default(now())
-  companyId         String
+  id        String   @id @default(uuid())
+  name      String
+  sku       String
+  createdAt DateTime @default(now())
+  companyId String
 
   platform          String?
   platformProductId String?
-  platformVariantId String?           @unique
+  platformVariantId String? @unique
 
-  company           Company           @relation(fields: [companyId], references: [id])
-  reviews           Review[]
+  company Company  @relation(fields: [companyId], references: [id])
+  reviews Review[]
 
   @@index([companyId])
   @@index([companyId, sku])
@@ -67,27 +67,30 @@ model Customer {
 }
 
 model Review {
-  id               String    @id @default(uuid())
+  id               String   @id @default(uuid())
   rating           Int
   title            String?
   comment          String?
   authorName       String?
-  verifiedPurchase Boolean   @default(false)
-  status String @default("approved")
+  verifiedPurchase Boolean  @default(false)
+  status           String   @default("approved")
   productVariant   String?
   variantId        String?
   imageUrl         String?
-  helpfulCount     Int       @default(0)
-  createdAt        DateTime  @default(now())
+  avatarType       String?  @default("initial")
+  avatarPreset     String?
+  avatarUrl        String?
+  helpfulCount     Int      @default(0)
+  createdAt        DateTime @default(now())
 
-  productId        String
-  product          Product   @relation(fields: [productId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
 
-  companyId        String
-  company          Company   @relation(fields: [companyId], references: [id])
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
 
-  customerId       String?
-  customer         Customer? @relation(fields: [customerId], references: [id])
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
 
   @@index([productId, variantId])
   @@index([companyId])
