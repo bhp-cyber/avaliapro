@@ -118,6 +118,11 @@ export async function createReview(data: {
   rating: number;
   title?: string;
   comment: string;
+  authorName?: string;
+  avatarType?: string;
+  avatarPreset?: string;
+  avatarUrl?: string;
+  verifiedPurchase?: boolean;
 }) {
   const response = await fetch(`${API_BASE_URL}/reviews`, {
     method: "POST",
@@ -130,6 +135,11 @@ export async function createReview(data: {
       rating: data.rating,
       title: data.title?.trim() || undefined,
       comment: data.comment,
+      authorName: data.authorName?.trim() || undefined,
+      avatarType: data.avatarType || undefined,
+      avatarPreset: data.avatarPreset || undefined,
+      avatarUrl: data.avatarUrl || undefined,
+      verifiedPurchase: data.verifiedPurchase ?? false,
     }),
   });
 

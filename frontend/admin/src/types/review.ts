@@ -13,6 +13,7 @@ export type Review = {
   product: string;
   productId?: string;
   customer: string;
+  authorName?: string;
   customerAvatar?: string;
   avatarType?: string;
   avatarPreset?: string;

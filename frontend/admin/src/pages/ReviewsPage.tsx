@@ -235,7 +235,7 @@ export default function ReviewsPage() {
                       <td style={tdStyle}>
                         <div style={customerCellStyle}>
                           <CustomerAvatar
-                            name={review.customer}
+                            name={review.authorName || review.customer || "Cliente"}
                             imageUrl={
                               review.avatarType === "preset"
                                 ? review.avatarPreset
@@ -247,7 +247,9 @@ export default function ReviewsPage() {
                           />
 
                           <div style={customerInfoStyle}>
-                            <span style={customerNameStyle}>{review.customer}</span>
+                            <span style={customerNameStyle}>
+                              {review.authorName || review.customer || "Cliente"}
+                            </span>
                           </div>
                         </div>
                       </td>

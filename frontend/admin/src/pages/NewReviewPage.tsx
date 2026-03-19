@@ -41,8 +41,18 @@ export default function NewReviewPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const [customerName, setCustomerName] = useState("");
+  const [avatarPreset, setAvatarPreset] = useState<string | null>(null);
+  const [avatarUrlInput, setAvatarUrlInput] = useState("");
   const [customerAvatar, setCustomerAvatar] = useState("");
   const [avatarPreviewError, setAvatarPreviewError] = useState(false);
+
+  useEffect(() => {
+    if (avatarPreset) {
+      setCustomerAvatar(avatarPreset);
+    } else {
+      setCustomerAvatar(avatarUrlInput);
+    }
+  }, [avatarPreset, avatarUrlInput]);
 
   const [comment, setComment] = useState("");
 
@@ -109,7 +119,11 @@ export default function NewReviewPage() {
       productId: selectedProduct.id,
       customer: customerName.trim(),
       customerAvatar: customerAvatar.trim() || undefined,
+      avatarType: customerAvatar.trim() ? "image" : undefined,
+      avatarUrl: customerAvatar.trim() || undefined,
+      avatarPreset: undefined,
       rating,
+      title: "",
       comment: comment.trim(),
       status: "Aprovada",
       source: "Manual",
@@ -194,7 +208,7 @@ export default function NewReviewPage() {
           </div>
 
           <div style={fieldStyle}>
-            <label style={labelStyle}>Foto de perfil (URL) — opcional</label>
+            <label style={labelStyle}>Avatar do cliente — opcional</label>
 
             <div style={avatarFieldWrapperStyle}>
               <div style={avatarPreviewContainerStyle}>
@@ -221,21 +235,58 @@ export default function NewReviewPage() {
                 )}
               </div>
 
-              <div style={{ display: "grid", gap: 8, flex: 1 }}>
+              <div style={{ display: "grid", gap: 12, flex: 1 }}>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  {[
+                    "https://i.pravatar.cc/100?img=1",
+                    "https://i.pravatar.cc/100?img=2",
+                    "https://i.pravatar.cc/100?img=3",
+                    "https://i.pravatar.cc/100?img=4",
+                    "https://i.pravatar.cc/100?img=5",
+                  ].map((url) => {
+                    const isSelected = customerAvatar === url;
+
+                    return (
+                      <img
+                        key={url}
+                        src={url}
+                        alt="Avatar"
+                        onClick={() => {
+                          setAvatarPreset(url);
+                          setAvatarPreviewError(false);
+                        }}
+                        style={{
+                          width: 42,
+                          height: 42,
+                          borderRadius: 999,
+                          objectFit: "cover",
+                          cursor: "pointer",
+                          border: isSelected ? "2px solid #111827" : "2px solid transparent",
+                          transform: isSelected ? "scale(1.06)" : "scale(1)",
+                          transition: "all 0.2s ease",
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+
                 <div style={urlInputWrapperStyle}>
                   <Image size={18} color="#6b7280" />
                   <input
                     type="url"
                     placeholder="https://exemplo.com/foto-do-cliente.jpg"
                     style={urlInputStyle}
-                    value={customerAvatar}
-                    onChange={(e) => setCustomerAvatar(e.target.value)}
+                    value={avatarUrlInput}
+                    onChange={(e) => {
+                      setAvatarPreset(null);
+                      setAvatarUrlInput(e.target.value);
+                      setAvatarPreviewError(false);
+                    }}
                   />
                 </div>
 
                 <span style={helperTextStyle}>
-                  Se não informar uma imagem, o sistema exibirá um avatar automático com as iniciais
-                  do cliente.
+                  Você pode escolher um avatar pronto ou colar a URL de uma foto do cliente.
                 </span>
 
                 {customerAvatar.trim() !== "" && avatarPreviewError && (

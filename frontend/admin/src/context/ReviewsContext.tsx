@@ -34,8 +34,18 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
       const normalizedReviews: Review[] = apiReviews.map((review: any) => ({
         id: review.id,
         product: review.product?.name ?? "Produto",
+        productId: review.productId ?? review.product?.id ?? undefined,
         customer: review.customer?.name ?? review.authorName ?? "Cliente",
-        customerAvatar: undefined,
+        authorName: review.authorName ?? undefined,
+        customerAvatar:
+          review.avatarType === "preset"
+            ? (review.avatarPreset ?? undefined)
+            : review.avatarType === "image"
+              ? (review.avatarUrl ?? undefined)
+              : undefined,
+        avatarType: review.avatarType ?? undefined,
+        avatarPreset: review.avatarPreset ?? undefined,
+        avatarUrl: review.avatarUrl ?? undefined,
         rating: Number(review.rating) || 0,
         title: review.title ?? "",
         comment: review.comment ?? "",
@@ -68,12 +78,17 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      const created = await createReview({
+      await createReview({
         companyId: COMPANY_ID,
         productId: review.productId,
         rating: review.rating,
         title: review.title,
         comment: review.comment,
+        authorName: review.customer,
+        avatarType: review.avatarType,
+        avatarPreset: review.avatarPreset,
+        avatarUrl: review.avatarUrl || review.customerAvatar,
+        verifiedPurchase: false,
       });
 
       await loadReviews();
