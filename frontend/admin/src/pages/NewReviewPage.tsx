@@ -214,7 +214,12 @@ export default function NewReviewPage() {
                   <img
                     src={customerAvatar}
                     alt={`Foto de perfil de ${customerName || "cliente"}`}
-                    style={avatarImageStyle}
+                    draggable={false}
+                    style={{
+                      ...avatarImageStyle,
+                      userSelect: "none",
+                      pointerEvents: "none",
+                    }}
                     onError={() => setAvatarPreviewError(true)}
                   />
                 ) : (
@@ -245,6 +250,7 @@ export default function NewReviewPage() {
                         key={url}
                         src={url}
                         alt="Avatar"
+                        draggable={false}
                         onClick={() => {
                           setAvatarPreset(url);
                           setAvatarPreviewError(false);
@@ -255,6 +261,7 @@ export default function NewReviewPage() {
                           borderRadius: 999,
                           objectFit: "cover",
                           cursor: "pointer",
+                          userSelect: "none",
                           border: isSelected ? "2px solid #111827" : "2px solid transparent",
                           transform: isSelected ? "scale(1.06)" : "scale(1)",
                           transition: "all 0.2s ease",

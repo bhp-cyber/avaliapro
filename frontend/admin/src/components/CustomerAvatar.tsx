@@ -29,6 +29,7 @@ export default function CustomerAvatar({ name, imageUrl, size = 40 }: Props) {
       <img
         src={imageUrl}
         alt={`Foto de perfil de ${name}`}
+        draggable={false}
         style={{
           width: size,
           height: size,
@@ -37,6 +38,8 @@ export default function CustomerAvatar({ name, imageUrl, size = 40 }: Props) {
           objectFit: "cover",
           background: "#e5e7eb",
           display: "block",
+          userSelect: "none",
+          pointerEvents: "none",
         }}
         onError={() => setImageError(true)}
       />

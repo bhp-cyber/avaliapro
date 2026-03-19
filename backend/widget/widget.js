@@ -1179,10 +1179,19 @@
     var imageHtml =
       review && review.imageUrl
         ? `
-        <div class="avaliapro-review-image">
-          <img src="${safeText(review.imageUrl)}" alt="Imagem da avaliação">
-        </div>
-      `
+          <div class="avaliapro-review-image">
+            <img
+              src="${safeText(review.imageUrl)}"
+              alt="Imagem da avaliação"
+              draggable="false"
+              style="
+                user-select:none;
+                -webkit-user-drag:none;
+                pointer-events:none;
+              "
+            >
+          </div>
+        `
         : "";
 
     var authorName = safeText((review && review.authorName) || "Cliente");
@@ -1200,88 +1209,98 @@
 
     if (avatarType === "preset" && avatarPreset) {
       avatarHtml = `
-    <img
-      src="${safeText(avatarPreset)}"
-      alt="Avatar"
-      style="
-        width:40px;
-        height:40px;
-        min-width:40px;
-        border-radius:999px;
-        object-fit:cover;
-        border:1px solid #e5e7eb;
-        margin-top:2px;
-      "
-    />
-  `;
+      <img
+        src="${safeText(avatarPreset)}"
+        alt="Avatar"
+        draggable="false"
+        style="
+          width:40px;
+          height:40px;
+          min-width:40px;
+          border-radius:999px;
+          object-fit:cover;
+          border:1px solid #e5e7eb;
+          margin-top:2px;
+          user-select:none;
+          -webkit-user-drag:none;
+          pointer-events:none;
+        "
+      />
+    `;
     } else if (avatarType === "image" && avatarUrl) {
       avatarHtml = `
-    <img
-      src="${safeText(avatarUrl)}"
-      alt="Avatar"
-      style="
+      <img
+        src="${safeText(avatarUrl)}"
+        alt="Avatar"
+        draggable="false"
+        style="
+          width:40px;
+          height:40px;
+          min-width:40px;
+          border-radius:999px;
+          object-fit:cover;
+          border:1px solid #e5e7eb;
+          margin-top:2px;
+          user-select:none;
+          -webkit-user-drag:none;
+          pointer-events:none;
+        "
+      />
+    `;
+    } else {
+      avatarHtml = `
+      <div style="
         width:40px;
         height:40px;
         min-width:40px;
         border-radius:999px;
-        object-fit:cover;
+        background:#f3f4f6;
+        color:#111827;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:14px;
+        font-weight:700;
         border:1px solid #e5e7eb;
         margin-top:2px;
-      "
-    />
-  `;
-    } else {
-      avatarHtml = `
-    <div style="
-      width:40px;
-      height:40px;
-      min-width:40px;
-      border-radius:999px;
-      background:#f3f4f6;
-      color:#111827;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:14px;
-      font-weight:700;
-      border:1px solid #e5e7eb;
-      margin-top:2px;
-    ">
-      ${authorInitial}
-    </div>
-  `;
+        user-select:none;
+        pointer-events:none;
+      ">
+        ${authorInitial}
+      </div>
+    `;
     }
 
     return `
-      <div class="avaliapro-review">
-        <div style="display:flex;gap:12px;align-items:flex-start;">
-        ${avatarHtml}
-
-          <div style="flex:1;min-width:0;border-bottom:1px solid #e5e7eb;padding-bottom:18px;">
-            <div class="avaliapro-review-top">
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;line-height:1;">
-    <div class="avaliapro-author">${authorName}</div>
-
-    <div style="font-size:12px;color:#9ca3af;">
-      ${safeText(formatDate(review && review.createdAt))}
+        <div class="avaliapro-review">
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+          ${avatarHtml}
+  
+            <div style="flex:1;min-width:0;border-bottom:1px solid #e5e7eb;padding-bottom:18px;">
+              <div class="avaliapro-review-top">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;line-height:1;">
+      <div class="avaliapro-author">${authorName}</div>
+  
+      <div style="font-size:12px;color:#9ca3af;">
+        ${safeText(formatDate(review && review.createdAt))}
+      </div>
     </div>
+  
+    ${verifiedHtml}
   </div>
-
-  ${verifiedHtml}
-</div>
-
-            <div class="avaliapro-review-stars" style="margin-top:6px;margin-bottom:6px;">
-  ${getStars(review && review.rating)}
-</div>
-            ${titleHtml}
-            <div class="avaliapro-review-comment">${safeText(
-              normalizeText((review && review.comment) || "")
-            )}</div>
-            ${imageHtml}
+  
+              <div class="avaliapro-review-stars" style="margin-top:6px;margin-bottom:6px;">
+    ${getStars(review && review.rating)}
+  </div>
+              ${titleHtml}
+              <div class="avaliapro-review-comment">${safeText(
+                normalizeText((review && review.comment) || "")
+              )}</div>
+              ${imageHtml}
+            </div>
           </div>
         </div>
-      </div>
-    `;
+      `;
   }
   function renderWidget(container, data, sku) {
     var platformProductId = state.currentPlatformProductId;
@@ -1590,17 +1609,20 @@
       .map(
         (url, index) => `
       <img
-        src="${url}"
-        data-avatar="${url}"
-        style="
-          width:42px;
-          height:42px;
-          border-radius:999px;
-          cursor:pointer;
-          border:2px solid transparent;
-          transition:all 0.2s ease;
-        "
-      />
+  src="${url}"
+  data-avatar="${url}"
+  draggable="false"
+  style="
+    width:42px;
+    height:42px;
+    border-radius:999px;
+    cursor:pointer;
+    border:2px solid transparent;
+    transition:all 0.2s ease;
+    user-select:none;
+    -webkit-user-drag:none;
+  "
+/>
     `
       )
       .join("")}
