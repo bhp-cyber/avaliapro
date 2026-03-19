@@ -1,8 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
-import { Image, Search, Star, User } from "lucide-react";
+import { Search, Star, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useReviewsContext } from "../context/ReviewsContext";
 import { fetchProducts } from "../services/products";
+const AVATAR_PRESETS = [
+  "https://avaliapro-api.onrender.com/widget/avatars/avatar-1.png",
+  "https://avaliapro-api.onrender.com/widget/avatars/avatar-2.png",
+  "https://avaliapro-api.onrender.com/widget/avatars/avatar-3.png",
+  "https://avaliapro-api.onrender.com/widget/avatars/avatar-4.png",
+  "https://avaliapro-api.onrender.com/widget/avatars/avatar-5.png",
+  "https://avaliapro-api.onrender.com/widget/avatars/avatar-6.png",
+  "https://avaliapro-api.onrender.com/widget/avatars/avatar-7.png",
+  "https://avaliapro-api.onrender.com/widget/avatars/avatar-8.png",
+  "https://avaliapro-api.onrender.com/widget/avatars/avatar-9.png",
+];
 
 type Product = {
   id: string;
@@ -51,14 +62,6 @@ export default function NewReviewPage() {
       setCustomerAvatar(avatarPreset);
     }
   }, [avatarPreset]);
-
-  useEffect(() => {
-    if (!avatarPreset) return;
-
-    if (customerAvatar !== avatarPreset) {
-      setAvatarPreset(null);
-    }
-  }, [customerAvatar, avatarPreset]);
 
   const [comment, setComment] = useState("");
 
@@ -236,13 +239,7 @@ export default function NewReviewPage() {
 
               <div style={{ display: "grid", gap: 12, flex: 1 }}>
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                  {[
-                    "https://i.pravatar.cc/100?img=1",
-                    "https://i.pravatar.cc/100?img=2",
-                    "https://i.pravatar.cc/100?img=3",
-                    "https://i.pravatar.cc/100?img=4",
-                    "https://i.pravatar.cc/100?img=5",
-                  ].map((url) => {
+                  {AVATAR_PRESETS.map((url) => {
                     const isSelected = customerAvatar === url;
 
                     return (
