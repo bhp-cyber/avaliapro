@@ -293,6 +293,27 @@ router.post("/", async (req, res) => {
       }
     }
 
+    const normalizedAvatarType =
+      avatarType === "preset" ||
+      avatarType === "image" ||
+      avatarType === "initial"
+        ? avatarType
+        : "initial";
+
+    const normalizedAvatarPreset =
+      normalizedAvatarType === "preset" &&
+      typeof avatarPreset === "string" &&
+      avatarPreset.trim()
+        ? avatarPreset.trim()
+        : null;
+
+    const normalizedAvatarUrl =
+      normalizedAvatarType === "image" &&
+      typeof avatarUrl === "string" &&
+      avatarUrl.trim().startsWith("http")
+        ? avatarUrl.trim()
+        : null;
+
     const review = await prisma.review.create({
       data: {
         rating: normalizedRating,
@@ -308,11 +329,9 @@ router.post("/", async (req, res) => {
             ? authorName.trim()
             : "Cliente",
 
-        avatarType: typeof avatarType === "string" ? avatarType : null,
-
-        avatarPreset: typeof avatarPreset === "string" ? avatarPreset : null,
-
-        avatarUrl: typeof avatarUrl === "string" ? avatarUrl : null,
+        avatarType: normalizedAvatarType,
+        avatarPreset: normalizedAvatarPreset,
+        avatarUrl: normalizedAvatarUrl,
 
         verifiedPurchase: Boolean(verifiedPurchase),
       },
@@ -341,7 +360,8 @@ router.post("/", async (req, res) => {
 router.patch("/:reviewId", async (req, res) => {
   try {
     const { reviewId } = req.params;
-    const { companyId, title, comment } = req.body;
+    const { companyId, title, comment, avatarType, avatarPreset, avatarUrl } =
+      req.body;
 
     const normalizedReviewId =
       typeof reviewId === "string" ? reviewId.trim() : "";
@@ -365,9 +385,19 @@ router.patch("/:reviewId", async (req, res) => {
       });
     }
 
-    if (!normalizedTitle && !normalizedComment) {
+    const hasAvatarType = typeof avatarType === "string";
+    const hasAvatarPreset = typeof avatarPreset === "string";
+    const hasAvatarUrl = typeof avatarUrl === "string";
+
+    if (
+      !normalizedTitle &&
+      !normalizedComment &&
+      !hasAvatarType &&
+      !hasAvatarPreset &&
+      !hasAvatarUrl
+    ) {
       return res.status(400).json({
-        error: "title ou comment deve ser informado",
+        error: "title, comment ou avatar deve ser informado",
       });
     }
 
@@ -388,14 +418,70 @@ router.patch("/:reviewId", async (req, res) => {
       });
     }
 
+    const updateData: any = {};
+
+    if (typeof title === "string") {
+      updateData.title = normalizedTitle;
+    }
+
+    if (typeof comment === "string") {
+      updateData.comment = normalizedComment;
+    }
+
+    let normalizedAvatarTypeForUpdate: string | undefined = undefined;
+
+    if (typeof avatarType === "string") {
+      if (
+        avatarType === "preset" ||
+        avatarType === "image" ||
+        avatarType === "initial"
+      ) {
+        normalizedAvatarTypeForUpdate = avatarType;
+      } else {
+        normalizedAvatarTypeForUpdate = "initial";
+      }
+    }
+
+    const normalizedAvatarPresetForUpdate =
+      typeof avatarPreset === "string"
+        ? avatarPreset.trim() || null
+        : undefined;
+
+    const normalizedAvatarUrlForUpdate =
+      typeof avatarUrl === "string"
+        ? avatarUrl.trim().startsWith("http")
+          ? avatarUrl.trim()
+          : null
+        : undefined;
+
+    if (normalizedAvatarTypeForUpdate !== undefined) {
+      updateData.avatarType = normalizedAvatarTypeForUpdate;
+
+      if (normalizedAvatarTypeForUpdate === "preset") {
+        updateData.avatarPreset = normalizedAvatarPresetForUpdate ?? null;
+        updateData.avatarUrl = null;
+      } else if (normalizedAvatarTypeForUpdate === "image") {
+        updateData.avatarUrl = normalizedAvatarUrlForUpdate ?? null;
+        updateData.avatarPreset = null;
+      } else {
+        updateData.avatarPreset = null;
+        updateData.avatarUrl = null;
+      }
+    } else {
+      if (normalizedAvatarPresetForUpdate !== undefined) {
+        updateData.avatarPreset = normalizedAvatarPresetForUpdate;
+      }
+
+      if (normalizedAvatarUrlForUpdate !== undefined) {
+        updateData.avatarUrl = normalizedAvatarUrlForUpdate;
+      }
+    }
+
     const updatedReview = await prisma.review.update({
       where: {
         id: normalizedReviewId,
       },
-      data: {
-        title: normalizedTitle,
-        comment: normalizedComment,
-      },
+      data: updateData,
       select: {
         id: true,
         title: true,

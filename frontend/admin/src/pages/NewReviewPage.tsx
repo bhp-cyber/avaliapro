@@ -52,6 +52,14 @@ export default function NewReviewPage() {
     }
   }, [avatarPreset]);
 
+  useEffect(() => {
+    if (!avatarPreset) return;
+
+    if (customerAvatar !== avatarPreset) {
+      setAvatarPreset(null);
+    }
+  }, [customerAvatar, avatarPreset]);
+
   const [comment, setComment] = useState("");
 
   const filteredProducts = useMemo(() => {
@@ -105,9 +113,13 @@ export default function NewReviewPage() {
       productId: selectedProduct.id,
       customer: customerName.trim(),
       customerAvatar: customerAvatar.trim() || undefined,
-      avatarType: customerAvatar.trim() ? "image" : undefined,
-      avatarUrl: customerAvatar.trim() || undefined,
-      avatarPreset: undefined,
+
+      avatarType: customerAvatar.trim() ? (avatarPreset ? "preset" : "image") : undefined,
+
+      avatarUrl: avatarPreset ? undefined : customerAvatar.trim() || undefined,
+
+      avatarPreset: avatarPreset || undefined,
+
       rating,
       title: "",
       comment: comment.trim(),

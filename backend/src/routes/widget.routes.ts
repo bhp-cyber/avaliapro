@@ -363,6 +363,27 @@ router.post("/reviews", async (req, res) => {
       });
     }
 
+    const normalizedAvatarType =
+      avatarType === "preset" ||
+      avatarType === "image" ||
+      avatarType === "initial"
+        ? avatarType
+        : "initial";
+
+    const normalizedAvatarPreset =
+      normalizedAvatarType === "preset" &&
+      typeof avatarPreset === "string" &&
+      avatarPreset.trim()
+        ? avatarPreset.trim()
+        : null;
+
+    const normalizedAvatarUrl =
+      normalizedAvatarType === "image" &&
+      typeof avatarUrl === "string" &&
+      avatarUrl.trim().startsWith("http")
+        ? avatarUrl.trim()
+        : null;
+
     const review = await prisma.review.create({
       data: {
         rating: normalizedRating,
@@ -374,9 +395,9 @@ router.post("/reviews", async (req, res) => {
         variantId: variantId || null,
         productId: product.id,
         companyId: company.id,
-        avatarType: avatarType || "initial",
-        avatarPreset: avatarPreset || null,
-        avatarUrl: avatarUrl || null,
+        avatarType: normalizedAvatarType,
+        avatarPreset: normalizedAvatarPreset,
+        avatarUrl: normalizedAvatarUrl,
       },
     });
 

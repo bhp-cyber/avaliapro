@@ -91,7 +91,13 @@ export async function deleteReview(reviewId: string, companyId: string) {
 export async function updateReview(
   reviewId: string,
   companyId: string,
-  data: { title: string; comment: string }
+  data: {
+    title?: string;
+    comment?: string;
+    avatarType?: string;
+    avatarPreset?: string;
+    avatarUrl?: string;
+  }
 ) {
   const response = await fetch(`${API_BASE_URL}/reviews/${reviewId}`, {
     method: "PATCH",
@@ -100,8 +106,11 @@ export async function updateReview(
     },
     body: JSON.stringify({
       companyId,
-      title: data.title,
-      comment: data.comment,
+      title: data.title?.trim() || undefined,
+      comment: data.comment?.trim() || undefined,
+      avatarType: data.avatarType || undefined,
+      avatarPreset: data.avatarPreset || undefined,
+      avatarUrl: data.avatarUrl || undefined,
     }),
   });
 

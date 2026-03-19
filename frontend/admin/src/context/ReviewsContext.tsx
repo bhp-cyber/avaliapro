@@ -16,7 +16,16 @@ type ReviewsContextType = {
   addReview: (review: NewReviewInput) => void;
   approveReview: (reviewId: string) => Promise<void>;
   rejectReview: (reviewId: string) => Promise<void>;
-  updateReview: (reviewId: string, data: { title: string; comment: string }) => Promise<void>;
+  updateReview: (
+    reviewId: string,
+    data: {
+      title?: string;
+      comment?: string;
+      avatarType?: string;
+      avatarPreset?: string;
+      avatarUrl?: string;
+    }
+  ) => Promise<void>;
   deleteReview: (reviewId: string) => void;
   loadReviews: (status?: string) => Promise<void>;
 };
@@ -86,8 +95,9 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
         comment: review.comment,
         authorName: review.customer,
         avatarType: review.avatarType,
-        avatarPreset: review.avatarPreset,
-        avatarUrl: review.avatarUrl || review.customerAvatar,
+        avatarPreset: review.avatarType === "preset" ? review.avatarPreset : undefined,
+        avatarUrl:
+          review.avatarType === "image" ? review.avatarUrl || review.customerAvatar : undefined,
         verifiedPurchase: false,
       });
 
@@ -136,20 +146,48 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  async function updateReview(reviewId: string, data: { title: string; comment: string }) {
+  async function updateReview(
+    reviewId: string,
+    data: {
+      title?: string;
+      comment?: string;
+      avatarType?: string;
+      avatarPreset?: string;
+      avatarUrl?: string;
+    }
+  ) {
     try {
       await updateReviewApi(reviewId, COMPANY_ID, data);
 
       setReviews((prev) =>
-        prev.map((review) =>
-          review.id === reviewId
-            ? {
-                ...review,
-                title: data.title,
-                comment: data.comment,
-              }
-            : review
-        )
+        prev.map((review) => {
+          if (review.id !== reviewId) {
+            return review;
+          }
+
+          const nextAvatarType =
+            data.avatarType !== undefined ? data.avatarType : review.avatarType;
+
+          const nextAvatarPreset =
+            data.avatarPreset !== undefined ? data.avatarPreset : review.avatarPreset;
+
+          const nextAvatarUrl = data.avatarUrl !== undefined ? data.avatarUrl : review.avatarUrl;
+
+          return {
+            ...review,
+            title: data.title !== undefined ? data.title : review.title,
+            comment: data.comment !== undefined ? data.comment : review.comment,
+            avatarType: nextAvatarType,
+            avatarPreset: nextAvatarPreset,
+            avatarUrl: nextAvatarUrl,
+            customerAvatar:
+              nextAvatarType === "preset"
+                ? nextAvatarPreset
+                : nextAvatarType === "image"
+                  ? nextAvatarUrl
+                  : undefined,
+          };
+        })
       );
     } catch (error) {
       console.error("Erro ao atualizar avaliação:", error);
