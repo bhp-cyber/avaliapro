@@ -16,6 +16,9 @@ const AVATAR_PRESETS = [
   "https://avaliapro-api.onrender.com/widget/avatars/avatar-9.png",
 ];
 
+const AVATAR_DEFAULT_PRESET =
+  "https://avaliapro-api.onrender.com/widget/avatars/avatar-default.png";
+
 type Product = {
   id: string;
   name: string;
@@ -59,6 +62,7 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
 
   const [customerName, setCustomerName] = useState("");
   const [avatarPreset, setAvatarPreset] = useState<string | null>(null);
+  const [hasManualAvatarSelection, setHasManualAvatarSelection] = useState(false);
 
   const [customerAvatar, setCustomerAvatar] = useState("");
   const [avatarPreviewError, setAvatarPreviewError] = useState(false);
@@ -119,26 +123,13 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
 
     const trimmedAvatar = customerAvatar.trim();
 
-    const nextAvatarIndex = Number(
-      localStorage.getItem("avaliapro:new-review-avatar-index") || "0"
-    );
-
-    const fallbackAvatarPreset = AVATAR_PRESETS[nextAvatarIndex % AVATAR_PRESETS.length];
-
-    const finalAvatarValue = trimmedAvatar || fallbackAvatarPreset;
+    const finalAvatarValue = trimmedAvatar || AVATAR_DEFAULT_PRESET;
 
     const finalAvatarType = trimmedAvatar ? (avatarPreset ? "preset" : "image") : "preset";
 
     const finalAvatarPreset = finalAvatarType === "preset" ? finalAvatarValue : undefined;
 
     const finalAvatarUrl = finalAvatarType === "image" ? finalAvatarValue : undefined;
-
-    if (!trimmedAvatar) {
-      localStorage.setItem(
-        "avaliapro:new-review-avatar-index",
-        String((nextAvatarIndex + 1) % AVATAR_PRESETS.length)
-      );
-    }
 
     addReview({
       product: selectedProduct.name,
@@ -230,6 +221,7 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
                         draggable={false}
                         onClick={() => {
                           setAvatarPreset(url);
+                          setHasManualAvatarSelection(true);
                           setAvatarPreviewError(false);
                         }}
                         style={{
