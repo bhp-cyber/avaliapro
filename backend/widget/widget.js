@@ -2107,6 +2107,33 @@
       (function () {
         var platformProductId = getPlatformProductId();
 
+        var avatarPresets = [
+          "https://avaliapro-api.onrender.com/widget/avatars/avatar-1.png",
+          "https://avaliapro-api.onrender.com/widget/avatars/avatar-2.png",
+          "https://avaliapro-api.onrender.com/widget/avatars/avatar-3.png",
+          "https://avaliapro-api.onrender.com/widget/avatars/avatar-4.png",
+          "https://avaliapro-api.onrender.com/widget/avatars/avatar-5.png",
+          "https://avaliapro-api.onrender.com/widget/avatars/avatar-6.png",
+          "https://avaliapro-api.onrender.com/widget/avatars/avatar-7.png",
+          "https://avaliapro-api.onrender.com/widget/avatars/avatar-8.png",
+          "https://avaliapro-api.onrender.com/widget/avatars/avatar-9.png",
+        ];
+
+        var fallbackAvatarIndex = Number(
+          localStorage.getItem("avaliapro:widget-avatar-index") || "0"
+        );
+
+        var finalAvatarPreset =
+          avatarPreset ||
+          avatarPresets[fallbackAvatarIndex % avatarPresets.length];
+
+        if (!avatarPreset) {
+          localStorage.setItem(
+            "avaliapro:widget-avatar-index",
+            String((fallbackAvatarIndex + 1) % avatarPresets.length)
+          );
+        }
+
         return submitReview({
           apiKey: apiKey,
           sku: sku || null,
@@ -2116,8 +2143,8 @@
           rating: rating,
           comment: comment,
           verifiedPurchase: false,
-          avatarType: avatarPreset ? "preset" : "initial",
-          avatarPreset: avatarPreset || null,
+          avatarType: "preset",
+          avatarPreset: finalAvatarPreset,
         });
       })()
         .then(function () {
