@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, Star, User } from "lucide-react";
+import { Search, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useReviewsContext } from "../context/ReviewsContext";
 import { fetchProducts } from "../services/products";
+import avatarDefault from "../assets/avatars/avatar-default.png";
 const AVATAR_PRESETS = [
   "https://avaliapro-api.onrender.com/widget/avatars/avatar-1.png",
   "https://avaliapro-api.onrender.com/widget/avatars/avatar-2.png",
@@ -177,14 +178,86 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
 
       <div
         style={{
-          background: "#ffffff",
-          borderRadius: 16,
-          padding: 24,
-          boxShadow: "0 8px 24px rgba(15, 23, 42, 0.06)",
+          background: hidePageHeader ? "transparent" : "#ffffff",
+          borderRadius: hidePageHeader ? 0 : 16,
+          padding: hidePageHeader ? 0 : 24,
+          boxShadow: hidePageHeader ? "none" : "0 8px 24px rgba(15, 23, 42, 0.06)",
           maxWidth: 820,
         }}
       >
         <form style={{ display: "grid", gap: 20 }} onSubmit={handleSubmit}>
+          <div style={fieldStyle}>
+            <label style={labelStyle}>Avatar do cliente — opcional</label>
+
+            <div style={avatarFieldWrapperStyle}>
+              <div style={avatarPreviewContainerStyle}>
+                {showImagePreview ? (
+                  <img
+                    src={customerAvatar}
+                    alt={`Foto de perfil de ${customerName || "cliente"}`}
+                    draggable={false}
+                    style={{
+                      ...avatarImageStyle,
+                      userSelect: "none",
+                      pointerEvents: "none",
+                    }}
+                    onError={() => setAvatarPreviewError(true)}
+                  />
+                ) : (
+                  <img
+                    src={avatarDefault}
+                    alt="Avatar padrão"
+                    draggable={false}
+                    style={{
+                      ...avatarImageStyle,
+                      userSelect: "none",
+                      pointerEvents: "none",
+                    }}
+                  />
+                )}
+              </div>
+
+              <div style={{ display: "grid", gap: 12, flex: 1 }}>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  {AVATAR_PRESETS.map((url) => {
+                    const isSelected = customerAvatar === url;
+
+                    return (
+                      <img
+                        key={url}
+                        src={url}
+                        alt="Avatar"
+                        draggable={false}
+                        onClick={() => {
+                          setAvatarPreset(url);
+                          setAvatarPreviewError(false);
+                        }}
+                        style={{
+                          width: 42,
+                          height: 42,
+                          borderRadius: 999,
+                          objectFit: "cover",
+                          cursor: "pointer",
+                          userSelect: "none",
+                          border: isSelected ? "2px solid #111827" : "2px solid transparent",
+                          transform: isSelected ? "scale(1.06)" : "scale(1)",
+                          transition: "all 0.2s ease",
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+
+                {customerAvatar.trim() !== "" && avatarPreviewError && (
+                  <span style={errorTextStyle}>
+                    Não foi possível carregar esta imagem. O avatar automático será usado como
+                    fallback.
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
           <div style={fieldGridStyle}>
             <div style={fieldStyle}>
               <label style={labelStyle}>Produto</label>
@@ -238,76 +311,6 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
               />
-            </div>
-          </div>
-
-          <div style={fieldStyle}>
-            <label style={labelStyle}>Avatar do cliente — opcional</label>
-
-            <div style={avatarFieldWrapperStyle}>
-              <div style={avatarPreviewContainerStyle}>
-                {showImagePreview ? (
-                  <img
-                    src={customerAvatar}
-                    alt={`Foto de perfil de ${customerName || "cliente"}`}
-                    draggable={false}
-                    style={{
-                      ...avatarImageStyle,
-                      userSelect: "none",
-                      pointerEvents: "none",
-                    }}
-                    onError={() => setAvatarPreviewError(true)}
-                  />
-                ) : (
-                  <div
-                    style={{
-                      ...avatarFallbackStyle,
-                      background: "#7c3aed",
-                    }}
-                  >
-                    <User size={24} color="#ffffff" />
-                  </div>
-                )}
-              </div>
-
-              <div style={{ display: "grid", gap: 12, flex: 1 }}>
-                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                  {AVATAR_PRESETS.map((url) => {
-                    const isSelected = customerAvatar === url;
-
-                    return (
-                      <img
-                        key={url}
-                        src={url}
-                        alt="Avatar"
-                        draggable={false}
-                        onClick={() => {
-                          setAvatarPreset(url);
-                          setAvatarPreviewError(false);
-                        }}
-                        style={{
-                          width: 42,
-                          height: 42,
-                          borderRadius: 999,
-                          objectFit: "cover",
-                          cursor: "pointer",
-                          userSelect: "none",
-                          border: isSelected ? "2px solid #111827" : "2px solid transparent",
-                          transform: isSelected ? "scale(1.06)" : "scale(1)",
-                          transition: "all 0.2s ease",
-                        }}
-                      />
-                    );
-                  })}
-                </div>
-
-                {customerAvatar.trim() !== "" && avatarPreviewError && (
-                  <span style={errorTextStyle}>
-                    Não foi possível carregar esta imagem. O avatar automático será usado como
-                    fallback.
-                  </span>
-                )}
-              </div>
             </div>
           </div>
 
@@ -516,18 +519,19 @@ const emptyResultStyle: React.CSSProperties = {
 
 const avatarFieldWrapperStyle: React.CSSProperties = {
   display: "flex",
-  alignItems: "flex-start",
-  gap: 16,
-  padding: 16,
+  alignItems: "center",
+  gap: 14,
+  padding: 14,
   border: "1px solid #e5e7eb",
   borderRadius: 16,
   background: "#f9fafb",
+  flexWrap: "wrap",
 };
 
 const avatarPreviewContainerStyle: React.CSSProperties = {
-  width: 72,
-  height: 72,
-  minWidth: 72,
+  width: 88,
+  height: 88,
+  minWidth: 88,
   borderRadius: "999px",
   overflow: "hidden",
   boxShadow: "0 4px 12px rgba(15, 23, 42, 0.08)",
