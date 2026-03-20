@@ -1595,42 +1595,84 @@
               />
             </div>
 
-            <div class="avaliapro-field">
+                        <div class="avaliapro-field">
   <label class="avaliapro-label">Escolha seu avatar</label>
 
-  <div id="avaliapro-avatar-selector" style="display:flex;gap:10px;flex-wrap:wrap;">
-    ${[
-      "https://avaliapro-api.onrender.com/widget/avatars/avatar-1.png",
-      "https://avaliapro-api.onrender.com/widget/avatars/avatar-2.png",
-      "https://avaliapro-api.onrender.com/widget/avatars/avatar-3.png",
-      "https://avaliapro-api.onrender.com/widget/avatars/avatar-4.png",
-      "https://avaliapro-api.onrender.com/widget/avatars/avatar-5.png",
-      "https://avaliapro-api.onrender.com/widget/avatars/avatar-6.png",
-      "https://avaliapro-api.onrender.com/widget/avatars/avatar-7.png",
-      "https://avaliapro-api.onrender.com/widget/avatars/avatar-8.png",
-      "https://avaliapro-api.onrender.com/widget/avatars/avatar-9.png",
-    ]
-      .map(
-        (url) => `
+  <div
+    id="avaliapro-avatar-selector"
+    style="
+      display:flex;
+      align-items:center;
+      gap:14px;
+      flex-wrap:wrap;
+      padding:14px;
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      background:#f9fafb;
+    "
+  >
+    <div
+      style="
+        width:88px;
+        height:88px;
+        min-width:88px;
+        border-radius:999px;
+        overflow:hidden;
+        box-shadow:0 4px 12px rgba(15, 23, 42, 0.08);
+        background:#e5e7eb;
+      "
+    >
       <img
-  src="${url}"
-  data-avatar="${url}"
-  draggable="false"
-  style="
-    width:42px;
-    height:42px;
-    border-radius:999px;
-    cursor:pointer;
-    border:2px solid transparent;
-    transition:all 0.2s ease;
-    user-select:none;
-    -webkit-user-drag:none;
-    object-fit:cover;
-  "
-/>
-    `
-      )
-      .join("")}
+        id="avaliapro-avatar-preview"
+        src="https://avaliapro-api.onrender.com/widget/avatars/avatar-default.png"
+        alt="Avatar padrão"
+        draggable="false"
+        style="
+          width:100%;
+          height:100%;
+          object-fit:cover;
+          display:block;
+          user-select:none;
+          -webkit-user-drag:none;
+          pointer-events:none;
+        "
+      />
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      ${[
+        "https://avaliapro-api.onrender.com/widget/avatars/avatar-1.png",
+        "https://avaliapro-api.onrender.com/widget/avatars/avatar-2.png",
+        "https://avaliapro-api.onrender.com/widget/avatars/avatar-3.png",
+        "https://avaliapro-api.onrender.com/widget/avatars/avatar-4.png",
+        "https://avaliapro-api.onrender.com/widget/avatars/avatar-5.png",
+        "https://avaliapro-api.onrender.com/widget/avatars/avatar-6.png",
+        "https://avaliapro-api.onrender.com/widget/avatars/avatar-7.png",
+        "https://avaliapro-api.onrender.com/widget/avatars/avatar-8.png",
+        "https://avaliapro-api.onrender.com/widget/avatars/avatar-9.png",
+      ]
+        .map(
+          (url) => `
+        <img
+          src="${url}"
+          data-avatar="${url}"
+          draggable="false"
+          style="
+            width:42px;
+            height:42px;
+            border-radius:999px;
+            cursor:pointer;
+            border:2px solid transparent;
+            transition:all 0.2s ease;
+            user-select:none;
+            -webkit-user-drag:none;
+            object-fit:cover;
+          "
+        />
+      `
+        )
+        .join("")}
+    </div>
 
     <input type="hidden" name="avatarPreset" />
   </div>
@@ -1808,6 +1850,7 @@
     if (avatarSelector) {
       var avatars = avatarSelector.querySelectorAll("[data-avatar]");
       var input = avatarSelector.querySelector('[name="avatarPreset"]');
+      var preview = avatarSelector.querySelector("#avaliapro-avatar-preview");
 
       avatars.forEach(function (img) {
         img.onclick = function () {
@@ -1823,6 +1866,10 @@
 
           if (input) {
             input.value = selected;
+          }
+
+          if (preview && selected) {
+            preview.src = selected;
           }
         };
       });
