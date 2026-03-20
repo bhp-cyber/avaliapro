@@ -1,5 +1,5 @@
 import { Fragment, useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import NewReviewPage from "./NewReviewPage";
 import {
   Check,
   Search,
@@ -36,6 +36,7 @@ export default function ReviewsPage() {
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [editingComment, setEditingComment] = useState("");
+  const [isNewReviewModalOpen, setIsNewReviewModalOpen] = useState(false);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -181,10 +182,14 @@ export default function ReviewsPage() {
           </select>
         </div>
 
-        <Link to="/new-review" style={newReviewButtonStyle}>
+        <button
+          type="button"
+          style={newReviewButtonStyle}
+          onClick={() => setIsNewReviewModalOpen(true)}
+        >
           <Plus size={16} />
           Nova avaliação
-        </Link>
+        </button>
       </div>
 
       <div
@@ -381,6 +386,41 @@ export default function ReviewsPage() {
           </tbody>
         </table>
       </div>
+
+      {isNewReviewModalOpen && (
+        <div style={editModalOverlayStyle}>
+          <div
+            style={{
+              ...editModalStyle,
+              maxWidth: 920,
+              maxHeight: "calc(100vh - 48px)",
+              overflowY: "auto",
+            }}
+          >
+            <div style={editModalHeaderStyle}>
+              <h2 style={editModalTitleStyle}>Nova avaliação</h2>
+
+              <button
+                type="button"
+                style={editModalCloseButtonStyle}
+                onClick={() => setIsNewReviewModalOpen(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={{ padding: 24 }}>
+              <NewReviewPage
+                onClose={() => {
+                  setIsNewReviewModalOpen(false);
+                  loadReviews(filter);
+                }}
+                hidePageHeader
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {editingReviewId && (
         <div style={editModalOverlayStyle}>
@@ -866,6 +906,7 @@ const newReviewButtonStyle: React.CSSProperties = {
   borderRadius: 12,
   background: "#111827",
   color: "#ffffff",
-  textDecoration: "none",
   fontWeight: 600,
+  border: "none",
+  cursor: "pointer",
 };

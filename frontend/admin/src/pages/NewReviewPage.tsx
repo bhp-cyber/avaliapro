@@ -24,7 +24,12 @@ type Product = {
   platformVariantId?: string | null;
 };
 
-export default function NewReviewPage() {
+type NewReviewPageProps = {
+  onClose?: () => void;
+  hidePageHeader?: boolean;
+};
+
+export default function NewReviewPage({ onClose, hidePageHeader = false }: NewReviewPageProps) {
   const navigate = useNavigate();
   const { addReview } = useReviewsContext();
 
@@ -111,24 +116,48 @@ export default function NewReviewPage() {
       return;
     }
 
+    const trimmedAvatar = customerAvatar.trim();
+
+    const nextAvatarIndex = Number(
+      localStorage.getItem("avaliapro:new-review-avatar-index") || "0"
+    );
+
+    const fallbackAvatarPreset = AVATAR_PRESETS[nextAvatarIndex % AVATAR_PRESETS.length];
+
+    const finalAvatarValue = trimmedAvatar || fallbackAvatarPreset;
+
+    const finalAvatarType = trimmedAvatar ? (avatarPreset ? "preset" : "image") : "preset";
+
+    const finalAvatarPreset = finalAvatarType === "preset" ? finalAvatarValue : undefined;
+
+    const finalAvatarUrl = finalAvatarType === "image" ? finalAvatarValue : undefined;
+
+    if (!trimmedAvatar) {
+      localStorage.setItem(
+        "avaliapro:new-review-avatar-index",
+        String((nextAvatarIndex + 1) % AVATAR_PRESETS.length)
+      );
+    }
+
     addReview({
       product: selectedProduct.name,
       productId: selectedProduct.id,
       customer: customerName.trim(),
-      customerAvatar: customerAvatar.trim() || undefined,
-
-      avatarType: customerAvatar.trim() ? (avatarPreset ? "preset" : "image") : undefined,
-
-      avatarUrl: avatarPreset ? undefined : customerAvatar.trim() || undefined,
-
-      avatarPreset: avatarPreset || undefined,
-
+      customerAvatar: finalAvatarValue,
+      avatarType: finalAvatarType,
+      avatarUrl: finalAvatarUrl,
+      avatarPreset: finalAvatarPreset,
       rating,
       title: "",
       comment: comment.trim(),
       status: "Aprovada",
       source: "Manual",
     });
+
+    if (onClose) {
+      onClose();
+      return;
+    }
 
     navigate("/reviews");
   }
@@ -137,10 +166,14 @@ export default function NewReviewPage() {
 
   return (
     <div style={{ display: "grid", gap: 24 }}>
-      <div>
-        <h1 style={{ margin: 0, fontSize: 32 }}>Nova Avaliação</h1>
-        <p style={{ marginTop: 8, color: "#6b7280" }}>Crie uma avaliação manual para um produto.</p>
-      </div>
+      {!hidePageHeader && (
+        <div>
+          <h1 style={{ margin: 0, fontSize: 32 }}>Nova Avaliação</h1>
+          <p style={{ marginTop: 8, color: "#6b7280" }}>
+            Crie uma avaliação manual para um produto.
+          </p>
+        </div>
+      )}
 
       <div
         style={{
@@ -319,7 +352,18 @@ export default function NewReviewPage() {
           </div>
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
-            <button type="button" style={secondaryButtonStyle} onClick={() => navigate("/reviews")}>
+            <button
+              type="button"
+              style={secondaryButtonStyle}
+              onClick={() => {
+                if (onClose) {
+                  onClose();
+                  return;
+                }
+
+                navigate("/reviews");
+              }}
+            >
               Cancelar
             </button>
 
