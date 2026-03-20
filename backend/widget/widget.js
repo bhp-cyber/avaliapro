@@ -1600,14 +1600,18 @@
 
   <div id="avaliapro-avatar-selector" style="display:flex;gap:10px;flex-wrap:wrap;">
     ${[
-      "https://i.pravatar.cc/100?img=1",
-      "https://i.pravatar.cc/100?img=2",
-      "https://i.pravatar.cc/100?img=3",
-      "https://i.pravatar.cc/100?img=4",
-      "https://i.pravatar.cc/100?img=5",
+      "https://avaliapro-api.onrender.com/widget/avatars/avatar-1.png",
+      "https://avaliapro-api.onrender.com/widget/avatars/avatar-2.png",
+      "https://avaliapro-api.onrender.com/widget/avatars/avatar-3.png",
+      "https://avaliapro-api.onrender.com/widget/avatars/avatar-4.png",
+      "https://avaliapro-api.onrender.com/widget/avatars/avatar-5.png",
+      "https://avaliapro-api.onrender.com/widget/avatars/avatar-6.png",
+      "https://avaliapro-api.onrender.com/widget/avatars/avatar-7.png",
+      "https://avaliapro-api.onrender.com/widget/avatars/avatar-8.png",
+      "https://avaliapro-api.onrender.com/widget/avatars/avatar-9.png",
     ]
       .map(
-        (url, index) => `
+        (url) => `
       <img
   src="${url}"
   data-avatar="${url}"
@@ -1621,6 +1625,7 @@
     transition:all 0.2s ease;
     user-select:none;
     -webkit-user-drag:none;
+    object-fit:cover;
   "
 />
     `
