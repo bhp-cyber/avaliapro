@@ -1211,22 +1211,29 @@
         ? `<div class="avaliapro-verified">Compra verificada</div>`
         : "";
 
+    var productVariantHtml =
+      review && review.productVariant
+        ? `<div style="font-size:13px;line-height:1.45;color:#6b7280;margin-bottom:8px;">${safeText(
+            review.productVariant
+          )}</div>`
+        : "";
+
     var imageHtml =
       review && review.imageUrl
         ? `
-          <div class="avaliapro-review-image">
-            <img
-              src="${safeText(review.imageUrl)}"
-              alt="Imagem da avaliação"
-              draggable="false"
-              style="
-                user-select:none;
-                -webkit-user-drag:none;
-                pointer-events:none;
-              "
-            >
-          </div>
-        `
+            <div class="avaliapro-review-image">
+              <img
+                src="${safeText(review.imageUrl)}"
+                alt="Imagem da avaliação"
+                draggable="false"
+                style="
+                  user-select:none;
+                  -webkit-user-drag:none;
+                  pointer-events:none;
+                "
+              >
+            </div>
+          `
         : "";
 
     var authorName = safeText((review && review.authorName) || "Cliente");
@@ -1335,13 +1342,14 @@
   </div>
 
   <div class="avaliapro-review-stars" style="margin-top:6px;margin-bottom:6px;">
-    ${getStars(review && review.rating)}
-  </div>
-  ${titleHtml}
-  <div class="avaliapro-review-comment">${safeText(
-    normalizeText((review && review.comment) || "")
-  )}</div>
-  ${imageHtml}
+  ${getStars(review && review.rating)}
+</div>
+${productVariantHtml}
+${titleHtml}
+<div class="avaliapro-review-comment">${safeText(
+      normalizeText((review && review.comment) || "")
+    )}</div>
+${imageHtml}
 </div>
           </div>
         </div>

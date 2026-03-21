@@ -154,6 +154,7 @@ router.get("/reviews", async (req, res) => {
         authorName: true,
         verifiedPurchase: true,
         createdAt: true,
+        productVariant: true,
         variantId: true,
         avatarType: true,
         avatarPreset: true,
@@ -165,7 +166,6 @@ router.get("/reviews", async (req, res) => {
       reviewsWhere = {
         productId: product.id,
         companyId: company.id,
-        variantId: null,
         status: "approved",
       };
 
@@ -182,6 +182,7 @@ router.get("/reviews", async (req, res) => {
           authorName: true,
           verifiedPurchase: true,
           createdAt: true,
+          productVariant: true,
           variantId: true,
           avatarType: true,
           avatarPreset: true,
@@ -201,7 +202,9 @@ router.get("/reviews", async (req, res) => {
         return review && review.variantId === variantId;
       });
 
-      summaryWhere.variantId = hasVariantSpecificReviews ? variantId : null;
+      if (hasVariantSpecificReviews) {
+        summaryWhere.variantId = variantId;
+      }
     }
 
     const reviewsSummary = await prisma.review.aggregate({
@@ -236,6 +239,11 @@ router.get("/reviews", async (req, res) => {
         typeof review.authorName === "string" && review.authorName.trim()
           ? review.authorName.trim()
           : "Cliente",
+      productVariant:
+        typeof review.productVariant === "string" &&
+        review.productVariant.trim()
+          ? review.productVariant.trim()
+          : null,
       avatarType:
         review.avatarType === "preset" ||
         review.avatarType === "image" ||
@@ -383,6 +391,14 @@ router.post("/reviews", async (req, res) => {
       avatarUrl.trim().startsWith("http")
         ? avatarUrl.trim()
         : null;
+
+    console.log("[AvaliaPro POST review payload]", {
+      sku,
+      platformProductId,
+      platformVariantId,
+      authorName,
+      comment,
+    });
 
     const review = await prisma.review.create({
       data: {
