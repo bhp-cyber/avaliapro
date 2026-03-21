@@ -193,6 +193,7 @@ router.post("/", async (req, res) => {
       avatarPreset,
       avatarUrl,
       verifiedPurchase,
+      productVariant,
     } = req.body;
 
     const normalizedCompanyId =
@@ -216,8 +217,20 @@ router.post("/", async (req, res) => {
         ? comment.trim().slice(0, 2000)
         : null;
 
-    const normalizedRating = Math.floor(Number(rating));
+    const normalizedProductVariant =
+      typeof productVariant === "string" && productVariant.trim()
+        ? productVariant.trim()
+        : null;
 
+    console.log("[ADMIN CREATE REVIEW productVariant]", {
+      productVariant,
+      normalizedProductVariant,
+      productId: normalizedProductId,
+      companyId: normalizedCompanyId,
+      authorName,
+    });
+
+    const normalizedRating = Math.floor(Number(rating));
     if (
       !normalizedCompanyId ||
       !normalizedProductId ||
@@ -332,6 +345,7 @@ router.post("/", async (req, res) => {
         avatarType: normalizedAvatarType,
         avatarPreset: normalizedAvatarPreset,
         avatarUrl: normalizedAvatarUrl,
+        productVariant: normalizedProductVariant,
 
         verifiedPurchase: Boolean(verifiedPurchase),
       },
@@ -341,6 +355,7 @@ router.post("/", async (req, res) => {
         title: true,
         comment: true,
         authorName: true,
+        productVariant: true,
         verifiedPurchase: true,
         status: true,
         createdAt: true,

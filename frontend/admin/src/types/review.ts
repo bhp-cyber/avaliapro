@@ -21,6 +21,7 @@ export type Review = {
   rating: number;
   title: string;
   comment: string;
+  productVariant?: string;
   status: ReviewStatus;
   source: ReviewSource;
   date: string;

@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://avaliapro-api.onrender.com/api";
+import { API_BASE_URL } from "./api";
 export async function fetchReviews(companyId: string, status?: string) {
   const query = new URLSearchParams({
     companyId,
@@ -132,6 +132,7 @@ export async function createReview(data: {
   avatarPreset?: string;
   avatarUrl?: string;
   verifiedPurchase?: boolean;
+  productVariant?: string;
 }) {
   const response = await fetch(`${API_BASE_URL}/reviews`, {
     method: "POST",
@@ -145,6 +146,7 @@ export async function createReview(data: {
       title: data.title?.trim() || undefined,
       comment: data.comment,
       authorName: data.authorName?.trim() || undefined,
+      productVariant: data.productVariant?.trim() || undefined,
       avatarType: data.avatarType || undefined,
       avatarPreset: data.avatarPreset || undefined,
       avatarUrl: data.avatarUrl || undefined,

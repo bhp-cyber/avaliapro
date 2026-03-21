@@ -58,6 +58,7 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
         rating: Number(review.rating) || 0,
         title: review.title ?? "",
         comment: review.comment ?? "",
+        productVariant: review.productVariant ?? undefined,
         status:
           review.status === "approved"
             ? "Aprovada"
@@ -93,6 +94,7 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
         rating: review.rating,
         title: review.title,
         comment: review.comment,
+        productVariant: review.productVariant,
         authorName: review.customer,
         avatarType: review.avatarType,
         avatarPreset: review.avatarType === "preset" ? review.avatarPreset : undefined,

@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://avaliapro-api.onrender.com/api";
+import { API_BASE_URL } from "./api";
 
 export async function fetchProducts(companyId: string, search?: string) {
   const query = new URLSearchParams({

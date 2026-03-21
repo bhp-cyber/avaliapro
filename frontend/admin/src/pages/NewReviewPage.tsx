@@ -75,6 +75,7 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
   }, [avatarPreset]);
 
   const [comment, setComment] = useState("");
+  const [productVariant, setProductVariant] = useState("");
 
   const filteredProducts = useMemo(() => {
     const term = productSearch.trim().toLowerCase();
@@ -160,6 +161,7 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
       rating,
       title: "",
       comment: comment.trim(),
+      productVariant: productVariant.trim() || undefined,
       status: "Aprovada",
       source: "Manual",
     });
@@ -369,6 +371,17 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
             <span style={helperTextStyle}>
               Avaliações criadas manualmente são aprovadas automaticamente.
             </span>
+          </div>
+
+          <div style={fieldStyle}>
+            <label style={labelStyle}>Variação do produto — opcional</label>
+            <input
+              type="text"
+              placeholder="Ex: Cor: Castanho Escuro | Comprimento: 50cm | Densidade: 180%"
+              style={inputStyle}
+              value={productVariant}
+              onChange={(e) => setProductVariant(e.target.value)}
+            />
           </div>
 
           <div style={fieldStyle}>
