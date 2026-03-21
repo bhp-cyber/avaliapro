@@ -61,6 +61,7 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const [customerName, setCustomerName] = useState("");
+  const [isAnonymousReview, setIsAnonymousReview] = useState(false);
   const [avatarPreset, setAvatarPreset] = useState<string | null>(null);
   const [hasManualAvatarSelection, setHasManualAvatarSelection] = useState(false);
 
@@ -103,6 +104,18 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
     setAvatarPreviewError(false);
   }, [customerAvatar]);
 
+  function maskCustomerName(name: string) {
+    return name
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part) => {
+        if (part.length <= 2) return `${part[0] || ""}***`;
+        return `${part.slice(0, 2)}***`;
+      })
+      .join(" ");
+  }
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -123,18 +136,23 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
 
     const trimmedAvatar = customerAvatar.trim();
 
-    const finalAvatarValue = trimmedAvatar || AVATAR_DEFAULT_PRESET;
+    const finalCustomerName = isAnonymousReview
+      ? maskCustomerName(customerName.trim())
+      : customerName.trim();
 
-    const finalAvatarType = trimmedAvatar ? (avatarPreset ? "preset" : "image") : "preset";
+    const finalAvatarValue =
+      hasManualAvatarSelection && trimmedAvatar ? trimmedAvatar : AVATAR_DEFAULT_PRESET;
 
-    const finalAvatarPreset = finalAvatarType === "preset" ? finalAvatarValue : undefined;
+    const finalAvatarType = "preset";
 
-    const finalAvatarUrl = finalAvatarType === "image" ? finalAvatarValue : undefined;
+    const finalAvatarPreset = finalAvatarValue;
+
+    const finalAvatarUrl = undefined;
 
     addReview({
       product: selectedProduct.name,
       productId: selectedProduct.id,
-      customer: customerName.trim(),
+      customer: finalCustomerName,
       customerAvatar: finalAvatarValue,
       avatarType: finalAvatarType,
       avatarUrl: finalAvatarUrl,
@@ -303,6 +321,24 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
               />
+
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  fontSize: 14,
+                  color: "#374151",
+                  cursor: "pointer",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={isAnonymousReview}
+                  onChange={(e) => setIsAnonymousReview(e.target.checked)}
+                />
+                Avaliação anônima
+              </label>
             </div>
           </div>
 

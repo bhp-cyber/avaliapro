@@ -198,193 +198,194 @@ export default function ReviewsPage() {
           borderRadius: 16,
           padding: 20,
           boxShadow: "0 8px 24px rgba(15, 23, 42, 0.06)",
-          overflowX: "auto",
-          overflowY: "visible",
+          overflow: "visible",
         }}
       >
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            minWidth: 1080,
-          }}
-        >
-          <thead>
-            <tr style={{ textAlign: "left", borderBottom: "1px solid #e5e7eb" }}>
-              <th style={thStyle}>Produto</th>
-              <th style={thStyle}>Cliente</th>
-              <th style={thStyle}>Nota</th>
-              <th style={thStyle}>Status</th>
-              <th style={thStyle}>Origem</th>
-              <th style={thStyle}>Data</th>
-              <th style={thStyle}>Detalhes</th>
-              <th style={thStyle}>Ações</th>
-            </tr>
-          </thead>
+        <div style={{ overflowX: "auto", overflowY: "visible" }}>
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              minWidth: 1080,
+            }}
+          >
+            <thead>
+              <tr style={{ textAlign: "left", borderBottom: "1px solid #e5e7eb" }}>
+                <th style={thStyle}>Produto</th>
+                <th style={thStyle}>Cliente</th>
+                <th style={thStyle}>Nota</th>
+                <th style={thStyle}>Status</th>
+                <th style={thStyle}>Origem</th>
+                <th style={thStyle}>Data</th>
+                <th style={thStyle}>Detalhes</th>
+                <th style={thStyle}>Ações</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {filteredReviews.length > 0 ? (
-              filteredReviews.map((review) => {
-                const isExpanded = expandedReviewId === review.id;
-                const isApproved = review.status === "Aprovada";
-                const isMenuOpen = openMenuReviewId === review.id;
-                const rowStyle = isMenuOpen ? activeTableRowStyle : tableRowStyle;
+            <tbody>
+              {filteredReviews.length > 0 ? (
+                filteredReviews.map((review) => {
+                  const isExpanded = expandedReviewId === review.id;
+                  const isApproved = review.status === "Aprovada";
+                  const isMenuOpen = openMenuReviewId === review.id;
+                  const rowStyle = isMenuOpen ? activeTableRowStyle : tableRowStyle;
 
-                return (
-                  <Fragment key={review.id}>
-                    <tr style={rowStyle}>
-                      <td style={tdStyle}>
-                        <div style={productCellStyle}>{review.product}</div>
-                      </td>
+                  return (
+                    <Fragment key={review.id}>
+                      <tr style={rowStyle}>
+                        <td style={tdStyle}>
+                          <div style={productCellStyle}>{review.product}</div>
+                        </td>
 
-                      <td style={tdStyle}>
-                        <div style={customerCellStyle}>
-                          <CustomerAvatar
-                            name={review.authorName || review.customer || "Cliente"}
-                            imageUrl={
-                              review.avatarType === "preset"
-                                ? review.avatarPreset
-                                : review.avatarType === "image"
-                                  ? review.avatarUrl
-                                  : undefined
-                            }
-                            size={40}
-                          />
+                        <td style={tdStyle}>
+                          <div style={customerCellStyle}>
+                            <CustomerAvatar
+                              name={review.authorName || review.customer || "Cliente"}
+                              imageUrl={
+                                review.avatarType === "preset"
+                                  ? review.avatarPreset
+                                  : review.avatarType === "image"
+                                    ? review.avatarUrl
+                                    : undefined
+                              }
+                              size={40}
+                            />
 
-                          <div style={customerInfoStyle}>
-                            <span style={customerNameStyle}>
-                              {review.authorName || review.customer || "Cliente"}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-
-                      <td style={tdStyle}>
-                        <RatingStars rating={review.rating} />
-                      </td>
-
-                      <td style={tdStyle}>
-                        <StatusBadge status={review.status} />
-                      </td>
-
-                      <td style={tdStyle}>{review.source}</td>
-                      <td style={tdStyle}>{review.date}</td>
-
-                      <td style={tdStyle}>
-                        <button
-                          type="button"
-                          onClick={() => toggleExpand(review.id)}
-                          style={expandButtonStyle}
-                        >
-                          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                          {isExpanded ? "Ocultar" : "Ver"}
-                        </button>
-                      </td>
-
-                      <td style={tdStyle}>
-                        <div data-review-menu-id={review.id} style={{ position: "relative" }}>
-                          <button
-                            type="button"
-                            style={isMenuOpen ? activeMenuButtonStyle : menuButtonStyle}
-                            onClick={(event) => {
-                              event.preventDefault();
-                              event.stopPropagation();
-                              toggleMenu(review.id);
-                            }}
-                          >
-                            <MoreVertical size={18} />
-                          </button>
-
-                          {openMenuReviewId === review.id && (
-                            <div style={actionsMenuStyle}>
-                              <div style={menuActionsGroupStyle}>
-                                <button
-                                  type="button"
-                                  style={menuActionButtonStyle}
-                                  onClick={() => handleEdit(review.id)}
-                                >
-                                  <Pencil size={18} />
-                                  Editar avaliação
-                                </button>
-
-                                {!isApproved && (
-                                  <button
-                                    type="button"
-                                    style={approveButtonStyle}
-                                    onClick={() => handleApprove(review.id)}
-                                  >
-                                    <Check size={18} />
-                                    Aprovar avaliação
-                                  </button>
-                                )}
-
-                                {review.status !== "Rejeitada" && (
-                                  <button
-                                    type="button"
-                                    style={rejectButtonStyle}
-                                    onClick={() => handleReject(review.id)}
-                                  >
-                                    <X size={18} />
-                                    Rejeitar avaliação
-                                  </button>
-                                )}
-                              </div>
-
-                              <div style={menuDividerStyle} />
-
-                              <button
-                                type="button"
-                                style={deleteButtonStyle}
-                                onClick={() => handleDelete(review.id)}
-                              >
-                                <Trash2 size={18} />
-                                Excluir avaliação
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-
-                    {isExpanded && (
-                      <tr>
-                        <td colSpan={8} style={expandedRowCellStyle}>
-                          <div style={expandedBoxStyle}>
-                            <div style={{ display: "grid", gap: 8 }}>
-                              <div style={expandedLineStyle}>
-                                <span style={expandedLabelInlineStyle}>Título:</span>
-                                <span>{review.title}</span>
-                              </div>
-
-                              <div style={expandedLineStyle}>
-                                <span style={expandedLabelInlineStyle}>Comentário:</span>
-                                <span>{review.comment}</span>
-                              </div>
+                            <div style={customerInfoStyle}>
+                              <span style={customerNameStyle}>
+                                {review.authorName || review.customer || "Cliente"}
+                              </span>
                             </div>
                           </div>
                         </td>
+
+                        <td style={tdStyle}>
+                          <RatingStars rating={review.rating} />
+                        </td>
+
+                        <td style={tdStyle}>
+                          <StatusBadge status={review.status} />
+                        </td>
+
+                        <td style={tdStyle}>{review.source}</td>
+                        <td style={tdStyle}>{review.date}</td>
+
+                        <td style={tdStyle}>
+                          <button
+                            type="button"
+                            onClick={() => toggleExpand(review.id)}
+                            style={expandButtonStyle}
+                          >
+                            {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                            {isExpanded ? "Ocultar" : "Ver"}
+                          </button>
+                        </td>
+
+                        <td style={tdStyle}>
+                          <div data-review-menu-id={review.id} style={{ position: "relative" }}>
+                            <button
+                              type="button"
+                              style={isMenuOpen ? activeMenuButtonStyle : menuButtonStyle}
+                              onClick={(event) => {
+                                event.preventDefault();
+                                event.stopPropagation();
+                                toggleMenu(review.id);
+                              }}
+                            >
+                              <MoreVertical size={18} />
+                            </button>
+
+                            {openMenuReviewId === review.id && (
+                              <div style={actionsMenuStyle}>
+                                <div style={menuActionsGroupStyle}>
+                                  <button
+                                    type="button"
+                                    style={menuActionButtonStyle}
+                                    onClick={() => handleEdit(review.id)}
+                                  >
+                                    <Pencil size={18} />
+                                    Editar avaliação
+                                  </button>
+
+                                  {!isApproved && (
+                                    <button
+                                      type="button"
+                                      style={approveButtonStyle}
+                                      onClick={() => handleApprove(review.id)}
+                                    >
+                                      <Check size={18} />
+                                      Aprovar avaliação
+                                    </button>
+                                  )}
+
+                                  {review.status !== "Rejeitada" && (
+                                    <button
+                                      type="button"
+                                      style={rejectButtonStyle}
+                                      onClick={() => handleReject(review.id)}
+                                    >
+                                      <X size={18} />
+                                      Rejeitar avaliação
+                                    </button>
+                                  )}
+                                </div>
+
+                                <div style={menuDividerStyle} />
+
+                                <button
+                                  type="button"
+                                  style={deleteButtonStyle}
+                                  onClick={() => handleDelete(review.id)}
+                                >
+                                  <Trash2 size={18} />
+                                  Excluir avaliação
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </td>
                       </tr>
-                    )}
-                  </Fragment>
-                );
-              })
-            ) : (
-              <tr>
-                <td
-                  colSpan={8}
-                  style={{
-                    padding: "32px 12px",
-                    textAlign: "center",
-                    color: "#6b7280",
-                    fontSize: 14,
-                  }}
-                >
-                  Nenhuma avaliação encontrada.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+
+                      {isExpanded && (
+                        <tr>
+                          <td colSpan={8} style={expandedRowCellStyle}>
+                            <div style={expandedBoxStyle}>
+                              <div style={{ display: "grid", gap: 8 }}>
+                                <div style={expandedLineStyle}>
+                                  <span style={expandedLabelInlineStyle}>Título:</span>
+                                  <span>{review.title}</span>
+                                </div>
+
+                                <div style={expandedLineStyle}>
+                                  <span style={expandedLabelInlineStyle}>Comentário:</span>
+                                  <span>{review.comment}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td
+                    colSpan={8}
+                    style={{
+                      padding: "32px 12px",
+                      textAlign: "center",
+                      color: "#6b7280",
+                      fontSize: 14,
+                    }}
+                  >
+                    Nenhuma avaliação encontrada.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {isNewReviewModalOpen && (

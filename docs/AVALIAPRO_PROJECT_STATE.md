@@ -1,14 +1,11 @@
-# AvaliaPro — Estado Atual do Projeto
+AvaliaPro — Estado Atual do Projeto
 
-## Objetivo
+Objetivo
 
 Criar um SaaS de avaliações para e-commerce, com widget embedável via script, semelhante a Trustpilot / Yotpo, começando por Nuvemshop, mas preparado para outras plataformas.
 
----
+Caminho do Projeto
 
-## Caminho do Projeto
-
-```bash
 cd ~/Documents/Programas/AvaliaPro
 
 Script de Instalação
@@ -78,13 +75,13 @@ Modal funcional de avaliação
 Sistema de estrelas interativas (hover + clique)
 ✅
 
-Estrelas do formulário alinhadas visualmente com as estrelas da lista (SVG unificado)
+Estrelas alinhadas (SVG unificado)
 ✅
 
-Remoção da avaliação em destaque (simplificação de UI e preparação para carrossel)
+Remoção da avaliação em destaque
 ✅
 
-Envio com feedback visual (loading + sucesso)
+Envio com feedback visual
 ✅
 
 Micro-animações
@@ -114,7 +111,7 @@ Pluralização corrigida
 Exibição “Baseado em X avaliações”
 ✅
 
-Label qualitativo (Excelente, Bom, etc.)
+Label qualitativo
 ✅
 
 Renderização de estrelas precisa
@@ -126,38 +123,27 @@ Meia estrela com SVG
 Correção de escape HTML
 ✅
 
+Trava visual de imagens no widget/modal
+✅
+
 Sistema de Reviews (Avançado)
 
-Avaliação em destaque fixa
-❌ (removida para simplificação da UI)
-
-Sistema de insights (keywords)
+Insights (keywords)
 ✅
 
-Chips interativos (filtros)
+Chips interativos
 ✅
 
-Filtro dinâmico funcional
+Filtro dinâmico
 ✅
-
-Evita duplicação da review destacada
-❌ (não aplicável após remoção do highlight)
 
 Layout clean moderno
-✅
-
-Alinhamento refinado
 ✅
 
 Lista horizontal de características
 ✅
 
-Correção crítica:
-
-Filtro agora inclui corretamente a review em destaque quando ativo
-❌ (substituído por lógica simplificada sem highlight)
-
-Widget — Avanços Recentes (CRÍTICO)
+Widget — Avanços Recentes
 
 Paginação local
 ✅
@@ -168,19 +154,78 @@ Estado global persistente
 Correção de reset de página
 ✅
 
-Correção de variáveis indefinidas
+Unificação da paginação
 ✅
 
-Unificação da lógica de paginação
-✅
-
-Remoção da lógica de highlight da paginação (simplificação estrutural)
+Remoção do highlight
 ✅
 
 Render estável
 ✅
 
-Re-render seguro
+Normalização de avatar no fluxo do widget
+✅
+
+Imagens travadas para não clicar/arrastar
+✅
+
+Avatares públicos reais no widget
+✅
+
+Avatar padrão público (`avatar-default.png`)
+✅
+
+Preview grande de avatar no modal do widget
+✅
+
+Fallback de avatar agora manual no widget
+✅
+
+Regra de avatar aleatório removida do widget
+✅
+
+Admin — Avanços Recentes
+
+Formulário de review manual estável
+✅
+
+Correção de perda de authorName
+✅
+
+Correção de envio de avatar para backend
+✅
+
+Padronização de avatarType
+✅
+
+Rollback seguro após instabilidade de avatar
+✅
+
+Fluxo de avatar entre admin/backend/widget estabilizado
+✅
+
+Imagens travadas no admin e NewReview
+✅
+
+Nova avaliação via modal popup no painel
+✅
+
+Reutilização segura do `NewReviewPage` dentro de modal
+✅
+
+Avatar padrão visual no modal do admin
+✅
+
+Avatar padrão manual no admin (`avatar-default.png`)
+✅
+
+Regra de avatar aleatório removida do admin
+✅
+
+Avatar reposicionado no topo do formulário
+✅
+
+Fundo do modal refinado para visual mais limpo
 ✅
 
 EM ANDAMENTO
@@ -191,17 +236,20 @@ Dashboard SaaS completo
 Sistema de agregação persistida
 ⏳
 
-Widget avançado (layout + conversão)
+Widget avançado
 ⏳
 
-Sistema de coleta automática pós-compra
-🚨 PRIORIDADE MÁXIMA
-
-Sistema de notificações
+Sistema pós-compra automático
 ⏳
 
-Multi-plataforma
-⏳
+PRIORIDADE MÁXIMA 🚨
+
+Sistema pós-compra automático:
+
+integração com pedidos
+email automático
+link de avaliação
+“Compra verificada”
 
 ESTADO ATUAL DA ARQUITETURA
 
@@ -231,7 +279,7 @@ backend/src
 │ ├ nuvemshop.routes.ts
 │ └ health.routes.ts
 └ lib
-  └ prisma.ts
+└ prisma.ts
 
 ROTAS DA API
 
@@ -262,6 +310,7 @@ Reviews
 GET /api/reviews
 POST /api/reviews
 PATCH /api/reviews/:reviewId
+PATCH /api/reviews/:reviewId/status
 DELETE /api/reviews/:reviewId
 
 Widget API
@@ -272,6 +321,7 @@ POST /api/widget/reviews
 WIDGET FRONTEND
 
 Arquivo:
+
 backend/widget/widget.js
 
 Funcionalidades
@@ -281,34 +331,16 @@ reviews dinâmicos
 média + contagem
 paginação local
 envio via modal
-estrelas dinâmicas (SVG padronizado)
+estrelas SVG
 label qualitativo
 cache local
 SPA ready
-
-Diferenciais
-
-insights automáticos
-chips interativos
-UX premium
-design estilo Stripe / Apple
-alta conversão
-
-SPA Handling
-
-MutationObserver
-history intercept
-polling leve
-
-Cache
-
-Widget
-TTL: 60s
-limite: 20
-
-Backend
-TTL: 60s
-limite: 100
+trava visual das imagens
+fallback de avatar
+avatares públicos
+avatar padrão público
+preview grande de avatar no modal
+regra manual para avatar quando nenhum for selecionado
 
 SEGURANÇA MULTI-TENANT
 
@@ -317,7 +349,7 @@ apiKey vinculada
 queries protegidas
 
 Status:
-✅ 100% funcional
+✅ funcional
 
 SCHEMA PRISMA
 
@@ -327,25 +359,21 @@ Product
 Customer
 Review
 
-Índices otimizados por companyId
-
 ESTADO ATUAL DO SISTEMA
 
 Situação
 
 API estável
 widget estável
+admin estável
 integração ativa
 banco consistente
 multi-tenant seguro
 cache ativo
-paginação estável
-
-UX
-
-nível marketplace premium
-interação fluida
-alta conversão
+avatar estabilizado
+travas visuais de imagem aplicadas
+modal de nova avaliação estável no admin
+avatar padrão manual estável no admin e widget
 
 PROBLEMAS RESOLVIDOS RECENTEMENTE
 
@@ -354,40 +382,111 @@ erro de API
 multi-tenant inconsistente
 problemas SKU vs variantId
 modal quebrado
-conflito de scripts
-render de estrelas incorreto
+render de estrelas
 pluralização
-timeout de API
-remoção completa do sistema de highlight sem quebrar paginação
-correção de sobrescrita de SVG das estrelas no formulário
+remoção do highlight
+correção de authorName
+correção de fluxo de aprovação
+normalização do fluxo de avatar
+proteção de avatarUrl pública
+consistência entre POST/PATCH de reviews
+trava de arraste/clique visual das imagens
+avatar preset público no widget
+fallback aleatório removido do admin
+fallback aleatório removido do widget
+padronização do `avatar-default.png`
+nova avaliação via modal no painel admin
 
-PROBLEMAS ATUAIS
+PROBLEMA ATUAL (CRÍTICO DEFINIDO)
 
-cold start da API (Render)
-insights ainda client-side
-sem agregação persistida
-sem distribuição de estrelas
+Nenhum bug crítico ativo definido no núcleo estável atual.
+
+Pendência visual não crítica:
+
+- validar em cenário com poucas avaliações se o menu de ações do painel admin deixou de ser cortado no topo da tabela após ajuste de overflow em `frontend/admin/src/pages/ReviewsPage.tsx`
+
+Status:
+✅ avatar estabilizado em modo manual
+✅ admin e widget alinhados no uso de `avatar-default.png`
+⏳ foco principal continua sendo pós-compra automático
+
+ÚLTIMO PASSO EXECUTADO
+
+Padronização final dos avatares em modo manual no admin e no widget:
+
+frontend/admin/src/pages/NewReviewPage.tsx
+frontend/admin/src/pages/ReviewsPage.tsx
+backend/widget/widget.js
+backend/widget/avatars/avatar-1.png ... avatar-9.png
+backend/widget/avatars/avatar-default.png
+
+Validação executada:
+
+- avatar manual testado no admin
+- avatar manual testado no widget
+- `avatar-default.png` definido como padrão quando nenhum avatar é escolhido
+- remoção confirmada da regra de avatar aleatório no admin
+- remoção confirmada da regra de avatar aleatório no widget
+- modal de nova avaliação funcionando no painel
+
+Checkpoints salvos:
+
+commit:
+estabiliza avatars preset públicos no admin e widget
+
+tag:
+v0.4.2-avatars-preset-publicos
+
+commit:
+adiciona modal de nova avaliação e fallback de avatar no widget
+
+tag:
+v0.4.3-modal-nova-avaliacao
+
+commit:
+remove avatar aleatório no admin e define avatar padrão manual
+
+tag:
+v0.4.4-avatar-manual-admin
+
+commit:
+remove avatar aleatório no widget e define avatar padrão manual
+
+tag:
+v0.4.5-avatar-manual-widget
+
+Resultado:
+
+✔ avatar estabilizado em fluxo manual
+✔ `avatar-default.png` padronizado
+✔ widget preservado
+✔ admin preservado
+✔ modal de nova avaliação ativo no painel
+✔ ponto seguro salvo após nova estabilização visual e funcional
+
+PRÓXIMO PASSO DEFINIDO
+
+1. Validar a correção do corte do menu de ações no painel admin em cenário com poucas avaliações
+2. Se validado, salvar novo checkpoint
+3. Encerrar o tema visual/avatar/menu
+4. Retomar o roadmap principal no pós-compra:
+   - ler `backend/src/routes/nuvemshop.routes.ts`
+   - identificar o que já existe de pedidos / webhooks / sync
+   - definir o ponto exato de entrada para “Compra verificada”
+   - planejar disparo de solicitação de avaliação sem quebrar o fluxo atual
 
 PRÓXIMOS PASSOS
 
-PRIORIDADE MÁXIMA 🚨
-
-Sistema pós-compra automático:
-
-integração com pedidos
-email automático
-link direto para avaliação
-“Compra verificada”
-
 PRIORIDADE ALTA
 
+integração com pedidos da Nuvemshop
+marcação de compra verificada
+link individual de avaliação
 agregação persistida
 distribuição de estrelas
 insights no backend
 badges
 reputação por produto
-carrossel de fotos nas avaliações
-upload de imagens nas reviews
 
 PRIORIDADE MÉDIA
 
@@ -395,6 +494,7 @@ dashboard avançado
 relatórios
 exportação
 notificações
+fila segura para emails pós-compra
 
 PRIORIDADE FUTURA
 
@@ -415,17 +515,15 @@ schema.org ⭐
 fallback API lenta
 cache CDN
 redução de egress
-compressão payload
+persistência de agregados por produto
 
 NOVAS IDEIAS
 
 resumo automático (IA leve)
-“o que mais falam”
 ranking de características
 heatmap de sentimento
 detecção de fake review
 score de confiabilidade
-comparação entre produtos
 
 RESUMO EXECUTIVO
 
@@ -436,12 +534,17 @@ dados confiáveis
 persistência estruturada
 API robusta
 widget premium
-UX acima do mercado
-insights dinâmicos
-paginação pronta
+UX avançada
+paginação estável
 arquitetura SaaS escalável
+modal de nova avaliação no admin
+avatar público e manual padronizado entre admin e widget
+checkpoint estável salvo após estabilização visual e funcional dos avatares
 
 STATUS FINAL
 
-👉 MVP avançado, estável e pronto para escalar, otimizar conversão e iniciar monetização
-```
+👉 Sistema estável e congelado no ponto atual
+👉 Avatar estabilizado em modo manual com `avatar-default.png`
+👉 Modal de nova avaliação ativo no admin
+👉 Há apenas uma pendência visual não crítica de validação no menu de ações do admin
+👉 Próximo foco principal continua sendo pós-compra automático + compra verificada
