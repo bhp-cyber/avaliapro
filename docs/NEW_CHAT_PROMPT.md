@@ -139,16 +139,4 @@ Observações:
 se você ainda não viu o arquivo ou trecho real, não invente
 
 nesse caso, peça o arquivo ou o bloco exato antes de mandar código
-
-se o passo for apenas leitura ou diagnóstico, escreva:
-Substitua por: nada ainda
-
-
-Melhorias feitas:
-- incluí a regra crítica de **checkpoint antes e depois de passos arriscados**
-- deixei explícita a classificação de risco em toda resposta
-- reforcei que **não pode inventar bloco que não viu**
-- mantive o prompt firme, mas mais operacional para o novo chat
-
-O único ajuste opcional que eu faria depois é trocar `docs/AVALIAPRO_PROJECT_STATE.md` por exatamente o caminho real que você usa no projeto, para evitar qualquer diferença de nome.
 ```

@@ -1,13 +1,10 @@
 AvaliaPro — Estado Atual do Projeto
-
 Objetivo
 
 Criar um SaaS de avaliações para e-commerce, com widget embedável via script, semelhante a Trustpilot / Yotpo, começando por Nuvemshop, mas preparado para outras plataformas.
 
 Caminho do Projeto
-
 cd ~/Documents/Programas/AvaliaPro
-
 Script de Instalação
 
 <script
@@ -16,7 +13,6 @@ Script de Instalação
 ></script>
 
 ROADMAP TÉCNICO ATUALIZADO
-
 Núcleo do Sistema
 
 Widget estável
@@ -126,6 +122,15 @@ Correção de escape HTML
 Trava visual de imagens no widget/modal
 ✅
 
+Avaliação anônima no Modal pdp
+✅
+
+Formatação textual de data na list pdp
+✅
+
+Resumo visual de avaliações refinado
+✅
+
 Sistema de Reviews (Avançado)
 
 Insights (keywords)
@@ -141,6 +146,9 @@ Layout clean moderno
 ✅
 
 Lista horizontal de características
+✅
+
+Exibição completa dos chips sem limite artificial de 4 itens
 ✅
 
 Widget — Avanços Recentes
@@ -172,7 +180,7 @@ Imagens travadas para não clicar/arrastar
 Avatares públicos reais no widget
 ✅
 
-Avatar padrão público (`avatar-default.png`)
+Avatar padrão público (avatar-default.png)
 ✅
 
 Preview grande de avatar no modal do widget
@@ -182,6 +190,15 @@ Fallback de avatar agora manual no widget
 ✅
 
 Regra de avatar aleatório removida do widget
+✅
+
+Avaliação anônima com nome mascarado no Modal pdp
+✅
+
+Envio de isAnonymous pelo widget
+✅
+
+Resumo do topo da list pdp refinado visualmente
 ✅
 
 Admin — Avanços Recentes
@@ -210,13 +227,13 @@ Imagens travadas no admin e NewReview
 Nova avaliação via modal popup no painel
 ✅
 
-Reutilização segura do `NewReviewPage` dentro de modal
+Reutilização segura do NewReviewPage dentro de modal
 ✅
 
 Avatar padrão visual no modal do admin
 ✅
 
-Avatar padrão manual no admin (`avatar-default.png`)
+Avatar padrão manual no admin (avatar-default.png)
 ✅
 
 Regra de avatar aleatório removida do admin
@@ -243,8 +260,7 @@ Sistema pós-compra automático
 ⏳
 
 PRIORIDADE MÁXIMA 🚨
-
-Sistema pós-compra automático:
+Sistema pós-compra automático
 
 integração com pedidos
 email automático
@@ -252,9 +268,7 @@ link de avaliação
 “Compra verificada”
 
 ESTADO ATUAL DA ARQUITETURA
-
 Backend API
-
 Stack
 
 Node.js
@@ -267,7 +281,6 @@ Deploy
 Render
 
 Estrutura
-
 backend/src
 ├ app.ts
 ├ routes
@@ -280,9 +293,7 @@ backend/src
 │ └ health.routes.ts
 └ lib
 └ prisma.ts
-
 ROTAS DA API
-
 Prefixo
 
 /api
@@ -319,8 +330,7 @@ GET /api/widget/reviews
 POST /api/widget/reviews
 
 WIDGET FRONTEND
-
-Arquivo:
+Arquivo
 
 backend/widget/widget.js
 
@@ -341,6 +351,11 @@ avatares públicos
 avatar padrão público
 preview grande de avatar no modal
 regra manual para avatar quando nenhum for selecionado
+avaliação anônima no Modal pdp
+máscara de nome no fluxo anônimo do widget
+formatação textual de data na list pdp
+resumo visual refinado no topo da list pdp
+chips de insights exibindo todos os itens disponíveis
 
 SEGURANÇA MULTI-TENANT
 
@@ -360,7 +375,6 @@ Customer
 Review
 
 ESTADO ATUAL DO SISTEMA
-
 Situação
 
 API estável
@@ -374,6 +388,15 @@ avatar estabilizado
 travas visuais de imagem aplicadas
 modal de nova avaliação estável no admin
 avatar padrão manual estável no admin e widget
+resumo visual do widget estabilizado
+fluxo anônimo no Modal pdp funcionando
+
+Terminologia operacional adotada
+
+Modal pdp = criar avaliação na página do produto
+list pdp = lista de avaliações da página do produto
+Modal adm = criar avaliação no painel de gestão
+list adm = lista de avaliações no painel de gestão
 
 PROBLEMAS RESOLVIDOS RECENTEMENTE
 
@@ -394,42 +417,49 @@ trava de arraste/clique visual das imagens
 avatar preset público no widget
 fallback aleatório removido do admin
 fallback aleatório removido do widget
-padronização do `avatar-default.png`
+padronização do avatar-default.png
 nova avaliação via modal no painel admin
+avaliação anônima no widget
+formato de data refinado na list pdp
+limite artificial de 4 chips removido dos insights
+refino visual do resumo de avaliações no widget
 
 PROBLEMA ATUAL (CRÍTICO DEFINIDO)
 
 Nenhum bug crítico ativo definido no núcleo estável atual.
 
-Pendência visual não crítica:
-
-- validar em cenário com poucas avaliações se o menu de ações do painel admin deixou de ser cortado no topo da tabela após ajuste de overflow em `frontend/admin/src/pages/ReviewsPage.tsx`
+Pendência visual não crítica
+validar em cenário com poucas avaliações se o menu de ações do painel admin deixou de ser cortado no topo da tabela após ajuste de overflow em frontend/admin/src/pages/ReviewsPage.tsx
 
 Status:
 ✅ avatar estabilizado em modo manual
-✅ admin e widget alinhados no uso de `avatar-default.png`
+✅ admin e widget alinhados no uso de avatar-default.png
+✅ resumo visual de avaliações salvo no widget
 ⏳ foco principal continua sendo pós-compra automático
 
 ÚLTIMO PASSO EXECUTADO
 
-Padronização final dos avatares em modo manual no admin e no widget:
+Refino visual do resumo de avaliações na list pdp e estabilização do topo do widget:
 
-frontend/admin/src/pages/NewReviewPage.tsx
-frontend/admin/src/pages/ReviewsPage.tsx
 backend/widget/widget.js
-backend/widget/avatars/avatar-1.png ... avatar-9.png
-backend/widget/avatars/avatar-default.png
 
-Validação executada:
-
-- avatar manual testado no admin
-- avatar manual testado no widget
-- `avatar-default.png` definido como padrão quando nenhum avatar é escolhido
-- remoção confirmada da regra de avatar aleatório no admin
-- remoção confirmada da regra de avatar aleatório no widget
-- modal de nova avaliação funcionando no painel
-
-Checkpoints salvos:
+Ajustes concluídos
+refinamento visual do bloco de média geral
+refinamento visual do bloco de recomendação (96% recomendam este produto)
+ajuste do CTA Escrever avaliação
+reorganização dos chips de insights no topo
+título dos insights alinhado no mesmo eixo visual do bloco
+remoção do limite artificial de 4 chips
+formatação de data da list pdp em formato textual
+avaliação anônima funcional no Modal pdp com nome mascarado
+checkpoint salvo após estabilização visual
+Validação executada
+resumo do widget validado visualmente
+chips exibidos corretamente
+data da list pdp validada
+fluxo anônimo do widget validado com sucesso
+widget preservado após os refinamentos
+CHECKPOINTS SALVOS
 
 commit:
 estabiliza avatars preset públicos no admin e widget
@@ -455,28 +485,34 @@ remove avatar aleatório no widget e define avatar padrão manual
 tag:
 v0.4.5-avatar-manual-widget
 
-Resultado:
+commit:
+refina resumo de avaliações no widget
+
+tag:
+checkpoint visual salvo nesta conversa
+(tag específica não confirmada no arquivo atual)
+
+RESULTADO
 
 ✔ avatar estabilizado em fluxo manual
-✔ `avatar-default.png` padronizado
+✔ avatar-default.png padronizado
 ✔ widget preservado
 ✔ admin preservado
 ✔ modal de nova avaliação ativo no painel
-✔ ponto seguro salvo após nova estabilização visual e funcional
+✔ avaliação anônima funcional no Modal pdp
+✔ resumo visual de avaliações estabilizado no widget
+✔ ponto seguro salvo após refinamento do topo da list pdp
 
 PRÓXIMO PASSO DEFINIDO
-
-1. Validar a correção do corte do menu de ações no painel admin em cenário com poucas avaliações
-2. Se validado, salvar novo checkpoint
-3. Encerrar o tema visual/avatar/menu
-4. Retomar o roadmap principal no pós-compra:
-   - ler `backend/src/routes/nuvemshop.routes.ts`
-   - identificar o que já existe de pedidos / webhooks / sync
-   - definir o ponto exato de entrada para “Compra verificada”
-   - planejar disparo de solicitação de avaliação sem quebrar o fluxo atual
-
+Validar a correção do corte do menu de ações no painel admin em cenário com poucas avaliações
+Se validado, salvar novo checkpoint
+Encerrar o tema visual residual de widget/admin
+Retomar o roadmap principal no pós-compra:
+ler backend/src/routes/nuvemshop.routes.ts
+identificar o que já existe de pedidos / webhooks / sync
+definir o ponto exato de entrada para “Compra verificada”
+planejar disparo de solicitação de avaliação sem quebrar o fluxo atual
 PRÓXIMOS PASSOS
-
 PRIORIDADE ALTA
 
 integração com pedidos da Nuvemshop
@@ -539,12 +575,16 @@ paginação estável
 arquitetura SaaS escalável
 modal de nova avaliação no admin
 avatar público e manual padronizado entre admin e widget
-checkpoint estável salvo após estabilização visual e funcional dos avatares
+avaliação anônima funcional no widget
+resumo visual refinado e salvo no topo da list pdp
+checkpoint estável salvo após refinamento visual do widget
 
 STATUS FINAL
 
 👉 Sistema estável e congelado no ponto atual
-👉 Avatar estabilizado em modo manual com `avatar-default.png`
+👉 Avatar estabilizado em modo manual com avatar-default.png
 👉 Modal de nova avaliação ativo no admin
+👉 Modal pdp com avaliação anônima funcional
+👉 Resumo visual da list pdp salvo e estabilizado
 👉 Há apenas uma pendência visual não crítica de validação no menu de ações do admin
 👉 Próximo foco principal continua sendo pós-compra automático + compra verificada

@@ -1588,9 +1588,9 @@
 
       <div style="display:grid;align-content:center;row-gap:8px;">
   <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;transform:translateX(-12px)">
-    <span class="avaliapro-stars" style="font-size:8px;line-height:1;transform:translateX(-10px);transform:translateY(-15px);display:inline-flex;">
-      ${getStars(averageRating)}
-    </span>
+    <span class="avaliapro-stars" style="font-size:8px;line-height:1;transform:translate(-1px, -15px);display:inline-flex;">
+  ${getStars(averageRating)}
+</span>
   </div>
 
   <div style="display:grid;row-gap:4px;transform:translate(-6px, -8px);">
@@ -2324,10 +2324,29 @@
           var starsContainer = container.querySelector(
             "#avaliapro-stars-input"
           );
+          var avatarSelector = container.querySelector(
+            "#avaliapro-avatar-selector"
+          );
+          var avatarPreview = avatarSelector
+            ? avatarSelector.querySelector("#avaliapro-avatar-preview")
+            : null;
+          var avatarOptions = avatarSelector
+            ? avatarSelector.querySelectorAll("[data-avatar]")
+            : [];
 
           if (ratingSelect) {
             ratingSelect.value = "5";
           }
+
+          if (avatarPreview) {
+            avatarPreview.src =
+              "https://avaliapro-api.onrender.com/widget/avatars/avatar-default.png";
+          }
+
+          avatarOptions.forEach(function (img) {
+            img.style.border = "2px solid transparent";
+            img.style.transform = "scale(1)";
+          });
 
           if (starsContainer) {
             var stars = starsContainer.querySelectorAll("[data-value]");
