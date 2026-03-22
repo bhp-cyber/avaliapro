@@ -951,7 +951,20 @@
   }
 
   function getPlatformProductId() {
-    var productIdElement = document.querySelector("[data-product-id]");
+    var productIdElement =
+      document.querySelector(
+        "[data-store='product-detail'][data-product-id]"
+      ) ||
+      document.querySelector(
+        ".js-product-container[data-product-id]:not([data-product-type='list'])"
+      ) ||
+      document.querySelector(
+        "form.js-product-form[data-product-id]:not([data-product-type='list'])"
+      ) ||
+      document.querySelector(
+        "[data-product-id]:not([data-product-type='list'])"
+      );
+
     if (productIdElement) {
       var dataValue = normalizeText(
         productIdElement.getAttribute("data-product-id")
