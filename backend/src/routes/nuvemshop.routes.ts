@@ -177,6 +177,35 @@ router.post("/sync-products", async (req, res) => {
       if (!product.variants || product.variants.length === 0) continue;
 
       for (const variant of product.variants) {
+        const variantLabelParts =
+          Array.isArray((product as any).attributes) &&
+          Array.isArray(variant.values)
+            ? (product as any).attributes
+                .map((attribute: any, index: number) => {
+                  const attributeName =
+                    typeof attribute?.pt === "string" && attribute.pt.trim()
+                      ? attribute.pt.trim()
+                      : null;
+
+                  const value = variant.values[index];
+
+                  const valueName =
+                    typeof value?.pt === "string" && value.pt.trim()
+                      ? value.pt.trim()
+                      : null;
+
+                  if (!attributeName || !valueName) {
+                    return null;
+                  }
+
+                  return `${attributeName}: ${valueName}`;
+                })
+                .filter(Boolean)
+            : [];
+
+        const variantLabel =
+          variantLabelParts.length > 0 ? variantLabelParts.join(" | ") : null;
+
         await prisma.product.upsert({
           where: {
             platformVariantId: String(variant.id),
@@ -184,6 +213,7 @@ router.post("/sync-products", async (req, res) => {
           update: {
             name,
             sku: variant.sku || null,
+            variantLabel,
           },
           create: {
             companyId: company.id,
@@ -192,6 +222,7 @@ router.post("/sync-products", async (req, res) => {
             platformVariantId: String(variant.id),
             name,
             sku: variant.sku || null,
+            variantLabel,
           },
         });
 

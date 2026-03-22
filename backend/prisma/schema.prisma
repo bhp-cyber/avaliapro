@@ -40,9 +40,10 @@ model Product {
   createdAt DateTime @default(now())
   companyId String
 
-  platform          String?
+    platform          String?
   platformProductId String?
   platformVariantId String? @unique
+  variantLabel      String?
 
   company Company  @relation(fields: [companyId], references: [id])
   reviews Review[]

@@ -23,6 +23,7 @@ type Product = {
   id: string;
   name: string;
   sku: string;
+  variantLabel?: string | null;
   platform?: string | null;
   platformProductId?: string | null;
   platformVariantId?: string | null;
@@ -376,14 +377,16 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
                     availableVariants.find((product) => product.id === e.target.value) ?? null;
 
                   setSelectedProduct(nextSelectedProduct);
-                  setProductVariant(nextSelectedProduct?.sku ?? "");
+                  setProductVariant(
+                    nextSelectedProduct?.variantLabel ?? nextSelectedProduct?.sku ?? ""
+                  );
                 }}
                 style={inputStyle}
               >
                 <option value="">Selecione uma variação</option>
                 {availableVariants.map((product) => (
                   <option key={product.id} value={product.id}>
-                    {product.sku}
+                    {product.variantLabel ?? product.sku}
                   </option>
                 ))}
               </select>
