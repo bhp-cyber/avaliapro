@@ -138,7 +138,7 @@ router.get("/reviews", async (req, res) => {
     };
 
     if (variantId) {
-      reviewsWhere.variantId = variantId;
+      reviewsWhere.OR = [{ variantId }, { variantId: null }];
     }
 
     reviews = await prisma.review.findMany({
