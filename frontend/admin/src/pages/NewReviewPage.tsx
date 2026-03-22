@@ -59,6 +59,7 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
   const [hover, setHover] = useState<number | null>(null);
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedBaseProductKey, setSelectedBaseProductKey] = useState<string | null>(null);
 
   const [customerName, setCustomerName] = useState("");
   const [isAnonymousReview, setIsAnonymousReview] = useState(false);
@@ -77,21 +78,24 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
   const [comment, setComment] = useState("");
   const [productVariant, setProductVariant] = useState("");
 
+  const realProducts = useMemo(() => {
+    return products.filter((product) => product.platform === "nuvemshop");
+  }, [products]);
+
   const filteredProducts = useMemo(() => {
     const term = productSearch.trim().toLowerCase();
 
-    const realProducts = products.filter((product) => {
-      return product.platform === "nuvemshop";
-    });
+    const baseProducts = realProducts.filter((product, index, array) => {
+      const currentKey = product.platformProductId || product.id;
 
-    const baseProducts = realProducts.filter(
-      (product, index, array) =>
+      return (
         index ===
-        array.findIndex(
-          (item) =>
-            item.id === product.id || (item.sku === product.sku && item.name === product.name)
-        )
-    );
+        array.findIndex((item) => {
+          const itemKey = item.platformProductId || item.id;
+          return itemKey === currentKey;
+        })
+      );
+    });
 
     if (!term) return baseProducts;
 
@@ -99,7 +103,16 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
       (product) =>
         product.name.toLowerCase().includes(term) || product.sku.toLowerCase().includes(term)
     );
-  }, [productSearch, products]);
+  }, [productSearch, realProducts]);
+
+  const availableVariants = useMemo(() => {
+    if (!selectedBaseProductKey) return [];
+
+    return realProducts.filter((product) => {
+      const productKey = product.platformProductId || product.id;
+      return productKey === selectedBaseProductKey;
+    });
+  }, [realProducts, selectedBaseProductKey]);
 
   useEffect(() => {
     setAvatarPreviewError(false);
@@ -284,12 +297,14 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
                     onChange={(e) => {
                       setProductSearch(e.target.value);
                       setSelectedProduct(null);
+                      setSelectedBaseProductKey(null);
+                      setProductVariant("");
                     }}
                     style={searchInputStyle}
                   />
                 </div>
 
-                {productSearch.trim() !== "" && !selectedProduct && (
+                {productSearch.trim() !== "" && !selectedProduct && !selectedBaseProductKey && (
                   <div style={productDropdownStyle}>
                     {filteredProducts.length > 0 ? (
                       filteredProducts.map((product) => (
@@ -297,13 +312,20 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
                           key={product.id}
                           type="button"
                           onClick={() => {
-                            setSelectedProduct(product);
+                            setSelectedBaseProductKey(product.platformProductId || product.id);
+                            setSelectedProduct(null);
                             setProductSearch(product.name);
+                            setProductVariant("");
                           }}
                           style={productOptionStyle}
                         >
                           <div style={{ fontWeight: 600, color: "#111827" }}>{product.name}</div>
-                          <div style={{ fontSize: 12, color: "#6b7280" }}>SKU: {product.sku}</div>
+                          <div style={{ fontSize: 12, color: "#6b7280" }}>
+                            SKU:{" "}
+                            {typeof product.sku === "string"
+                              ? product.sku.trim().split(" - ")[0].split("/")[0].trim()
+                              : ""}
+                          </div>
                         </button>
                       ))
                     ) : (
@@ -344,6 +366,30 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
             </div>
           </div>
 
+          {selectedBaseProductKey && availableVariants.length > 0 && (
+            <div style={fieldStyle}>
+              <label style={labelStyle}>Selecione a variação</label>
+              <select
+                value={selectedProduct?.id ?? ""}
+                onChange={(e) => {
+                  const nextSelectedProduct =
+                    availableVariants.find((product) => product.id === e.target.value) ?? null;
+
+                  setSelectedProduct(nextSelectedProduct);
+                  setProductVariant(nextSelectedProduct?.sku ?? "");
+                }}
+                style={inputStyle}
+              >
+                <option value="">Selecione uma variação</option>
+                {availableVariants.map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {product.sku}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div style={fieldStyle}>
             <label style={labelStyle}>Nota</label>
 
@@ -371,17 +417,6 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
             <span style={helperTextStyle}>
               Avaliações criadas manualmente são aprovadas automaticamente.
             </span>
-          </div>
-
-          <div style={fieldStyle}>
-            <label style={labelStyle}>Variação do produto — opcional</label>
-            <input
-              type="text"
-              placeholder="Ex: Cor: Castanho Escuro | Comprimento: 50cm | Densidade: 180%"
-              style={inputStyle}
-              value={productVariant}
-              onChange={(e) => setProductVariant(e.target.value)}
-            />
           </div>
 
           <div style={fieldStyle}>
