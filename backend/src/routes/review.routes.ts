@@ -273,6 +273,7 @@ router.post("/", async (req, res) => {
       select: {
         id: true,
         companyId: true,
+        platformVariantId: true,
       },
     });
 
@@ -346,6 +347,11 @@ router.post("/", async (req, res) => {
         avatarPreset: normalizedAvatarPreset,
         avatarUrl: normalizedAvatarUrl,
         productVariant: normalizedProductVariant,
+        variantId:
+          typeof product.platformVariantId === "string" &&
+          product.platformVariantId.trim()
+            ? product.platformVariantId.trim()
+            : null,
 
         verifiedPurchase: Boolean(verifiedPurchase),
       },
