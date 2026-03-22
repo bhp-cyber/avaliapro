@@ -2292,6 +2292,57 @@ ${imageHtml}
 
       (function () {
         var platformProductId = getPlatformProductId();
+        var selectedVariantGroups = document.querySelectorAll(
+          ".js-product-variants-group"
+        );
+        var productVariantParts = [];
+
+        for (var i = 0; i < selectedVariantGroups.length; i++) {
+          var group = selectedVariantGroups[i];
+          if (!group) continue;
+
+          var label = group.querySelector(".form-label");
+          var selectedOption = group.querySelector(
+            ".js-insta-variant.selected[data-option], .js-insta-variant.selected[title]"
+          );
+          var selectedLabelElement = label
+            ? label.querySelector(".js-insta-variation-label")
+            : null;
+
+          var selectedValue = normalizeText(
+            (selectedOption &&
+              (selectedOption.getAttribute("data-option") ||
+                selectedOption.getAttribute("title") ||
+                selectedOption.textContent)) ||
+              (selectedLabelElement && selectedLabelElement.textContent) ||
+              ""
+          );
+
+          if (!selectedValue) continue;
+
+          var labelText = normalizeText((label && label.textContent) || "");
+          var selectedLabelText = normalizeText(
+            (selectedLabelElement && selectedLabelElement.textContent) || ""
+          );
+
+          if (
+            selectedLabelText &&
+            labelText.indexOf(selectedLabelText) !== -1
+          ) {
+            labelText = normalizeText(labelText.replace(selectedLabelText, ""));
+          }
+
+          labelText = normalizeText(labelText.replace(/:\s*$/, ""));
+
+          productVariantParts.push(
+            labelText ? labelText + ": " + selectedValue : selectedValue
+          );
+        }
+
+        var productVariant = productVariantParts.length
+          ? productVariantParts.join(" | ")
+          : null;
+
         var finalAuthorName = isAnonymousReview
           ? maskAnonymousName(authorName)
           : authorName;
@@ -2305,6 +2356,7 @@ ${imageHtml}
           sku: sku || null,
           platformProductId: platformProductId || null,
           platformVariantId: getPlatformVariantId() || null,
+          productVariant: productVariant,
           authorName: finalAuthorName,
           isAnonymous: isAnonymousReview,
           rating: rating,

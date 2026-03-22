@@ -285,8 +285,13 @@ router.post("/reviews", async (req, res) => {
       avatarType,
       avatarPreset,
       avatarUrl,
+      productVariant,
     } = req.body;
     const variantId = platformVariantId ? String(platformVariantId) : null;
+    const normalizedProductVariant =
+      typeof productVariant === "string" && productVariant.trim()
+        ? productVariant.trim()
+        : null;
 
     if (!apiKey || (!sku && !platformProductId) || rating === undefined) {
       return res.status(400).json({
@@ -407,7 +412,7 @@ router.post("/reviews", async (req, res) => {
         authorName,
         verifiedPurchase: normalizedVerifiedPurchase,
         status: "pending",
-        productVariant: sku || null,
+        productVariant: normalizedProductVariant || sku || null,
         variantId: variantId || null,
         productId: product.id,
         companyId: company.id,
