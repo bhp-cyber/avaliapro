@@ -2300,9 +2300,22 @@ ${imageHtml}
 
       (function () {
         var platformProductId = getPlatformProductId();
-        var selectedVariantGroups = document.querySelectorAll(
+        var allVariantGroups = document.querySelectorAll(
           ".js-product-variants-group"
         );
+        var selectedVariantGroups = [];
+
+        for (var i = 0; i < allVariantGroups.length; i++) {
+          var group = allVariantGroups[i];
+          if (!group) continue;
+
+          var isVisible =
+            group.offsetParent !== null || group.getClientRects().length > 0;
+
+          if (isVisible) {
+            selectedVariantGroups.push(group);
+          }
+        }
         var productVariantParts = [];
 
         for (var i = 0; i < selectedVariantGroups.length; i++) {
