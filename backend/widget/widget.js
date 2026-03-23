@@ -996,11 +996,6 @@
       if (canonicalMatch && canonicalMatch[1]) return canonicalMatch[1];
     }
 
-    var pathnameMatch = window.location.pathname.match(/\/produtos\/([^/]+)/i);
-    if (pathnameMatch && pathnameMatch[1]) {
-      return pathnameMatch[1];
-    }
-
     return null;
   }
 
