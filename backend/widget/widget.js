@@ -949,8 +949,27 @@
       }
 
       var selectedOptions = {};
+      var comparableOptionKeys = {};
+
+      for (var v = 0; v < variants.length; v++) {
+        var currentVariant = variants[v];
+        if (!currentVariant || typeof currentVariant !== "object") continue;
+
+        for (var o = 0; o < 3; o++) {
+          var optionKey = "option" + o;
+          var optionValue = normalizeText(currentVariant[optionKey]);
+
+          if (optionValue) {
+            comparableOptionKeys[optionKey] = true;
+          }
+        }
+      }
 
       for (var i = 0; i < 3; i++) {
+        var key = "option" + i;
+
+        if (!comparableOptionKeys[key]) continue;
+
         var field = document.querySelector('[name="variation[' + i + ']"]');
 
         if (!field) continue;
@@ -958,7 +977,7 @@
         var value = normalizeText(field.value || field.getAttribute("value"));
 
         if (value) {
-          selectedOptions["option" + i] = value;
+          selectedOptions[key] = value;
         }
       }
 
