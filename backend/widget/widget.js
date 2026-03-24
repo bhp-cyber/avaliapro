@@ -1524,24 +1524,8 @@ ${imageHtml}
     var reviewInsights = getReviewInsights(safeReviews);
 
     var totalListReviews = filteredReviews.length;
-
-    var totalPages = Math.max(
-      1,
-      Math.ceil(totalListReviews / state.reviewsPerPage)
-    );
-
-    if (state.currentPage > totalPages) {
-      state.currentPage = totalPages;
-    }
-
-    if (state.currentPage < 1) {
-      state.currentPage = 1;
-    }
-
-    var pageStart = (state.currentPage - 1) * state.reviewsPerPage;
-    var pageEnd = pageStart + state.reviewsPerPage;
-
-    var paginatedReviews = filteredReviews.slice(pageStart, pageEnd);
+    var previewReviewsLimit = 5;
+    var previewReviews = filteredReviews.slice(0, previewReviewsLimit);
 
     var hasReviewInsights =
       Array.isArray(reviewInsights) && reviewInsights.length;
@@ -1650,39 +1634,24 @@ ${imageHtml}
 
     var highlightHtml = "";
 
-    var reviewListHtml = paginatedReviews.length
-      ? paginatedReviews.map(buildReviewItem).join("")
+    var reviewListHtml = previewReviews.length
+      ? previewReviews.map(buildReviewItem).join("")
       : `<div class="avaliapro-empty">Nenhuma avaliação encontrada para este filtro.</div>`;
 
-    var paginationHtml =
-      totalPages > 1
+    var viewAllReviewsHtml =
+      totalListReviews > previewReviewsLimit
         ? `
-          <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap;">
-            <button
-              type="button"
-              data-avaliapro-page="prev"
-              class="avaliapro-button"
-              style="min-width:auto;padding:10px 14px;"
-              ${state.currentPage === 1 ? "disabled" : ""}
-            >
-              ← Anterior
-            </button>
-
-            <span style="font-size:13px;color:#6b7280;">
-              Página ${state.currentPage} de ${totalPages}
-            </span>
-
-            <button
-              type="button"
-              data-avaliapro-page="next"
-              class="avaliapro-button"
-              style="min-width:auto;padding:10px 14px;"
-              ${state.currentPage === totalPages ? "disabled" : ""}
-            >
-              Próxima →
-            </button>
-          </div>
-        `
+        <div style="display:flex;justify-content:center;margin-top:18px;">
+          <button
+            type="button"
+            data-avaliapro-open-all-reviews="true"
+            class="avaliapro-button"
+            style="min-width:auto;padding:12px 18px;"
+          >
+            Ver todas as avaliações
+          </button>
+        </div>
+      `
         : "";
 
     var debugHtml = "";
@@ -1828,7 +1797,7 @@ ${imageHtml}
 
     <div style="margin: 18px 0 16px 0; border-top: 1px solid #e5e7eb;"></div>
 
-    <div class="avaliapro-list">${reviewListHtml}${paginationHtml}</div>
+        <div class="avaliapro-list">${reviewListHtml}${viewAllReviewsHtml}</div>
 
     <div class="avaliapro-form">
       <div id="avaliapro-feedback"></div>
