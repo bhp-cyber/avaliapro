@@ -124,6 +124,7 @@ export async function updateReview(
 export async function createReview(data: {
   companyId: string;
   productId: string;
+  sku?: string;
   rating: number;
   title?: string;
   comment: string;
@@ -142,6 +143,7 @@ export async function createReview(data: {
     body: JSON.stringify({
       companyId: data.companyId,
       productId: data.productId,
+      sku: data.sku?.trim() || undefined,
       rating: data.rating,
       title: data.title?.trim() || undefined,
       comment: data.comment,

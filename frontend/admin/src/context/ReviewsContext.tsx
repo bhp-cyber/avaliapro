@@ -91,6 +91,7 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
       await createReview({
         companyId: COMPANY_ID,
         productId: review.productId,
+        sku: review.sku,
         rating: review.rating,
         title: review.title,
         comment: review.comment,

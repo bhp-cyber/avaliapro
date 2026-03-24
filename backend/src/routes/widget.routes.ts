@@ -129,6 +129,20 @@ router.get("/reviews", async (req, res) => {
       });
     }
 
+    console.log("[WIDGET GET reviews product-resolved]", {
+      incomingSku: sku ? String(sku) : null,
+      incomingPlatformProductId: platformProductId
+        ? String(platformProductId)
+        : null,
+      incomingPlatformVariantId: variantId,
+      resolvedProductId: product.id,
+      resolvedProductName: product.name,
+      resolvedSku: product.sku,
+      resolvedPlatformProductId: product.platformProductId,
+      resolvedPlatformVariantId: product.platformVariantId,
+      companyId: company.id,
+    });
+
     let reviews: any[] = [];
 
     let reviewsWhere: any = {

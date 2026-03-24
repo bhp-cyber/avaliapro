@@ -273,7 +273,11 @@ router.post("/", async (req, res) => {
       select: {
         id: true,
         companyId: true,
+        sku: true,
+        name: true,
+        platformProductId: true,
         platformVariantId: true,
+        variantLabel: true,
       },
     });
 
@@ -282,6 +286,18 @@ router.post("/", async (req, res) => {
         error: "Produto não encontrado para esta empresa",
       });
     }
+
+    console.log("[ADMIN CREATE REVIEW product-resolved]", {
+      incomingProductId: normalizedProductId,
+      incomingProductVariant: normalizedProductVariant,
+      resolvedProductId: product.id,
+      resolvedProductName: product.name,
+      resolvedSku: product.sku,
+      resolvedVariantLabel: product.variantLabel,
+      resolvedPlatformProductId: product.platformProductId,
+      resolvedPlatformVariantId: product.platformVariantId,
+      companyId: normalizedCompanyId,
+    });
 
     if (!product) {
       return res.status(404).json({

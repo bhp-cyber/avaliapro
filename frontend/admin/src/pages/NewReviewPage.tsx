@@ -167,6 +167,7 @@ export default function NewReviewPage({ onClose, hidePageHeader = false }: NewRe
     addReview({
       product: selectedProduct.name,
       productId: selectedProduct.id,
+      sku: selectedProduct.sku,
       customer: finalCustomerName,
       customerAvatar: finalAvatarValue,
       avatarType: finalAvatarType,
