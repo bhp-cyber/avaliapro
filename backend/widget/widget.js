@@ -1238,16 +1238,21 @@
 
     if (!explicit) {
       var productForm =
-        document.querySelector('form[action*="/comprar"]') ||
-        document.querySelector('form[action*="/cart"]') ||
-        document.querySelector(".js-product-form") ||
-        document.querySelector("[data-store='product-form']");
+        document.querySelector(
+          "form.js-product-form[data-product-id]:not([data-product-type='list'])"
+        ) ||
+        document.querySelector(
+          "[data-store='product-detail'] form[data-product-id]"
+        );
 
       var productSection =
-        document.querySelector("[data-store='product-page']") ||
-        document.querySelector(".js-product-container") ||
-        document.querySelector(".product-detail") ||
-        document.querySelector(".product-form");
+        document.querySelector(
+          "[data-store='product-detail'][data-product-id][data-variants]"
+        ) ||
+        document.querySelector(
+          ".js-product-container[data-product-id][data-variants]:not([data-product-type='list'])"
+        ) ||
+        document.querySelector(".product-detail");
 
       var parent = productSection || productForm;
 
