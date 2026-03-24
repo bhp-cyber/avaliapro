@@ -930,7 +930,80 @@
     return candidates;
   }
 
+  function getSelectedVariantFromDataVariants() {
+    var variantsElement =
+      document.querySelector(".js-product-container[data-variants]") ||
+      document.querySelector("[data-store='product-detail'][data-variants]");
+
+    if (!variantsElement) {
+      return null;
+    }
+
+    try {
+      var variants = JSON.parse(
+        variantsElement.getAttribute("data-variants") || "[]"
+      );
+
+      if (!Array.isArray(variants) || !variants.length) {
+        return null;
+      }
+
+      var selectedOptions = {};
+
+      for (var i = 0; i < 3; i++) {
+        var field = document.querySelector('[name="variation[' + i + ']"]');
+
+        if (!field) continue;
+
+        var value = normalizeText(field.value || field.getAttribute("value"));
+
+        if (value) {
+          selectedOptions["option" + i] = value;
+        }
+      }
+
+      var selectedKeys = Object.keys(selectedOptions);
+
+      if (!selectedKeys.length) {
+        return null;
+      }
+
+      for (var j = 0; j < variants.length; j++) {
+        var variant = variants[j];
+
+        if (!variant || typeof variant !== "object") continue;
+
+        var matches = true;
+
+        for (var k = 0; k < selectedKeys.length; k++) {
+          var key = selectedKeys[k];
+
+          if (normalizeText(variant[key]) !== selectedOptions[key]) {
+            matches = false;
+            break;
+          }
+        }
+
+        if (matches) {
+          return variant;
+        }
+      }
+    } catch (error) {}
+
+    return null;
+  }
+
   function getSku() {
+    var selectedVariant = getSelectedVariantFromDataVariants();
+
+    if (selectedVariant && selectedVariant.sku) {
+      return {
+        sku: normalizeSku(selectedVariant.sku),
+        element: null,
+        source: "data-variants:selected",
+      };
+    }
+
     var candidates = getSkuCandidates();
 
     if (!candidates || !candidates.length) {
@@ -951,6 +1024,13 @@
   }
 
   function getPlatformProductId() {
+    var selectedVariant = getSelectedVariantFromDataVariants();
+
+    if (selectedVariant && selectedVariant.product_id) {
+      var selectedProductId = normalizeText(selectedVariant.product_id);
+      if (selectedProductId) return selectedProductId;
+    }
+
     var productIdElement =
       document.querySelector(
         "[data-store='product-detail'][data-product-id]"
@@ -1000,6 +1080,13 @@
   }
 
   function getPlatformVariantId() {
+    var selectedVariant = getSelectedVariantFromDataVariants();
+
+    if (selectedVariant && selectedVariant.id) {
+      var selectedVariantId = normalizeText(selectedVariant.id);
+      if (selectedVariantId) return selectedVariantId;
+    }
+
     var variantIdElement =
       document.querySelector("[data-platform-variant-id]") ||
       document.querySelector("[data-variant-id]");
