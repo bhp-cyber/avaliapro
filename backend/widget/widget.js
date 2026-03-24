@@ -1138,6 +1138,10 @@
     return null;
   }
 
+  function isProductDetailPage() {
+    return !!document.querySelector("[data-store='product-detail']");
+  }
+
   function getProductCacheKey(sku) {
     var platformProductId = getPlatformProductId();
     var platformVariantId = getPlatformVariantId();
@@ -1203,6 +1207,10 @@
   }
 
   function resolveContainer(skuInfo) {
+    if (!isProductDetailPage()) {
+      return null;
+    }
+
     var existing = document.getElementById(WIDGET_ID);
     if (existing) {
       if (document.body.contains(existing)) {
@@ -2776,6 +2784,26 @@ ${imageHtml}
   }
 
   function refreshIfSkuChanged() {
+    if (!isProductDetailPage()) {
+      var existing = document.getElementById(WIDGET_ID);
+      if (existing) {
+        existing.remove();
+      }
+
+      var existingSummary = document.getElementById("avaliapro-summary");
+      if (existingSummary) {
+        existingSummary.innerHTML = "";
+      }
+
+      state.requestToken++;
+      state.isLoading = false;
+      state.currentSku = null;
+      state.lastRenderedSku = null;
+      state.currentPlatformProductId = null;
+      state.currentPlatformVariantId = null;
+      return;
+    }
+
     var skuInfo = getSku();
     var nextSku = skuInfo && skuInfo.sku ? skuInfo.sku : null;
     var nextPlatformProductId = getPlatformProductId();
@@ -2988,6 +3016,11 @@ ${imageHtml}
 
   function init() {
     injectStyles();
+
+    if (!isProductDetailPage()) {
+      startSkuWatcher();
+      return;
+    }
 
     var skuInfo = getSku();
     var sku = skuInfo && skuInfo.sku ? skuInfo.sku : null;
