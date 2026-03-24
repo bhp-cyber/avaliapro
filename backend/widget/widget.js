@@ -1335,7 +1335,7 @@
 
     var productVariantHtml =
       review && review.productVariant
-        ? `<div style="font-size:13px;line-height:1.45;color:#6b7280;margin-bottom:8px;">${safeText(
+        ? `<div style="font-size:13px;line-height:1;color:#9ca3af;opacity:0.72;margin-top:8px;transform:translateY(38px);margin-bottom:-2px;">${safeText(
             review.productVariant
           )}</div>`
         : "";
