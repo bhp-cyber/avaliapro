@@ -143,19 +143,31 @@ router.get("/reviews", async (req, res) => {
       companyId: company.id,
     });
 
-    let reviews: any[] = [];
+    const relatedProducts = product.platformProductId
+      ? await prisma.product.findMany({
+          where: {
+            companyId: company.id,
+            platformProductId: product.platformProductId,
+          },
+          select: {
+            id: true,
+          },
+        })
+      : [{ id: product.id }];
 
-    let reviewsWhere: any = {
-      productId: product.id,
+    const relatedProductIds = relatedProducts.length
+      ? relatedProducts.map((item) => item.id)
+      : [product.id];
+
+    const reviewsWhere: any = {
+      productId: {
+        in: relatedProductIds,
+      },
       companyId: company.id,
       status: "approved",
     };
 
-    if (variantId) {
-      reviewsWhere.OR = [{ variantId }, { variantId: null }];
-    }
-
-    reviews = await prisma.review.findMany({
+    const reviews = await prisma.review.findMany({
       where: reviewsWhere,
       orderBy: {
         createdAt: "desc",
@@ -176,53 +188,8 @@ router.get("/reviews", async (req, res) => {
       },
     });
 
-    if (variantId && reviews.length === 0) {
-      reviewsWhere = {
-        productId: product.id,
-        companyId: company.id,
-        status: "approved",
-      };
-
-      reviews = await prisma.review.findMany({
-        where: reviewsWhere,
-        orderBy: {
-          createdAt: "desc",
-        },
-        take: REVIEWS_LIMIT,
-        select: {
-          id: true,
-          rating: true,
-          comment: true,
-          authorName: true,
-          verifiedPurchase: true,
-          createdAt: true,
-          productVariant: true,
-          variantId: true,
-          avatarType: true,
-          avatarPreset: true,
-          avatarUrl: true,
-        },
-      });
-    }
-
-    let summaryWhere: any = {
-      productId: product.id,
-      companyId: company.id,
-      status: "approved",
-    };
-
-    if (variantId) {
-      const hasVariantSpecificReviews = reviews.some((review) => {
-        return review && review.variantId === variantId;
-      });
-
-      if (hasVariantSpecificReviews) {
-        summaryWhere.variantId = variantId;
-      }
-    }
-
     const reviewsSummary = await prisma.review.aggregate({
-      where: summaryWhere,
+      where: reviewsWhere,
       _avg: {
         rating: true,
       },
