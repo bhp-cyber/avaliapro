@@ -1139,29 +1139,31 @@
   }
 
   function isProductDetailPage() {
-    if (document.querySelector("[data-store='product-detail']")) {
+    var productDetailStore = document.querySelector(
+      "[data-store='product-detail'][data-product-id][data-variants]"
+    );
+
+    if (productDetailStore) {
       return true;
     }
 
-    var detailContainer = document.querySelector(
-      ".js-product-container[data-variants]"
+    var productDetailContainer = document.querySelector(
+      ".js-product-container[data-product-id][data-variants]:not([data-product-type='list'])"
+    );
+
+    if (productDetailContainer) {
+      return true;
+    }
+
+    var productForm = document.querySelector(
+      "form.js-product-form[data-product-id]:not([data-product-type='list'])"
     );
 
     if (
-      detailContainer &&
-      normalizeText(detailContainer.getAttribute("data-product-type")) !==
-        "list"
+      productForm &&
+      document.querySelector(".js-product-variants-group, [name^='variation[']")
     ) {
       return true;
-    }
-
-    var canonical = document.querySelector('link[rel="canonical"]');
-    if (canonical) {
-      var href = normalizeText(canonical.getAttribute("href"));
-
-      if (/\/produtos\/[^/?#]+\/\d+/i.test(href)) {
-        return true;
-      }
     }
 
     return false;
@@ -1232,6 +1234,10 @@
   }
 
   function resolveContainer(skuInfo) {
+    if (!isProductDetailPage()) {
+      return null;
+    }
+
     var existing = document.getElementById(WIDGET_ID);
     if (existing) {
       if (document.body.contains(existing)) {
