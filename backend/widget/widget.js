@@ -58,6 +58,10 @@
     (currentScript && currentScript.getAttribute("data-api-base")) ||
     "https://avaliapro-api.onrender.com";
 
+  var isLocalTestMode =
+    !!currentScript &&
+    normalizeText(currentScript.getAttribute("data-test-mode")) === "local";
+
   if (!apiKey) {
     console.error("[AvaliaPro] data-api-key não informado no script.");
     return;
@@ -173,9 +177,13 @@
         margin: 18px 0 22px;
       }
 
-    .avaliapro-review {
-  padding: 18px 0;
+        .avaliapro-review {
+  padding: 0 0 22px;
   background: transparent;
+}
+
+    .avaliapro-review:first-child {
+  padding-top: 4px;
 }
 
       .avaliapro-author {
@@ -489,8 +497,9 @@
   to { transform: rotate(360deg); }
 }
 
+/* última review mantém a mesma linha divisória para preservar altura visual igual entre os blocos */
 .avaliapro-review:last-child div[style*="border-bottom"] {
-  border-bottom: none !important;
+  border-bottom: 1px solid #e5e7eb !important;
 }
 
     `;
@@ -1139,6 +1148,10 @@
   }
 
   function isProductDetailPage() {
+    if (window.location.protocol === "file:") {
+      return true;
+    }
+
     return !!document.querySelector("[data-store='product-detail']");
   }
 
@@ -1335,7 +1348,7 @@
 
     var productVariantHtml =
       review && review.productVariant
-        ? `<div style="font-size:13px;line-height:1;color:#9ca3af;opacity:0.72;margin-top:8px;transform:translateY(38px);margin-bottom:-2px;">${safeText(
+        ? `<div style="font-size:12.5px;line-height:1.25;color:#9ca3af;opacity:0.82;margin-top:22px;margin-bottom:-14px;">${safeText(
             review.productVariant
           )}</div>`
         : "";
@@ -1463,14 +1476,14 @@
     ${verifiedHtml}
   </div>
 
-  <div class="avaliapro-review-stars" style="margin-top:6px;margin-bottom:6px;">
+     <div class="avaliapro-review-stars" style="margin-top:2px;margin-bottom:18px;">
   ${getStars(review && review.rating)}
 </div>
-${productVariantHtml}
 ${titleHtml}
 <div class="avaliapro-review-comment">${safeText(
       normalizeText((review && review.comment) || "")
     )}</div>
+${productVariantHtml}
 ${imageHtml}
 </div>
           </div>
@@ -2254,6 +2267,77 @@ ${imageHtml}
     var platformProductId = getPlatformProductId();
     var platformVariantId = getPlatformVariantId();
 
+    if (isLocalTestMode) {
+      var storageKey = "avaliapro-local-test-reviews";
+      var localReviews = [];
+
+      try {
+        localReviews = JSON.parse(localStorage.getItem(storageKey) || "[]");
+        if (!Array.isArray(localReviews)) localReviews = [];
+      } catch (error) {
+        localReviews = [];
+      }
+
+      var normalizedSku = sku ? String(sku) : null;
+      var normalizedPlatformProductId = platformProductId
+        ? String(platformProductId)
+        : null;
+
+      var filteredLocalReviews = localReviews.filter(function (review) {
+        if (!review || typeof review !== "object") return false;
+
+        if (
+          normalizedPlatformProductId &&
+          review.platformProductId &&
+          String(review.platformProductId) === normalizedPlatformProductId
+        ) {
+          return true;
+        }
+
+        if (
+          normalizedSku &&
+          review.sku &&
+          String(review.sku) === normalizedSku
+        ) {
+          return true;
+        }
+
+        return false;
+      });
+
+      var totalReviews = filteredLocalReviews.length;
+      var averageRating = totalReviews
+        ? Number(
+            (
+              filteredLocalReviews.reduce(function (sum, review) {
+                return sum + (Number(review && review.rating) || 0);
+              }, 0) / totalReviews
+            ).toFixed(1)
+          )
+        : 0;
+
+      return Promise.resolve({
+        company: {
+          id: "local-test",
+          name: "Ambiente local",
+        },
+        product: {
+          id: "local-test-product",
+          name: "Produto local",
+          sku: normalizedSku,
+          platformProductId: normalizedPlatformProductId,
+          platformVariantId: platformVariantId
+            ? String(platformVariantId)
+            : null,
+        },
+        summary: {
+          averageRating: averageRating,
+          totalReviews: totalReviews,
+        },
+        reviews: filteredLocalReviews,
+      });
+    }
+
     var params = new URLSearchParams();
     params.append("apiKey", apiKey);
 
@@ -2308,6 +2392,67 @@ ${imageHtml}
   }
 
   function submitReview(payload) {
+    if (isLocalTestMode) {
+      var storageKey = "avaliapro-local-test-reviews";
+      var existing = [];
+
+      try {
+        existing = JSON.parse(localStorage.getItem(storageKey) || "[]");
+        if (!Array.isArray(existing)) existing = [];
+      } catch (error) {
+        existing = [];
+      }
+
+      var localReview = {
+        id: "local-" + Date.now(),
+        rating: Number(payload && payload.rating) || 0,
+        comment: payload && payload.comment ? String(payload.comment) : "",
+        authorName:
+          payload && payload.authorName
+            ? String(payload.authorName)
+            : "Cliente",
+        verifiedPurchase: !!(payload && payload.verifiedPurchase),
+        createdAt: new Date().toISOString(),
+        productVariant:
+          payload && payload.productVariant
+            ? String(payload.productVariant)
+            : null,
+        variantId:
+          payload && payload.platformVariantId
+            ? String(payload.platformVariantId)
+            : null,
+        avatarType:
+          payload &&
+          (payload.avatarType === "preset" ||
+            payload.avatarType === "image" ||
+            payload.avatarType === "initial")
+            ? payload.avatarType
+            : "initial",
+        avatarPreset:
+          payload && payload.avatarType === "preset" && payload.avatarPreset
+            ? String(payload.avatarPreset)
+            : null,
+        avatarUrl:
+          payload && payload.avatarType === "image" && payload.avatarUrl
+            ? String(payload.avatarUrl)
+            : null,
+        status: "approved",
+        sku: payload && payload.sku ? String(payload.sku) : null,
+        platformProductId:
+          payload && payload.platformProductId
+            ? String(payload.platformProductId)
+            : null,
+      };
+
+      existing.unshift(localReview);
+      localStorage.setItem(storageKey, JSON.stringify(existing));
+
+      return Promise.resolve({
+        message: "Review local criada com sucesso",
+        review: localReview,
+      });
+    }
+
     return fetch(apiBase + "/api/widget/reviews", {
       method: "POST",
       credentials: "omit",
