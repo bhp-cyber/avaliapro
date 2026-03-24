@@ -1343,12 +1343,15 @@
 
     var verifiedHtml =
       review && review.verifiedPurchase
-        ? `<div class="avaliapro-verified">Compra verificada</div>`
+        ? `<span class="avaliapro-verified" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;line-height:1;color:#059669;font-weight:600;">
+            <span style="font-size:11px;line-height:1;">✓</span>
+            <span>Compra verificada</span>
+          </span>`
         : "";
 
     var productVariantHtml =
       review && review.productVariant
-        ? `<div style="font-size:12.5px;line-height:1.25;color:#9ca3af;opacity:0.82;margin-top:22px;margin-bottom:-14px;">${safeText(
+        ? `<div style="font-size:13px;line-height:1.25;color:#9ca3af;opacity:0.82;margin-top:22px;margin-bottom:-8px;">${safeText(
             review.productVariant
           )}</div>`
         : "";
@@ -1455,7 +1458,7 @@
   
             <div style="flex:1;min-width:0;border-bottom:1px solid #e5e7eb;padding-bottom:18px;">
   <div class="avaliapro-review-top">
-    <div
+            <div
       style="
         display:flex;
         align-items:baseline;
@@ -1468,15 +1471,17 @@
         ${authorName}
       </div>
 
+      <div style="font-size:12px;color:#d1d5db;line-height:1;">|</div>
+
       <div style="font-size:12px;color:#9ca3af;opacity:0.72;line-height:1;">
         ${safeText(formatDate(review && review.createdAt))}
       </div>
-    </div>
 
-    ${verifiedHtml}
+      ${verifiedHtml}
+    </div>
   </div>
 
-     <div class="avaliapro-review-stars" style="margin-top:2px;margin-bottom:18px;">
+     <div class="avaliapro-review-stars" style="margin-top:4px;margin-bottom:18px;">
   ${getStars(review && review.rating)}
 </div>
 ${titleHtml}
@@ -1601,6 +1606,8 @@ ${imageHtml}
     var socialProofLabel =
       totalReviews === 0
         ? "Ainda sem avaliações suficientes"
+        : recommendationRate === 100
+        ? "Aprovação unânime"
         : recommendationRate >= 95
         ? "Aprovação praticamente unânime"
         : recommendationRate >= 85
@@ -1608,6 +1615,8 @@ ${imageHtml}
         : recommendationRate >= 70
         ? "Boa avaliação geral"
         : "Percepções variadas entre as avaliações";
+
+    var showSocialProofCheck = totalReviews > 0 && recommendationRate >= 85;
 
     var socialProofHtml = `
         <div
@@ -1628,8 +1637,13 @@ ${imageHtml}
             recomendam este produto
           </span>
       
-          <div style="font-size:13px;line-height:0.9;color:#6b7280;grid-column:1 / 3;">
-            ${socialProofLabel}
+                              <div style="display:flex;align-items:center;gap:6px;font-size:13px;line-height:0.9;color:#6b7280;grid-column:1 / 3;">
+            ${
+              showSocialProofCheck
+                ? '<span style="font-size:11px;color:#9ca3af;">✓</span>'
+                : ""
+            }
+            <span>${socialProofLabel}</span>
           </div>
         </div>
       `;
@@ -1713,7 +1727,7 @@ ${imageHtml}
   <div class="avaliapro-widget" data-sku="${safeText(sku)}">
     <div class="avaliapro-header">
      <div class="avaliapro-summary" style="display:grid;gap:18px;width:100%;">
-  <div
+    <div
   style="
     display:grid;
     grid-template-columns:1fr 1px 1fr 1px 1fr;
@@ -1721,6 +1735,8 @@ ${imageHtml}
     column-gap:24px;
     row-gap:14px;
     width:100%;
+    padding:0 28px;
+    box-sizing:border-box;
   "
 >
   <div style="display:grid;row-gap:8px;min-width:0;justify-self:start;width:max-content;">
@@ -1788,7 +1804,7 @@ ${imageHtml}
   </button>
 </div>
 
-  <div
+    <div
   style="
     display:flex;
     justify-content:flex-start;
@@ -1797,7 +1813,7 @@ ${imageHtml}
     gap:14px;
     flex-wrap:wrap;
     width:calc(100% - 56px);
-    margin-top:4px;
+    margin-top:14px;
     margin-left:56px;
     box-sizing:border-box;
   "
@@ -2653,7 +2669,7 @@ ${imageHtml}
             getPlatformVariantId()
           );
 
-          setFeedback(container, "success", "Avaliação enviada com sucesso.");
+          setFeedback(container, "", "");
 
           submitButton.innerHTML = "✔ Avaliação enviada";
           submitButton.style.background = "#059669";
@@ -2708,20 +2724,76 @@ ${imageHtml}
           }
 
           var modalRoot = container.querySelector("#avaliapro-modal-root");
-          if (modalRoot) {
-            modalRoot.style.opacity = "0";
-            modalRoot.style.transition = "opacity 0.2s ease";
+          var modalBox = container.querySelector("#avaliapro-modal-box");
 
-            setTimeout(function () {
-              modalRoot.style.display = "none";
-              modalRoot.style.opacity = "1";
-              document.body.style.overflow = "";
-            }, 200);
+          if (modalBox) {
+            modalBox.innerHTML = `
+              <div
+                style="
+                  min-height:320px;
+                  display:flex;
+                  align-items:center;
+                  justify-content:center;
+                  padding:32px 24px;
+                  box-sizing:border-box;
+                "
+              >
+                <div
+                  style="
+                    display:grid;
+                    justify-items:center;
+                    gap:14px;
+                    text-align:center;
+                    max-width:320px;
+                  "
+                >
+                  <div
+                    style="
+                      width:56px;
+                      height:56px;
+                      border-radius:999px;
+                      display:flex;
+                      align-items:center;
+                      justify-content:center;
+                      background:#ecfdf5;
+                      border:1px solid #a7f3d0;
+                      color:#059669;
+                      font-size:24px;
+                      font-weight:700;
+                    "
+                  >
+                    ✓
+                  </div>
+
+                  <div style="display:grid;gap:6px;">
+                    <div style="font-size:18px;font-weight:700;color:#111827;line-height:1.2;">
+                      Avaliação enviada
+                    </div>
+
+                    <div style="font-size:14px;line-height:1.45;color:#6b7280;">
+                      Sua avaliação foi enviada com sucesso.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
           }
 
-          return loadAndRenderSku(state.currentSku || sku, {
-            preserveFeedback: true,
-            feedbackMessage: "Avaliação enviada com sucesso.",
+          return new Promise(function (resolve) {
+            setTimeout(function () {
+              if (modalRoot) {
+                modalRoot.style.opacity = "0";
+                modalRoot.style.transition = "opacity 0.2s ease";
+
+                setTimeout(function () {
+                  modalRoot.style.display = "none";
+                  modalRoot.style.opacity = "1";
+                  document.body.style.overflow = "";
+                }, 200);
+              }
+
+              resolve(loadAndRenderSku(state.currentSku || sku));
+            }, 1800);
           });
         })
         .catch(function (error) {
