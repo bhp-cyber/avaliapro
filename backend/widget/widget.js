@@ -941,7 +941,7 @@
       if (
         candidates[i] &&
         candidates[i].source &&
-        candidates[i].source.indexOf("data-variants") !== -1
+        candidates[i].source.indexOf("data-variants") === -1
       ) {
         return candidates[i];
       }
