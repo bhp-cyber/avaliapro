@@ -2980,33 +2980,8 @@ ${imageHtml}
   }
 
   window.__AVALIAPRO_WIDGET_REFRESH__ = function () {
-    var selectedVariantDebug = getSelectedVariantFromDataVariants();
-    var selectedOption0Field = document.querySelector('[name="variation[0]"]');
     var skuInfo = getSku();
     var sku = skuInfo && skuInfo.sku ? skuInfo.sku : null;
-    var platformProductId = getPlatformProductId();
-    var platformVariantId = getPlatformVariantId();
-
-    console.log("[AvaliaPro REFRESH]", {
-      selectedOption0: selectedOption0Field
-        ? normalizeText(
-            selectedOption0Field.value ||
-              selectedOption0Field.getAttribute("value")
-          )
-        : null,
-      selectedVariantDebug: selectedVariantDebug
-        ? {
-            sku: selectedVariantDebug.sku || null,
-            id: selectedVariantDebug.id || null,
-            product_id: selectedVariantDebug.product_id || null,
-            option0: selectedVariantDebug.option0 || null,
-          }
-        : null,
-      sku: sku,
-      platformProductId: platformProductId,
-      platformVariantId: platformVariantId,
-      debug: !!window.AVALIAPRO_DEBUG,
-    });
 
     loadAndRenderSku(sku, { force: true });
   };
