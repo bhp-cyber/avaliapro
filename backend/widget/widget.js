@@ -174,7 +174,7 @@
       }
 
     .avaliapro-review {
-  padding: 18px 0;
+  padding: 10px 0 8px;
   background: transparent;
 }
 
@@ -1327,7 +1327,7 @@
 
     var productVariantHtml =
       review && review.productVariant
-        ? `<div style="font-size:13px;line-height:1.45;color:#6b7280;margin-bottom:8px;">${safeText(
+        ? `<div style="font-size:13px;line-height:1;color:#9ca3af;opacity:0.72;margin-top:8px;transform:translateY(18px);margin-bottom:-22px;">${safeText(
             review.productVariant
           )}</div>`
         : "";
@@ -1433,7 +1433,7 @@
           ${avatarHtml}
   
             <div style="flex:1;min-width:0;border-bottom:1px solid #e5e7eb;padding-bottom:18px;">
-  <div class="avaliapro-review-top">
+  <div class="avaliapro-review-top" style="transform:translateY(-8px);">
     <div
       style="
         display:flex;
@@ -1455,15 +1455,15 @@
     ${verifiedHtml}
   </div>
 
-  <div class="avaliapro-review-stars" style="margin-top:6px;margin-bottom:6px;">
+  <div class="avaliapro-review-stars" style="margin-top:-10px;margin-bottom:6px;">
   ${getStars(review && review.rating)}
 </div>
-${productVariantHtml}
 ${titleHtml}
-<div class="avaliapro-review-comment">${safeText(
+<div class="avaliapro-review-comment" style="margin-top:8px;">${safeText(
       normalizeText((review && review.comment) || "")
     )}</div>
 ${imageHtml}
+${productVariantHtml}
 </div>
           </div>
         </div>
