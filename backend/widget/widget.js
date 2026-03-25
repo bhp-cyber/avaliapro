@@ -637,9 +637,9 @@
     var html = "";
 
     function buildStar(isFilled, index) {
-      var fillColor = "#f5a623";
+      var fillColor = "#d4a017";
       var emptyFill = "#ffffff";
-      var emptyStroke = "#f5a623";
+      var emptyStroke = "#d4a017";
 
       return `
         <span
@@ -659,11 +659,11 @@
   height="44"
   style="width:44px;height:44px;display:block;"
 >
-              <path
+                            <path
                 d="M12 2.35l2.91 5.9 6.51.95-4.71 4.59 1.11 6.49L12 17.77l-5.82 3.06 1.11-6.49L2.58 9.2l6.51-.95L12 2.35z"
                 fill="${isFilled ? fillColor : emptyFill}"
                 stroke="${isFilled ? fillColor : emptyStroke}"
-                stroke-width="1.7"
+                stroke-width="1.2"
                 stroke-linejoin="round"
               />
             </svg>
@@ -1991,7 +1991,7 @@ ${imageHtml}
         id="avaliapro-stars-input"
         style="display:flex;justify-content:center;align-items:center;gap:12px;cursor:pointer;user-select:none;"
       >
-        ${getInteractiveStars(5)}
+        ${getInteractiveStars(0)}
 
         <select
           class="avaliapro-select"
@@ -1999,14 +1999,29 @@ ${imageHtml}
           required
           style="display:none;"
         >
-          <option value="">Selecione uma nota</option>
-          <option value="5" selected>5</option>
+          <option value="" selected>Selecione uma nota</option>
+          <option value="5">5</option>
           <option value="4">4</option>
           <option value="3">3</option>
           <option value="2">2</option>
           <option value="1">1</option>
         </select>
       </div>
+
+        <div
+        id="avaliapro-stars-caption"
+        style="
+          width:100%;
+          margin-top:2px;
+          min-height:20px;
+          text-align:center;
+          font-size:13px;
+          font-weight:600;
+          color:#6b7280;
+          line-height:1.2;
+        "
+      ></div>
+
     </div>
 
     <div
@@ -2057,7 +2072,7 @@ ${imageHtml}
       </div>
     </div>
 
-            <div class="avaliapro-field">
+      <div class="avaliapro-field">
       <label class="avaliapro-label">Escolha seu avatar ou envie sua foto de perfil</label>
 
       <div
@@ -2706,6 +2721,29 @@ ${imageHtml}
 
     if (starsContainer && select) {
       var stars = starsContainer.querySelectorAll("[data-value]");
+      var starsCaption = container.querySelector("#avaliapro-stars-caption");
+
+      function getStarsCaption(value) {
+        switch (Number(value) || 0) {
+          case 1:
+            return "Não gostei";
+          case 2:
+            return "Ruim";
+          case 3:
+            return "Regular";
+          case 4:
+            return "Gostei";
+          case 5:
+            return "Adorei!";
+          default:
+            return "";
+        }
+      }
+
+      function updateStarsCaption(value) {
+        if (!starsCaption) return;
+        starsCaption.textContent = getStarsCaption(value);
+      }
 
       function paintStars(activeValue) {
         stars.forEach(function (star) {
@@ -2724,9 +2762,10 @@ ${imageHtml}
         });
       }
 
-      var initialValue = Number(select.value || 5);
+      var initialValue = Number(select.value || 0);
       select.value = String(initialValue);
       paintStars(initialValue);
+      updateStarsCaption(initialValue);
 
       stars.forEach(function (star) {
         var value = Number(star.getAttribute("data-value"));
@@ -2740,16 +2779,20 @@ ${imageHtml}
 
           select.value = String(value);
           paintStars(value);
+          updateStarsCaption(value);
         };
 
         star.onmouseenter = function () {
           paintStars(value);
-        };
-
-        star.onmouseleave = function () {
-          paintStars(Number(select.value || 5));
+          updateStarsCaption(value);
         };
       });
+
+      starsContainer.onmouseleave = function () {
+        var selectedValue = Number(select.value || 0);
+        paintStars(selectedValue);
+        updateStarsCaption(selectedValue);
+      };
     }
 
     var insightFilters = container.querySelectorAll("[data-avaliapro-filter]");
@@ -3299,7 +3342,7 @@ ${imageHtml}
             : [];
 
           if (ratingSelect) {
-            ratingSelect.value = "5";
+            ratingSelect.value = "";
           }
 
           if (avatarPreview) {
@@ -3316,18 +3359,12 @@ ${imageHtml}
             var stars = starsContainer.querySelectorAll("[data-value]");
 
             stars.forEach(function (star) {
-              var value = Number(star.getAttribute("data-value"));
               var path = star.querySelector("path");
 
               if (!path) return;
 
-              if (value <= 5) {
-                path.setAttribute("fill", "#f5a623");
-                path.setAttribute("stroke", "#f5a623");
-              } else {
-                path.setAttribute("fill", "#ffffff");
-                path.setAttribute("stroke", "#f5a623");
-              }
+              path.setAttribute("fill", "#ffffff");
+              path.setAttribute("stroke", "#f5a623");
             });
           }
 
