@@ -2019,7 +2019,7 @@ ${imageHtml}
       />
     </div>
 
-    <div class="avaliapro-field">
+        <div class="avaliapro-field">
       <label
         style="
           display:flex;
@@ -2033,40 +2033,6 @@ ${imageHtml}
         <input type="checkbox" name="isAnonymous" />
         Enviar avaliação como anônima
       </label>
-    </div>
-
-        <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:4px;">
-      <button
-        type="button"
-        id="avaliapro-next-step"
-        style="
-          border:none;
-          background:transparent;
-          color:#111827;
-          font-size:15px;
-          font-weight:600;
-          padding:6px 0;
-          cursor:pointer;
-          display:inline-flex;
-          align-items:center;
-          gap:8px;
-        "
-      >
-        <span>Continuar</span>
-        <span aria-hidden="true" style="font-size:18px;line-height:1;">→</span>
-      </button>
-    </div>
-  </div>
-
-  <div id="avaliapro-step-2" style="display:none;gap:16px;">
-    <div class="avaliapro-field">
-      <label class="avaliapro-label">Sua avaliação</label>
-      <textarea
-        class="avaliapro-textarea"
-        name="comment"
-        placeholder="Escreva sua avaliação"
-        required
-      ></textarea>
     </div>
 
     <div class="avaliapro-field">
@@ -2150,6 +2116,40 @@ ${imageHtml}
 
         <input type="hidden" name="avatarPreset" />
       </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:4px;">
+      <button
+        type="button"
+        id="avaliapro-next-step"
+        style="
+          border:none;
+          background:transparent;
+          color:#111827;
+          font-size:15px;
+          font-weight:600;
+          padding:6px 0;
+          cursor:pointer;
+          display:inline-flex;
+          align-items:center;
+          gap:8px;
+        "
+      >
+        <span>Continuar</span>
+        <span aria-hidden="true" style="font-size:18px;line-height:1;">→</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="avaliapro-step-2" style="display:none;gap:16px;">
+    <div class="avaliapro-field">
+      <label class="avaliapro-label">Sua avaliação</label>
+      <textarea
+        class="avaliapro-textarea"
+        name="comment"
+        placeholder="Escreva sua avaliação"
+        required
+      ></textarea>
     </div>
 
     <div
