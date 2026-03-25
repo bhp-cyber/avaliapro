@@ -1641,17 +1641,121 @@ ${imageHtml}
     var viewAllReviewsHtml =
       totalListReviews > previewReviewsLimit
         ? `
-        <div style="display:flex;justify-content:center;margin-top:18px;">
-          <button
-            type="button"
-            data-avaliapro-open-all-reviews="true"
-            class="avaliapro-button"
-            style="min-width:auto;padding:12px 18px;"
+          <div style="display:flex;justify-content:center;margin-top:18px;">
+            <button
+              type="button"
+              data-avaliapro-open-all-reviews="true"
+              class="avaliapro-button"
+              style="min-width:auto;padding:12px 18px;"
+            >
+              Ver todas as avaliações
+            </button>
+          </div>
+        `
+        : "";
+
+    var allReviewsModalHtml =
+      totalListReviews > previewReviewsLimit
+        ? `
+          <div
+            id="avaliapro-all-reviews-modal-root"
+            style="
+              display:none;
+              position:fixed;
+              inset:0;
+              z-index:999998;
+              align-items:center;
+              justify-content:center;
+              padding:24px 32px;
+              box-sizing:border-box;
+            "
           >
-            Ver todas as avaliações
-          </button>
-        </div>
-      `
+            <div
+              id="avaliapro-all-reviews-modal-overlay"
+              style="
+                position:absolute;
+                inset:0;
+                background:rgba(0,0,0,0.5);
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                padding:16px;
+                box-sizing:border-box;
+              "
+            >
+              <div
+                id="avaliapro-all-reviews-modal-box"
+                style="
+                  position:relative;
+                  background:#fff;
+                  width:min(1280px, calc(100vw - 64px));
+                  height:min(860px, calc(100vh - 48px));
+                  display:grid;
+                  grid-template-rows:auto minmax(0, 1fr);
+                  border-radius:20px;
+                  box-shadow:0 24px 80px rgba(0,0,0,0.22);
+                  overflow:hidden;
+                "
+              >
+                <button
+                  type="button"
+                  id="avaliapro-close-all-reviews-modal"
+                  aria-label="Fechar modal de avaliações"
+                  style="
+                    position:absolute;
+                    top:14px;
+                    right:16px;
+                    border:none;
+                    background:transparent;
+                    font-size:24px;
+                    line-height:1;
+                    cursor:pointer;
+                    color:#6b7280;
+                    z-index:2;
+                  "
+                >
+                  &times;
+                </button>
+
+                <div
+                  style="
+                    padding:24px 24px 18px;
+                    border-bottom:1px solid #e5e7eb;
+                    background:#fff;
+                  "
+                >
+                  <div style="display:grid;gap:6px;padding-right:28px;">
+                    <h3 style="margin:0;font-size:20px;font-weight:700;color:#111827;">
+                      Todas as avaliações
+                    </h3>
+                    <p style="margin:0;font-size:14px;line-height:1.45;color:#6b7280;">
+                      ${totalListReviews} avaliação${
+            totalListReviews === 1 ? "" : "ões"
+          } encontradas
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  style="
+                    padding:0 24px 24px;
+                    overflow-y:auto;
+                    min-height:0;
+                    height:100%;
+                    background:#fff;
+                    box-sizing:border-box;
+                    overscroll-behavior:contain;
+                    -webkit-overflow-scrolling:touch;
+                  "
+                >
+                  <div class="avaliapro-list">
+                    ${filteredReviews.map(buildReviewItem).join("")}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `
         : "";
 
     var debugHtml = "";
@@ -1797,7 +1901,8 @@ ${imageHtml}
 
     <div style="margin: 18px 0 16px 0; border-top: 1px solid #e5e7eb;"></div>
 
-        <div class="avaliapro-list">${reviewListHtml}${viewAllReviewsHtml}</div>
+            <div class="avaliapro-list">${reviewListHtml}${viewAllReviewsHtml}</div>
+    ${allReviewsModalHtml}
 
     <div class="avaliapro-form">
       <div id="avaliapro-feedback"></div>
@@ -2203,30 +2308,66 @@ ${imageHtml}
       };
     });
 
-    var paginationButtons = container.querySelectorAll("[data-avaliapro-page]");
+    var openAllReviewsButton = container.querySelector(
+      "[data-avaliapro-open-all-reviews]"
+    );
+    var allReviewsModalRoot = container.querySelector(
+      "#avaliapro-all-reviews-modal-root"
+    );
+    var closeAllReviewsButton = container.querySelector(
+      "#avaliapro-close-all-reviews-modal"
+    );
+    var allReviewsOverlay = container.querySelector(
+      "#avaliapro-all-reviews-modal-overlay"
+    );
 
-    paginationButtons.forEach(function (button) {
-      button.onclick = function () {
-        var action = button.getAttribute("data-avaliapro-page");
+    function closeAllReviewsModal() {
+      var scrollY = Number(
+        document.body.getAttribute("data-avaliapro-scroll-y") || "0"
+      );
 
-        if (action === "prev" && state.currentPage > 1) {
-          state.currentPage--;
-        }
+      allReviewsModalRoot.style.display = "none";
 
-        if (action === "next" && state.currentPage < totalPages) {
-          state.currentPage++;
-        }
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      document.body.style.overflow = "";
+      document.body.removeAttribute("data-avaliapro-scroll-y");
 
-        renderWidget(container, data, sku);
+      window.scrollTo(0, scrollY);
+    }
 
-        if (container && typeof container.scrollIntoView === "function") {
-          container.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
+    if (openAllReviewsButton && allReviewsModalRoot) {
+      openAllReviewsButton.onclick = function () {
+        var scrollY = window.scrollY || window.pageYOffset || 0;
+
+        document.body.setAttribute("data-avaliapro-scroll-y", String(scrollY));
+        document.body.style.position = "fixed";
+        document.body.style.top = "-" + scrollY + "px";
+        document.body.style.left = "0";
+        document.body.style.right = "0";
+        document.body.style.width = "100%";
+        document.body.style.overflow = "hidden";
+
+        allReviewsModalRoot.style.display = "flex";
+      };
+    }
+
+    if (closeAllReviewsButton && allReviewsModalRoot) {
+      closeAllReviewsButton.onclick = function () {
+        closeAllReviewsModal();
+      };
+    }
+
+    if (allReviewsOverlay && allReviewsModalRoot) {
+      allReviewsOverlay.onclick = function (event) {
+        if (event.target === allReviewsOverlay) {
+          closeAllReviewsModal();
         }
       };
-    });
+    }
 
     bindForm(container, state.currentSku);
     state.lastRenderedSku = sku;
