@@ -1642,11 +1642,22 @@ ${imageHtml}
       totalListReviews > previewReviewsLimit
         ? `
           <div style="display:flex;justify-content:center;margin-top:18px;">
-            <button
+                        <button
               type="button"
               data-avaliapro-open-all-reviews="true"
               class="avaliapro-button"
-              style="min-width:auto;padding:12px 18px;"
+              style="
+                min-width:auto;
+                padding:10px 16px;
+                border:1px solid #d1d5db;
+                border-radius:14px;
+                background:#ffffff;
+                color:#111827;
+                box-shadow:0 4px 12px rgba(17,24,39,0.06);
+                font-size:13px;
+                font-weight:600;
+                letter-spacing:0;
+              "
             >
               Ver todas as avaliações
             </button>
@@ -1759,11 +1770,22 @@ ${imageHtml}
                     totalListReviews > modalReviewsStep
                       ? `
                         <div style="display:flex;justify-content:center;padding:4px 0 8px;">
-                          <button
+                                                    <button
                             type="button"
                             id="avaliapro-load-more-reviews"
                             class="avaliapro-button"
-                            style="min-width:auto;padding:12px 18px;"
+                            style="
+                              min-width:auto;
+                              padding:10px 16px;
+                              border:1px solid #d1d5db;
+                              border-radius:14px;
+                              background:#ffffff;
+                              color:#111827;
+                              box-shadow:0 4px 12px rgba(17,24,39,0.06);
+                              font-size:13px;
+                              font-weight:600;
+                              letter-spacing:0;
+                            "
                           >
                             Carregar mais
                           </button>
@@ -1886,14 +1908,27 @@ ${imageHtml}
     "
   ></div>
 
-  <button
+    <button
     class="avaliapro-button"
     type="button"
     id="avaliapro-open-modal"
     aria-label="Abrir formulário para avaliar produto"
-    style="justify-self:end;"
+    style="
+      justify-self:end;
+      margin-right:52px;
+      min-width:auto;
+      padding:10px 16px;
+      border:1px solid #d1d5db;
+      border-radius:14px;
+      background:#ffffff;
+      color:#111827;
+      box-shadow:0 4px 12px rgba(17,24,39,0.06);
+      font-size:13px;
+      font-weight:600;
+      letter-spacing:0;
+    "
   >
-    ✍️ Escrever avaliação
+    Deixe sua avaliação
   </button>
 </div>
 
@@ -1924,7 +1959,7 @@ ${imageHtml}
             <div class="avaliapro-list">${reviewListHtml}${viewAllReviewsHtml}</div>
     ${allReviewsModalHtml}
 
-    <div class="avaliapro-form">
+        <div style="display:grid;gap:12px;">
       <div id="avaliapro-feedback"></div>
     </div>
 
