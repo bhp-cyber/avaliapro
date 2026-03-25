@@ -1654,6 +1654,9 @@ ${imageHtml}
         `
         : "";
 
+    var modalReviewsStep = 5;
+    var initialModalReviews = filteredReviews.slice(0, modalReviewsStep);
+
     var allReviewsModalHtml =
       totalListReviews > previewReviewsLimit
         ? `
@@ -1748,9 +1751,26 @@ ${imageHtml}
                     -webkit-overflow-scrolling:touch;
                   "
                 >
-                  <div class="avaliapro-list">
-                    ${filteredReviews.map(buildReviewItem).join("")}
+                                    <div class="avaliapro-list" id="avaliapro-all-reviews-list">
+                    ${initialModalReviews.map(buildReviewItem).join("")}
                   </div>
+
+                  ${
+                    totalListReviews > modalReviewsStep
+                      ? `
+                        <div style="display:flex;justify-content:center;padding:4px 0 8px;">
+                          <button
+                            type="button"
+                            id="avaliapro-load-more-reviews"
+                            class="avaliapro-button"
+                            style="min-width:auto;padding:12px 18px;"
+                          >
+                            Carregar mais
+                          </button>
+                        </div>
+                      `
+                      : ""
+                  }
                 </div>
               </div>
             </div>
@@ -2320,6 +2340,10 @@ ${imageHtml}
     var allReviewsOverlay = container.querySelector(
       "#avaliapro-all-reviews-modal-overlay"
     );
+    var allReviewsList = container.querySelector("#avaliapro-all-reviews-list");
+    var loadMoreReviewsButton = container.querySelector(
+      "#avaliapro-load-more-reviews"
+    );
 
     function closeAllReviewsModal() {
       var scrollY = Number(
@@ -2365,6 +2389,32 @@ ${imageHtml}
       allReviewsOverlay.onclick = function (event) {
         if (event.target === allReviewsOverlay) {
           closeAllReviewsModal();
+        }
+      };
+    }
+
+    if (loadMoreReviewsButton && allReviewsList) {
+      loadMoreReviewsButton.onclick = function () {
+        var currentRenderedCount =
+          allReviewsList.querySelectorAll(".avaliapro-review").length;
+
+        var nextReviewsHtml = filteredReviews
+          .slice(currentRenderedCount, currentRenderedCount + modalReviewsStep)
+          .map(buildReviewItem)
+          .join("");
+
+        if (!nextReviewsHtml) {
+          loadMoreReviewsButton.remove();
+          return;
+        }
+
+        allReviewsList.insertAdjacentHTML("beforeend", nextReviewsHtml);
+
+        var updatedRenderedCount =
+          allReviewsList.querySelectorAll(".avaliapro-review").length;
+
+        if (updatedRenderedCount >= filteredReviews.length) {
+          loadMoreReviewsButton.remove();
         }
       };
     }
