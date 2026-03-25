@@ -1959,11 +1959,7 @@ ${imageHtml}
             <div class="avaliapro-list">${reviewListHtml}${viewAllReviewsHtml}</div>
     ${allReviewsModalHtml}
 
-        <div style="display:grid;gap:12px;">
-      <div id="avaliapro-feedback"></div>
-    </div>
-
-    <div id="avaliapro-modal-root" style="display:none;">
+            <div id="avaliapro-modal-root" style="display:none;">
       <div id="avaliapro-modal-overlay">
         <div id="avaliapro-modal-box">
           <button
@@ -1974,164 +1970,219 @@ ${imageHtml}
             &times;
           </button>
 
-          <div style="display:grid;gap:6px;padding-right:28px;">
-            <h3 style="margin:0;font-size:18px;font-weight:700;color:#111827;">
-              Deixe sua avaliação
-            </h3>
-            <p style="margin:0;font-size:14px;line-height:1.4;color:#6b7280;">
-              Sua opinião ajuda outros clientes a comprarem com mais segurança.
-            </p>
-          </div>
+          
 
           <form id="avaliapro-form" class="avaliapro-form">
-            <div class="avaliapro-field">
-  <label class="avaliapro-label">Seu nome</label>
-  <input
-    class="avaliapro-input"
-    type="text"
-    name="authorName"
-    placeholder="Seu nome"
-    required
-  />
-</div>
+  <div id="avaliapro-feedback"></div>
+  <div id="avaliapro-feedback"></div>
+  <div id="avaliapro-step-1" style="display:grid;gap:18px;">
+    <div style="display:grid;gap:8px;">
+      <h4 style="margin:0;font-size:20px;font-weight:700;color:#111827;line-height:1.2;">
+        O que você achou deste produto?
+      </h4>
+      <p style="margin:0;font-size:14px;line-height:1.45;color:#6b7280;">
+        Sua opinião ajuda outros clientes a comprarem com mais segurança.
+      </p>
+    </div>
 
-<div class="avaliapro-field">
-  <label
-    style="
-      display:flex;
-      align-items:center;
-      gap:8px;
-      font-size:14px;
-      color:#374151;
-      cursor:pointer;
-    "
-  >
-    <input type="checkbox" name="isAnonymous" />
-    Enviar avaliação como anônima
-  </label>
-</div>
+    <div class="avaliapro-field">
+      <div
+        id="avaliapro-stars-input"
+        style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;"
+      >
+        ${getInteractiveStars(5)}
 
-                        <div class="avaliapro-field">
-  <label class="avaliapro-label">Escolha seu avatar</label>
+        <select
+          class="avaliapro-select"
+          name="rating"
+          required
+          style="display:none;"
+        >
+          <option value="">Selecione uma nota</option>
+          <option value="5" selected>5</option>
+          <option value="4">4</option>
+          <option value="3">3</option>
+          <option value="2">2</option>
+          <option value="1">1</option>
+        </select>
+      </div>
+    </div>
 
-  <div
-    id="avaliapro-avatar-selector"
-    style="
-      display:flex;
-      align-items:center;
-      gap:14px;
-      flex-wrap:wrap;
-      padding:14px;
-      border:1px solid #e5e7eb;
-      border-radius:16px;
-      background:#f9fafb;
-    "
-  >
-    <div
-      style="
-        width:88px;
-        height:88px;
-        min-width:88px;
-        border-radius:999px;
-        overflow:hidden;
-        box-shadow:0 4px 12px rgba(15, 23, 42, 0.08);
-        background:#e5e7eb;
-      "
-    >
-      <img
-        id="avaliapro-avatar-preview"
-        src="https://avaliapro-api.onrender.com/widget/avatars/avatar-default.png"
-        alt="Avatar padrão"
-        draggable="false"
-        style="
-          width:100%;
-          height:100%;
-          object-fit:cover;
-          display:block;
-          user-select:none;
-          -webkit-user-drag:none;
-          pointer-events:none;
-        "
+    <div class="avaliapro-field">
+      <label class="avaliapro-label">Seu nome</label>
+      <input
+        class="avaliapro-input"
+        type="text"
+        name="authorName"
+        placeholder="Seu nome"
+        required
       />
     </div>
 
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      ${[
-        "https://avaliapro-api.onrender.com/widget/avatars/avatar-1.png",
-        "https://avaliapro-api.onrender.com/widget/avatars/avatar-2.png",
-        "https://avaliapro-api.onrender.com/widget/avatars/avatar-3.png",
-        "https://avaliapro-api.onrender.com/widget/avatars/avatar-4.png",
-        "https://avaliapro-api.onrender.com/widget/avatars/avatar-5.png",
-        "https://avaliapro-api.onrender.com/widget/avatars/avatar-6.png",
-        "https://avaliapro-api.onrender.com/widget/avatars/avatar-7.png",
-        "https://avaliapro-api.onrender.com/widget/avatars/avatar-8.png",
-        "https://avaliapro-api.onrender.com/widget/avatars/avatar-9.png",
-      ]
-        .map(
-          (url) => `
-        <img
-          src="${url}"
-          data-avatar="${url}"
-          draggable="false"
-          style="
-            width:42px;
-            height:42px;
-            border-radius:999px;
-            cursor:pointer;
-            border:2px solid transparent;
-            transition:all 0.2s ease;
-            user-select:none;
-            -webkit-user-drag:none;
-            object-fit:cover;
-          "
-        />
-      `
-        )
-        .join("")}
+    <div class="avaliapro-field">
+      <label
+        style="
+          display:flex;
+          align-items:center;
+          gap:8px;
+          font-size:14px;
+          color:#374151;
+          cursor:pointer;
+        "
+      >
+        <input type="checkbox" name="isAnonymous" />
+        Enviar avaliação como anônima
+      </label>
     </div>
 
-    <input type="hidden" name="avatarPreset" />
+        <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:4px;">
+      <button
+        type="button"
+        id="avaliapro-next-step"
+        style="
+          border:none;
+          background:transparent;
+          color:#111827;
+          font-size:15px;
+          font-weight:600;
+          padding:6px 0;
+          cursor:pointer;
+          display:inline-flex;
+          align-items:center;
+          gap:8px;
+        "
+      >
+        <span>Continuar</span>
+        <span aria-hidden="true" style="font-size:18px;line-height:1;">→</span>
+      </button>
+    </div>
   </div>
-</div>
 
-            <div class="avaliapro-field">
-  <label class="avaliapro-label">Nota</label>
+  <div id="avaliapro-step-2" style="display:none;gap:16px;">
+    <div class="avaliapro-field">
+      <label class="avaliapro-label">Sua avaliação</label>
+      <textarea
+        class="avaliapro-textarea"
+        name="comment"
+        placeholder="Escreva sua avaliação"
+        required
+      ></textarea>
+    </div>
 
-  <div
-  id="avaliapro-stars-input"
-  style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;"
->
-  ${getInteractiveStars(5)}
+    <div class="avaliapro-field">
+      <label class="avaliapro-label">Escolha seu avatar</label>
 
-  <select
-    class="avaliapro-select"
-    name="rating"
-    required
-    style="display:none;"
-  >
-      <option value="">Selecione uma nota</option>
-      <option value="5" selected>5</option>
-      <option value="4">4</option>
-      <option value="3">3</option>
-      <option value="2">2</option>
-      <option value="1">1</option>
-    </select>
+      <div
+        id="avaliapro-avatar-selector"
+        style="
+          display:flex;
+          align-items:center;
+          gap:14px;
+          flex-wrap:wrap;
+          padding:14px;
+          border:1px solid #e5e7eb;
+          border-radius:16px;
+          background:#f9fafb;
+        "
+      >
+        <div
+          style="
+            width:88px;
+            height:88px;
+            min-width:88px;
+            border-radius:999px;
+            overflow:hidden;
+            box-shadow:0 4px 12px rgba(15, 23, 42, 0.08);
+            background:#e5e7eb;
+          "
+        >
+          <img
+            id="avaliapro-avatar-preview"
+            src="https://avaliapro-api.onrender.com/widget/avatars/avatar-default.png"
+            alt="Avatar padrão"
+            draggable="false"
+            style="
+              width:100%;
+              height:100%;
+              object-fit:cover;
+              display:block;
+              user-select:none;
+              -webkit-user-drag:none;
+              pointer-events:none;
+            "
+          />
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          ${[
+            "https://avaliapro-api.onrender.com/widget/avatars/avatar-1.png",
+            "https://avaliapro-api.onrender.com/widget/avatars/avatar-2.png",
+            "https://avaliapro-api.onrender.com/widget/avatars/avatar-3.png",
+            "https://avaliapro-api.onrender.com/widget/avatars/avatar-4.png",
+            "https://avaliapro-api.onrender.com/widget/avatars/avatar-5.png",
+            "https://avaliapro-api.onrender.com/widget/avatars/avatar-6.png",
+            "https://avaliapro-api.onrender.com/widget/avatars/avatar-7.png",
+            "https://avaliapro-api.onrender.com/widget/avatars/avatar-8.png",
+            "https://avaliapro-api.onrender.com/widget/avatars/avatar-9.png",
+          ]
+            .map(
+              (url) => `
+            <img
+              src="${url}"
+              data-avatar="${url}"
+              draggable="false"
+              style="
+                width:42px;
+                height:42px;
+                border-radius:999px;
+                cursor:pointer;
+                border:2px solid transparent;
+                transition:all 0.2s ease;
+                user-select:none;
+                -webkit-user-drag:none;
+                object-fit:cover;
+              "
+            />
+          `
+            )
+            .join("")}
+        </div>
+
+        <input type="hidden" name="avatarPreset" />
+      </div>
+    </div>
+
+    <div
+      style="
+        display:flex;
+        justify-content:space-between;
+        gap:12px;
+        flex-wrap:wrap;
+      "
+    >
+      <button
+        class="avaliapro-button"
+        type="button"
+        id="avaliapro-prev-step"
+        style="
+          min-width:auto;
+          padding:12px 16px;
+          border:1px solid #d1d5db;
+          border-radius:12px;
+          background:#ffffff;
+          color:#111827;
+          box-shadow:none;
+        "
+      >
+        Voltar
+      </button>
+
+      <button class="avaliapro-button" type="submit">
+        Enviar avaliação
+      </button>
+    </div>
   </div>
-</div>
-
-            <div class="avaliapro-field">
-              <textarea
-                class="avaliapro-textarea"
-                name="comment"
-                placeholder="Escreva sua avaliação"
-                required
-              ></textarea>
-            </div>
-
-            <button class="avaliapro-button" type="submit">
-              Enviar avaliação
-            </button>
-          </form>
+</form>
         </div>
       </div>
     </div>
@@ -2156,6 +2207,20 @@ ${imageHtml}
     var closeModalButton = container.querySelector("#avaliapro-close-modal");
     var modalRoot = container.querySelector("#avaliapro-modal-root");
     var modalOverlay = container.querySelector("#avaliapro-modal-overlay");
+    var stepOne = container.querySelector("#avaliapro-step-1");
+    var stepTwo = container.querySelector("#avaliapro-step-2");
+    var nextStepButton = container.querySelector("#avaliapro-next-step");
+    var prevStepButton = container.querySelector("#avaliapro-prev-step");
+
+    function setModalStep(step) {
+      if (stepOne) {
+        stepOne.style.display = step === 1 ? "grid" : "none";
+      }
+
+      if (stepTwo) {
+        stepTwo.style.display = step === 2 ? "grid" : "none";
+      }
+    }
 
     if (modalRoot) {
       modalRoot.style.display = "none";
@@ -2189,11 +2254,70 @@ ${imageHtml}
           ratingEl.style.outline = "";
         }
 
+        setModalStep(1);
+
+        setModalStep(1);
+
         if (inputNameEl) {
           setTimeout(function () {
             inputNameEl.focus();
           }, 50);
         }
+      };
+    }
+
+    if (nextStepButton) {
+      nextStepButton.onclick = function () {
+        var inputNameEl = container.querySelector('[name="authorName"]');
+        var ratingEl = container.querySelector('[name="rating"]');
+        var anonymousEl = container.querySelector('[name="isAnonymous"]');
+        var authorName = normalizeText(
+          (inputNameEl && inputNameEl.value) || ""
+        );
+        var rating = Number((ratingEl && ratingEl.value) || 0);
+        var isAnonymousChecked = !!(anonymousEl && anonymousEl.checked);
+
+        if (inputNameEl) inputNameEl.style.borderColor = "#d1d5db";
+        if (ratingEl) ratingEl.style.outline = "";
+
+        if (!authorName && isAnonymousChecked) {
+          if (inputNameEl) inputNameEl.style.borderColor = "#dc2626";
+          setFeedback(
+            container,
+            "error",
+            "Mesmo em avaliação anônima, você precisa preencher seu nome. Ele será ocultado publicamente."
+          );
+          return;
+        }
+
+        if (!authorName) {
+          if (inputNameEl) inputNameEl.style.borderColor = "#dc2626";
+          setFeedback(container, "error", "Preencha seu nome para continuar.");
+          return;
+        }
+
+        if (!rating) {
+          if (ratingEl) ratingEl.style.outline = "2px solid #dc2626";
+          setFeedback(container, "error", "Selecione uma nota para continuar.");
+          return;
+        }
+
+        setFeedback(container, "", "");
+        setModalStep(2);
+
+        var commentEl = container.querySelector('[name="comment"]');
+        if (commentEl) {
+          setTimeout(function () {
+            commentEl.focus();
+          }, 30);
+        }
+      };
+    }
+
+    if (prevStepButton) {
+      prevStepButton.onclick = function () {
+        setFeedback(container, "", "");
+        setModalStep(1);
       };
     }
 
