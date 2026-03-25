@@ -1815,7 +1815,7 @@ ${imageHtml}
     }
 
     container.innerHTML = `
-  <h2 class="avaliapro-title" style="margin:0 0 14px 0;">Avaliações</h2>
+  <h2 class="avaliapro-title" style="margin:0 0 14px 74px;">Avaliações</h2>
 
   <div class="avaliapro-widget" data-sku="${safeText(sku)}">
     <div class="avaliapro-header">
@@ -1834,18 +1834,18 @@ ${imageHtml}
 >
   <div style="display:grid;row-gap:8px;min-width:0;justify-self:start;width:max-content;">
     <div style="display:grid;grid-template-columns:auto auto;align-items:center;column-gap:-1px;width:max-content;">
-      <span class="avaliapro-average" style="font-size:44px;font-weight:800;letter-spacing:-0.5px;line-height:1;display:flex;align-items:center;align-self:stretch;transform:translateX(-18px);">
+      <span class="avaliapro-average" style="font-size:44px;font-weight:800;letter-spacing:-0.5px;line-height:1;display:flex;align-items:center;align-self:stretch;transform:translateX(26px);">
         ${safeText(getAverageDisplay(averageRating))}
       </span>
 
       <div style="display:grid;align-content:center;row-gap:8px;">
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;transform:translateX(-12px)">
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;transform:translateX(34px)">
     <span class="avaliapro-stars" style="font-size:8px;line-height:1;transform:translate(-1px, -15px);display:inline-flex;">
   ${getStars(averageRating)}
 </span>
   </div>
 
-  <div style="display:grid;row-gap:4px;transform:translate(-6px, -8px);">
+  <div style="display:grid;row-gap:4px;transform:translate(40px, -8px);">
     <span style="font-size:14px;font-weight:600;color:#111827;line-height:0.6;display:block;transform:translateY(-10px);">
   ${safeText(getRatingLabel(averageRating))}
 </span>
