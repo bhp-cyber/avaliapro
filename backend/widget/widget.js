@@ -357,11 +357,11 @@
 
 #avaliapro-modal-box .avaliapro-form {
   display: grid;
-  gap: 16px;
+  gap: 1px;
   width: 100%;
   border-top: 0;
   padding-top: 0;
-  margin-top: 18px;
+  margin-top: 0;
 }
 
 #avaliapro-modal-box .avaliapro-field {
@@ -2019,12 +2019,20 @@ ${imageHtml}
       />
     </div>
 
-        <div class="avaliapro-field">
+                        <div
+      class="avaliapro-field"
+      style="
+        display:flex;
+        justify-content:flex-end;
+        width:100%;
+      "
+    >
       <label
         style="
-          display:flex;
+          display:inline-flex;
           align-items:center;
           gap:8px;
+          width:fit-content;
           font-size:14px;
           color:#374151;
           cursor:pointer;
@@ -2035,83 +2043,216 @@ ${imageHtml}
       </label>
     </div>
 
-    <div class="avaliapro-field">
+        <div class="avaliapro-field">
       <label class="avaliapro-label">Escolha seu avatar</label>
 
       <div
-        id="avaliapro-avatar-selector"
-        style="
-          display:flex;
-          align-items:center;
-          gap:14px;
-          flex-wrap:wrap;
-          padding:14px;
-          border:1px solid #e5e7eb;
-          border-radius:16px;
-          background:#f9fafb;
-        "
-      >
+  id="avaliapro-avatar-selector"
+  style="
+    position:relative;
+    display:flex;
+    align-items:center;
+    padding:0;
+    border:none;
+    border-radius:0;
+    background:transparent;
+  "
+>
         <div
           style="
-            width:88px;
-            height:88px;
-            min-width:88px;
-            border-radius:999px;
-            overflow:hidden;
-            box-shadow:0 4px 12px rgba(15, 23, 42, 0.08);
-            background:#e5e7eb;
+            display:grid;
+            grid-template-columns:auto 1fr auto;
+            align-items:center;
+            column-gap:28px;
+            width:100%;
           "
         >
-          <img
-            id="avaliapro-avatar-preview"
-            src="https://avaliapro-api.onrender.com/widget/avatars/avatar-default.png"
-            alt="Avatar padrão"
-            draggable="false"
+          <div
             style="
-              width:100%;
-              height:100%;
-              object-fit:cover;
-              display:block;
-              user-select:none;
-              -webkit-user-drag:none;
-              pointer-events:none;
+              display:grid;
+              justify-items:center;
+              align-content:start;
+              gap:8px;
+              width:190px;
+              min-width:190px;
             "
-          />
-        </div>
+          >
+            <button
+              type="button"
+              id="avaliapro-avatar-trigger"
+              aria-label="Abrir seleção de avatar"
+              style="
+                border:none;
+                background:transparent;
+                padding:0;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                cursor:pointer;
+              "
+            >
+              <div
+                style="
+                  width:88px;
+                  height:88px;
+                  min-width:88px;
+                  border-radius:999px;
+                  overflow:hidden;
+                  box-shadow:0 4px 12px rgba(15, 23, 42, 0.08);
+                  background:#e5e7eb;
+                "
+              >
+                <img
+                  id="avaliapro-avatar-preview"
+                  src="https://avaliapro-api.onrender.com/widget/avatars/avatar-default.png"
+                  alt="Avatar padrão"
+                  draggable="false"
+                  style="
+                    width:100%;
+                    height:100%;
+                    object-fit:cover;
+                    display:block;
+                    user-select:none;
+                    -webkit-user-drag:none;
+                    pointer-events:none;
+                  "
+                />
+              </div>
+            </button>
 
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          ${[
-            "https://avaliapro-api.onrender.com/widget/avatars/avatar-1.png",
-            "https://avaliapro-api.onrender.com/widget/avatars/avatar-2.png",
-            "https://avaliapro-api.onrender.com/widget/avatars/avatar-3.png",
-            "https://avaliapro-api.onrender.com/widget/avatars/avatar-4.png",
-            "https://avaliapro-api.onrender.com/widget/avatars/avatar-5.png",
-            "https://avaliapro-api.onrender.com/widget/avatars/avatar-6.png",
-            "https://avaliapro-api.onrender.com/widget/avatars/avatar-7.png",
-            "https://avaliapro-api.onrender.com/widget/avatars/avatar-8.png",
-            "https://avaliapro-api.onrender.com/widget/avatars/avatar-9.png",
-          ]
-            .map(
-              (url) => `
+                        <button
+              type="button"
+              id="avaliapro-avatar-clear"
+              style="
+                border:none;
+                background:transparent;
+                padding:0;
+                font-size:12px;
+                font-weight:400;
+                color:#6b7280;
+                opacity:0.72;
+                cursor:default;
+                line-height:1.2;
+                pointer-events:none;
+                text-align:center;
+              "
+            >
+              Toque para abrir as opções
+            </button>
+          </div>
+
+          <div style="min-width:0;"></div>
+
+          <div
+            style="
+              display:grid;
+              justify-items:center;
+              gap:8px;
+              min-width:120px;
+              opacity:0.72;
+              pointer-events:none;
+              user-select:none;
+            "
+          >
             <img
-              src="${url}"
-              data-avatar="${url}"
+              src="${safeText(apiBase)}/widget/avatars/avatar-upload.png"
+              alt="Upload de foto em breve"
               draggable="false"
               style="
-                width:42px;
-                height:42px;
-                border-radius:999px;
-                cursor:pointer;
-                border:2px solid transparent;
-                transition:all 0.2s ease;
-                user-select:none;
+                width:88px;
+                height:88px;
+                object-fit:contain;
+                display:block;
                 -webkit-user-drag:none;
-                object-fit:cover;
               "
             />
-          `
-            )
-            .join("")}
+            <span
+              style="
+                font-size:12px;
+                line-height:1.2;
+                color:#6b7280;
+                text-align:center;
+              "
+            >
+              Upload em breve
+            </span>
+          </div>
+        </div>
+
+        <div
+          id="avaliapro-avatar-popover"
+          style="
+            display:none;
+            position:absolute;
+            top:50%;
+            left:152px;
+            transform:translateY(-50%);
+            z-index:3;
+            background:#ffffff;
+            border:1px solid #e5e7eb;
+            border-radius:18px;
+            box-shadow:0 16px 40px rgba(15, 23, 42, 0.14);
+            padding:14px;
+          "
+        >
+                    <div
+            style="
+              position:absolute;
+              left:-10px;
+              top:22%;
+              width:18px;
+              height:18px;
+              background:#ffffff;
+              border-left:1px solid #e5e7eb;
+              border-top:1px solid #e5e7eb;
+              border-top-left-radius:5px;
+              box-sizing:border-box;
+              transform:translateY(-50%) rotate(-45deg);
+            "
+          ></div>
+
+          <div
+            style="
+              position:relative;
+              z-index:1;
+              display:grid;
+              grid-template-columns:repeat(3, 42px);
+              gap:10px;
+            "
+          >
+            ${[
+              "https://avaliapro-api.onrender.com/widget/avatars/avatar-1.png",
+              "https://avaliapro-api.onrender.com/widget/avatars/avatar-2.png",
+              "https://avaliapro-api.onrender.com/widget/avatars/avatar-3.png",
+              "https://avaliapro-api.onrender.com/widget/avatars/avatar-4.png",
+              "https://avaliapro-api.onrender.com/widget/avatars/avatar-5.png",
+              "https://avaliapro-api.onrender.com/widget/avatars/avatar-6.png",
+              "https://avaliapro-api.onrender.com/widget/avatars/avatar-7.png",
+              "https://avaliapro-api.onrender.com/widget/avatars/avatar-8.png",
+              "https://avaliapro-api.onrender.com/widget/avatars/avatar-9.png",
+            ]
+              .map(
+                (url) => `
+              <img
+                src="${url}"
+                data-avatar="${url}"
+                draggable="false"
+                style="
+                  width:42px;
+                  height:42px;
+                  border-radius:999px;
+                  cursor:pointer;
+                  border:2px solid transparent;
+                  transition:all 0.2s ease;
+                  user-select:none;
+                  -webkit-user-drag:none;
+                  object-fit:cover;
+                "
+              />
+            `
+              )
+              .join("")}
+          </div>
         </div>
 
         <input type="hidden" name="avatarPreset" />
@@ -2391,9 +2532,42 @@ ${imageHtml}
       var avatars = avatarSelector.querySelectorAll("[data-avatar]");
       var input = avatarSelector.querySelector('[name="avatarPreset"]');
       var preview = avatarSelector.querySelector("#avaliapro-avatar-preview");
+      var trigger = avatarSelector.querySelector("#avaliapro-avatar-trigger");
+      var clearButton = avatarSelector.querySelector("#avaliapro-avatar-clear");
+      var popover = avatarSelector.querySelector("#avaliapro-avatar-popover");
+
+      var defaultAvatarSrc = apiBase + "/widget/avatars/avatar-default.png";
+
+      function updateAvatarClearState() {
+        if (!clearButton) return;
+
+        var hasSelectedAvatar = !!normalizeText((input && input.value) || "");
+
+        clearButton.textContent = hasSelectedAvatar
+          ? "Excluir"
+          : "Toque para abrir as opções";
+
+        clearButton.style.color = hasSelectedAvatar ? "#2563eb" : "#6b7280";
+        clearButton.style.cursor = hasSelectedAvatar ? "pointer" : "default";
+        clearButton.style.pointerEvents = hasSelectedAvatar ? "auto" : "none";
+      }
+
+      if (trigger && popover) {
+        trigger.onclick = function (event) {
+          event.stopPropagation();
+          popover.style.display =
+            popover.style.display === "block" ? "none" : "block";
+        };
+
+        popover.onclick = function () {};
+      }
 
       avatars.forEach(function (img) {
-        img.onclick = function () {
+        img.onclick = function (event) {
+          if (event) {
+            event.stopPropagation();
+          }
+
           var selected = img.getAttribute("data-avatar");
 
           avatars.forEach(function (el) {
@@ -2411,8 +2585,88 @@ ${imageHtml}
           if (preview && selected) {
             preview.src = selected;
           }
+
+          updateAvatarClearState();
+
+          if (popover) {
+            popover.style.display = "none";
+          }
         };
       });
+
+      if (clearButton) {
+        clearButton.onclick = function (event) {
+          event.stopPropagation();
+
+          if (!normalizeText((input && input.value) || "")) {
+            return;
+          }
+
+          avatars.forEach(function (el) {
+            el.style.border = "2px solid transparent";
+            el.style.transform = "scale(1)";
+          });
+
+          if (input) {
+            input.value = "";
+          }
+
+          if (preview) {
+            preview.src = defaultAvatarSrc;
+          }
+
+          updateAvatarClearState();
+
+          if (popover) {
+            popover.style.display = "none";
+          }
+        };
+      }
+
+      updateAvatarClearState();
+
+      if (!window.__AVALIAPRO_AVATAR_POPOVER_BOUND__) {
+        window.__AVALIAPRO_AVATAR_POPOVER_BOUND__ = true;
+
+        function closeAvatarPopoversOnOutside(event) {
+          var target = event.target;
+
+          var clickedOnTrigger = !!(
+            target &&
+            target.closest &&
+            target.closest("#avaliapro-avatar-trigger")
+          );
+
+          var clickedInsidePopover = !!(
+            target &&
+            target.closest &&
+            target.closest("#avaliapro-avatar-popover")
+          );
+
+          if (clickedOnTrigger || clickedInsidePopover) {
+            return;
+          }
+
+          var popovers = document.querySelectorAll("#avaliapro-avatar-popover");
+
+          popovers.forEach(function (currentPopover) {
+            if (!currentPopover) return;
+            currentPopover.style.display = "none";
+          });
+        }
+
+        document.addEventListener(
+          "mousedown",
+          closeAvatarPopoversOnOutside,
+          true
+        );
+
+        document.addEventListener(
+          "touchstart",
+          closeAvatarPopoversOnOutside,
+          true
+        );
+      }
     }
 
     if (starsContainer && select) {
