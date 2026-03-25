@@ -349,7 +349,7 @@
   padding: 28px;
   border-radius: 20px;
   width: calc(100% - 32px);
-  max-width: 560px;
+  max-width: 720px;
   max-height: calc(100vh - 32px);
   overflow-y: auto;
   box-shadow: 0 24px 80px rgba(0,0,0,0.22);
@@ -391,6 +391,11 @@
 #avaliapro-modal-box .avaliapro-textarea:focus {
   border-color: #111827;
   box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
+}
+
+#avaliapro-modal-box .avaliapro-input::placeholder {
+  color: #9ca3af;
+  opacity: 1;
 }
 
 #avaliapro-modal-box .avaliapro-textarea {
@@ -643,16 +648,16 @@
           title="${index} ${index === 1 ? "estrela" : "estrelas"}"
           style="display:inline-flex;"
         >
-         <span
+                  <span
   class="avaliapro-star-svg"
   aria-hidden="true"
-  style="width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 24px;"
+  style="width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 44px;"
 >
   <svg
   viewBox="0 0 24 24"
-  width="26"
-  height="26"
-  style="width:26px;height:26px;display:block;"
+  width="44"
+  height="44"
+  style="width:44px;height:44px;display:block;"
 >
               <path
                 d="M12 2.35l2.91 5.9 6.51.95-4.71 4.59 1.11 6.49L12 17.77l-5.82 3.06 1.11-6.49L2.58 9.2l6.51-.95L12 2.35z"
@@ -1974,21 +1979,17 @@ ${imageHtml}
 
           <form id="avaliapro-form" class="avaliapro-form">
   <div id="avaliapro-feedback"></div>
-  <div id="avaliapro-feedback"></div>
-  <div id="avaliapro-step-1" style="display:grid;gap:18px;">
-    <div style="display:grid;gap:8px;">
-      <h4 style="margin:0;font-size:20px;font-weight:700;color:#111827;line-height:1.2;">
+  <div id="avaliapro-step-1" style="display:grid;gap:14px;">
+        <div style="display:grid;justify-items:center;gap:0;margin-top:4px;">
+      <h4 style="margin:0;font-size:24px;font-weight:700;color:#111827;line-height:1.2;text-align:center;">
         O que você achou deste produto?
       </h4>
-      <p style="margin:0;font-size:14px;line-height:1.45;color:#6b7280;">
-        Sua opinião ajuda outros clientes a comprarem com mais segurança.
-      </p>
     </div>
 
-    <div class="avaliapro-field">
+    <div class="avaliapro-field" style="margin-top:2px;margin-bottom:8px;">
       <div
         id="avaliapro-stars-input"
-        style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;"
+        style="display:flex;justify-content:center;align-items:center;gap:12px;cursor:pointer;user-select:none;"
       >
         ${getInteractiveStars(5)}
 
@@ -2008,277 +2009,311 @@ ${imageHtml}
       </div>
     </div>
 
-    <div class="avaliapro-field">
-      <label class="avaliapro-label">Seu nome</label>
-      <input
-        class="avaliapro-input"
-        type="text"
-        name="authorName"
-        placeholder="Seu nome"
-        required
-      />
-    </div>
-
-                        <div
-      class="avaliapro-field"
+    <div
       style="
-        display:flex;
-        justify-content:flex-end;
+        display:grid;
+        grid-template-columns:minmax(0, 1fr) auto;
+        align-items:end;
+        gap:20px;
         width:100%;
+        margin-bottom:15px;
       "
     >
-      <label
-        style="
-          display:inline-flex;
-          align-items:center;
-          gap:8px;
-          width:fit-content;
-          font-size:14px;
-          color:#374151;
-          cursor:pointer;
-        "
-      >
-        <input type="checkbox" name="isAnonymous" />
-        Enviar avaliação como anônima
-      </label>
-    </div>
-
-        <div class="avaliapro-field">
-      <label class="avaliapro-label">Escolha seu avatar</label>
+      <div class="avaliapro-field" style="margin:0;">
+        <label class="avaliapro-label">Seu nome</label>
+        <input
+          class="avaliapro-input"
+          type="text"
+          name="authorName"
+          placeholder="Digite aqui..."
+          required
+          style="padding:10px 14px;min-height:18px;"
+        />
+      </div>
 
       <div
-  id="avaliapro-avatar-selector"
-  style="
-    position:relative;
-    display:flex;
-    align-items:center;
-    padding:0;
-    border:none;
-    border-radius:0;
-    background:transparent;
-  "
->
-        <div
+        style="
+          display:flex;
+          justify-content:flex-end;
+          align-items:center;
+          padding-bottom:10px;
+          white-space:nowrap;
+        "
+      >
+        <label
           style="
-            display:grid;
-            grid-template-columns:auto 1fr auto;
+            display:inline-flex;
             align-items:center;
-            column-gap:28px;
-            width:100%;
+            gap:8px;
+            width:fit-content;
+            font-size:14px;
+            color:#374151;
+            cursor:pointer;
           "
         >
-          <div
-            style="
-              display:grid;
-              justify-items:center;
-              align-content:start;
-              gap:8px;
-              width:190px;
-              min-width:190px;
-            "
-          >
-            <button
-              type="button"
-              id="avaliapro-avatar-trigger"
-              aria-label="Abrir seleção de avatar"
-              style="
-                border:none;
-                background:transparent;
-                padding:0;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                cursor:pointer;
-              "
-            >
-              <div
-                style="
-                  width:88px;
-                  height:88px;
-                  min-width:88px;
-                  border-radius:999px;
-                  overflow:hidden;
-                  box-shadow:0 4px 12px rgba(15, 23, 42, 0.08);
-                  background:#e5e7eb;
-                "
-              >
-                <img
-                  id="avaliapro-avatar-preview"
-                  src="https://avaliapro-api.onrender.com/widget/avatars/avatar-default.png"
-                  alt="Avatar padrão"
-                  draggable="false"
-                  style="
-                    width:100%;
-                    height:100%;
-                    object-fit:cover;
-                    display:block;
-                    user-select:none;
-                    -webkit-user-drag:none;
-                    pointer-events:none;
-                  "
-                />
-              </div>
-            </button>
+          <input type="checkbox" name="isAnonymous" />
+          Enviar avaliação como anônima
+        </label>
+      </div>
+    </div>
 
-                        <button
-              type="button"
-              id="avaliapro-avatar-clear"
-              style="
-                border:none;
-                background:transparent;
-                padding:0;
-                font-size:12px;
-                font-weight:400;
-                color:#6b7280;
-                opacity:0.72;
-                cursor:default;
-                line-height:1.2;
-                pointer-events:none;
-                text-align:center;
-              "
-            >
-              Toque para abrir as opções
-            </button>
-          </div>
+            <div class="avaliapro-field">
+      <label class="avaliapro-label">Escolha seu avatar ou envie sua foto de perfil</label>
 
-          <div style="min-width:0;"></div>
-
-          <div
-            style="
-              display:grid;
-              justify-items:center;
-              gap:8px;
-              min-width:120px;
-              opacity:0.72;
-              pointer-events:none;
-              user-select:none;
-            "
-          >
-            <img
-              src="${safeText(apiBase)}/widget/avatars/avatar-upload.png"
-              alt="Upload de foto em breve"
-              draggable="false"
-              style="
-                width:88px;
-                height:88px;
-                object-fit:contain;
-                display:block;
-                -webkit-user-drag:none;
-              "
-            />
-            <span
-              style="
-                font-size:12px;
-                line-height:1.2;
-                color:#6b7280;
-                text-align:center;
-              "
-            >
-              Upload em breve
-            </span>
-          </div>
-        </div>
-
+      <div
+        style="
+          display:grid;
+          grid-template-columns:minmax(0, 1fr) auto;
+          align-items:center;
+          gap:24px;
+          width:100%;
+          margin-top:5px;
+        "
+      >
         <div
-          id="avaliapro-avatar-popover"
+          id="avaliapro-avatar-selector"
           style="
-            display:none;
-            position:absolute;
-            top:50%;
-            left:152px;
-            transform:translateY(-50%);
-            z-index:3;
-            background:#ffffff;
-            border:1px solid #e5e7eb;
-            border-radius:18px;
-            box-shadow:0 16px 40px rgba(15, 23, 42, 0.14);
-            padding:14px;
+            position:relative;
+            display:flex;
+            align-items:center;
+            width:100%;
+            padding:0;
+            border:none;
+            border-radius:0;
+            background:transparent;
           "
         >
                     <div
             style="
-              position:absolute;
-              left:-10px;
-              top:22%;
-              width:18px;
-              height:18px;
-              background:#ffffff;
-              border-left:1px solid #e5e7eb;
-              border-top:1px solid #e5e7eb;
-              border-top-left-radius:5px;
-              box-sizing:border-box;
-              transform:translateY(-50%) rotate(-45deg);
-            "
-          ></div>
-
-          <div
-            style="
-              position:relative;
-              z-index:1;
               display:grid;
-              grid-template-columns:repeat(3, 42px);
-              gap:10px;
+              grid-template-columns:auto auto auto;
+              align-items:center;
+              column-gap:28px;
+              width:max-content;
             "
           >
-            ${[
-              "https://avaliapro-api.onrender.com/widget/avatars/avatar-1.png",
-              "https://avaliapro-api.onrender.com/widget/avatars/avatar-2.png",
-              "https://avaliapro-api.onrender.com/widget/avatars/avatar-3.png",
-              "https://avaliapro-api.onrender.com/widget/avatars/avatar-4.png",
-              "https://avaliapro-api.onrender.com/widget/avatars/avatar-5.png",
-              "https://avaliapro-api.onrender.com/widget/avatars/avatar-6.png",
-              "https://avaliapro-api.onrender.com/widget/avatars/avatar-7.png",
-              "https://avaliapro-api.onrender.com/widget/avatars/avatar-8.png",
-              "https://avaliapro-api.onrender.com/widget/avatars/avatar-9.png",
-            ]
-              .map(
-                (url) => `
-              <img
-                src="${url}"
-                data-avatar="${url}"
+            <div
+              style="
+                display:grid;
+                justify-items:center;
+                align-content:start;
+                gap:8px;
+                width:190px;
+                min-width:190px;
+              "
+            >
+              <button
+                type="button"
+                id="avaliapro-avatar-trigger"
+                aria-label="Abrir seleção de avatar"
+                style="
+                  border:none;
+                  background:transparent;
+                  padding:0;
+                  display:flex;
+                  align-items:center;
+                  justify-content:center;
+                  cursor:pointer;
+                "
+              >
+                <div
+                  style="
+                    width:88px;
+                    height:88px;
+                    min-width:88px;
+                    border-radius:999px;
+                    overflow:hidden;
+                    box-shadow:0 4px 12px rgba(15, 23, 42, 0.08);
+                    background:#e5e7eb;
+                  "
+                >
+                  <img
+                    id="avaliapro-avatar-preview"
+                    src="https://avaliapro-api.onrender.com/widget/avatars/avatar-default.png"
+                    alt="Avatar padrão"
+                    draggable="false"
+                    style="
+                      width:100%;
+                      height:100%;
+                      object-fit:cover;
+                      display:block;
+                      user-select:none;
+                      -webkit-user-drag:none;
+                      pointer-events:none;
+                    "
+                  />
+                </div>
+              </button>
+
+              <button
+                type="button"
+                id="avaliapro-avatar-clear"
+                style="
+                  border:none;
+                  background:transparent;
+                  padding:0;
+                  font-size:12px;
+                  font-weight:400;
+                  color:#6b7280;
+                  opacity:0.72;
+                  cursor:default;
+                  line-height:1.2;
+                  pointer-events:none;
+                  text-align:center;
+                "
+              >
+                Toque para abrir as opções
+              </button>
+            </div>
+
+            <div style="width:48px;min-width:48px;"></div>
+
+            <div
+              style="
+                display:grid;
+                justify-items:center;
+                gap:8px;
+                min-width:120px;
+                opacity:0.72;
+                pointer-events:none;
+                user-select:none;
+              "
+            >
+                            <img
+                src="${safeText(apiBase)}/widget/avatars/avatar-upload.png"
+                alt="Upload de foto em breve"
                 draggable="false"
                 style="
-                  width:42px;
-                  height:42px;
-                  border-radius:999px;
-                  cursor:pointer;
-                  border:2px solid transparent;
-                  transition:all 0.2s ease;
-                  user-select:none;
+                  width:88px;
+                  height:88px;
+                  object-fit:contain;
+                  display:block;
                   -webkit-user-drag:none;
-                  object-fit:cover;
+                  filter:drop-shadow(0 4px 12px rgba(15, 23, 42, 0.08));
                 "
               />
-            `
-              )
-              .join("")}
+              <span
+                style="
+                  font-size:12px;
+                  line-height:1.2;
+                  color:#6b7280;
+                  text-align:center;
+                "
+              >
+                Upload em breve
+              </span>
+            </div>
           </div>
+
+          <div
+            id="avaliapro-avatar-popover"
+            style="
+              display:none;
+              position:absolute;
+              top:calc(50% + 26px);
+              left:142px;
+              transform:translateY(-75%);
+              z-index:3;
+              background:#ffffff;
+              border:1px solid #e5e7eb;
+              border-radius:18px;
+              box-shadow:0 16px 40px rgba(15, 23, 42, 0.14);
+              padding:14px;
+            "
+          >
+            <div
+              style="
+                position:absolute;
+                left:-10px;
+                top:52%;
+                width:18px;
+                height:18px;
+                background:#ffffff;
+                border-left:1px solid #e5e7eb;
+                border-top:1px solid #e5e7eb;
+                border-top-left-radius:5px;
+                box-sizing:border-box;
+                transform:translateY(-50%) rotate(-45deg);
+              "
+            ></div>
+
+            <div
+              style="
+                position:relative;
+                z-index:1;
+                display:grid;
+                grid-template-columns:repeat(3, 42px);
+                gap:10px;
+              "
+            >
+              ${[
+                "https://avaliapro-api.onrender.com/widget/avatars/avatar-1.png",
+                "https://avaliapro-api.onrender.com/widget/avatars/avatar-2.png",
+                "https://avaliapro-api.onrender.com/widget/avatars/avatar-3.png",
+                "https://avaliapro-api.onrender.com/widget/avatars/avatar-4.png",
+                "https://avaliapro-api.onrender.com/widget/avatars/avatar-5.png",
+                "https://avaliapro-api.onrender.com/widget/avatars/avatar-6.png",
+                "https://avaliapro-api.onrender.com/widget/avatars/avatar-7.png",
+                "https://avaliapro-api.onrender.com/widget/avatars/avatar-8.png",
+                "https://avaliapro-api.onrender.com/widget/avatars/avatar-9.png",
+              ]
+                .map(
+                  (url) => `
+                <img
+                  src="${url}"
+                  data-avatar="${url}"
+                  draggable="false"
+                  style="
+                    width:42px;
+                    height:42px;
+                    border-radius:999px;
+                    cursor:pointer;
+                    border:2px solid transparent;
+                    transition:all 0.2s ease;
+                    user-select:none;
+                    -webkit-user-drag:none;
+                    object-fit:cover;
+                  "
+                />
+              `
+                )
+                .join("")}
+            </div>
+          </div>
+
+          <input type="hidden" name="avatarPreset" />
         </div>
 
-        <input type="hidden" name="avatarPreset" />
+        <div
+          style="
+            display:flex;
+            align-items:center;
+            justify-content:flex-end;
+            white-space:nowrap;
+            padding-top:92px;
+          "
+        >
+          <button
+            type="button"
+            id="avaliapro-next-step"
+            style="
+              border:none;
+              background:transparent;
+              color:#111827;
+              font-size:15px;
+              font-weight:600;
+              padding:6px 0;
+              cursor:pointer;
+              display:inline-flex;
+              align-items:center;
+              gap:8px;
+            "
+          >
+            <span>Continuar</span>
+            <span aria-hidden="true" style="font-size:18px;line-height:1;">→</span>
+          </button>
+        </div>
       </div>
-    </div>
-
-    <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:4px;">
-      <button
-        type="button"
-        id="avaliapro-next-step"
-        style="
-          border:none;
-          background:transparent;
-          color:#111827;
-          font-size:15px;
-          font-weight:600;
-          padding:6px 0;
-          cursor:pointer;
-          display:inline-flex;
-          align-items:center;
-          gap:8px;
-        "
-      >
-        <span>Continuar</span>
-        <span aria-hidden="true" style="font-size:18px;line-height:1;">→</span>
-      </button>
     </div>
   </div>
 
