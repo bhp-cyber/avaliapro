@@ -444,6 +444,23 @@
         display: block;
       }
 
+      #avaliapro-modal-box #avaliapro-feedback {
+        display: flex;
+        justify-content: left;
+        margin-top: -8px;
+        margin-bottom: 8px;
+      }
+
+      #avaliapro-modal-box #avaliapro-feedback .avaliapro-feedback {
+        display: inline-block;
+        width: fit-content;
+        max-width: calc(100% - 40px);
+        text-align: center;
+        padding: 4px 14px;
+        line-height: 1.1;
+        font-size: 12px;
+      }
+
       #avaliapro-stars-input {
         display: flex;
         gap: 6px;
@@ -451,13 +468,34 @@
         flex-wrap: wrap;
       }
 
-      #avaliapro-stars-input span {
-        transition: transform 0.12s ease, opacity 0.12s ease;
+            #avaliapro-stars-input [data-value] {
+        transition: transform 0.14s ease, opacity 0.12s ease;
         transform-origin: center;
       }
 
-      #avaliapro-stars-input span:hover {
-  transform: scale(1.12);
+      #avaliapro-stars-input [data-value]:hover {
+        transform: scale(1.06);
+      }
+
+#avaliapro-next-step {
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+#avaliapro-next-step span:last-child {
+  display: inline-block;
+  transition: transform 0.18s ease;
+}
+
+#avaliapro-next-step:hover,
+#avaliapro-next-step:focus-visible {
+  transform: translateY(-1px);
+  opacity: 0.88;
+}
+
+#avaliapro-step-1,
+#avaliapro-step-2 {
+  transition: opacity 0.55s ease, transform 0.55s ease;
+  will-change: opacity, transform;
 }
 
 .avaliapro-stars,
@@ -500,6 +538,75 @@
 
 @keyframes avaliapro-spin {
   to { transform: rotate(360deg); }
+}
+
+.avaliapro-star-burst .avaliapro-star-svg svg {
+  transform-origin: center;
+  animation: avaliapro-star-burst 0.36s ease-out;
+}
+
+.avaliapro-star-burst .avaliapro-star-svg svg path {
+  animation: avaliapro-star-outline-fill 0.36s ease-out;
+}
+
+@keyframes avaliapro-star-burst {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(212, 160, 23, 0));
+  }
+  35% {
+    transform: scale(1.09);
+    filter: drop-shadow(0 0 0 rgba(212, 160, 23, 0));
+  }
+  68% {
+    transform: scale(1.03);
+    filter: drop-shadow(0 0 5px rgba(212, 160, 23, 0.18));
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(212, 160, 23, 0));
+  }
+}
+
+@keyframes avaliapro-star-outline-fill {
+  0% {
+    stroke-width: 0.8;
+    fill-opacity: 0.18;
+  }
+  40% {
+    stroke-width: 1.8;
+    fill-opacity: 0.42;
+  }
+  72% {
+    stroke-width: 1.5;
+    fill-opacity: 0.88;
+  }
+  100% {
+    stroke-width: 1.2;
+    fill-opacity: 1;
+  }
+}
+
+@keyframes avaliapro-step-enter-right {
+  0% {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes avaliapro-step-enter-left {
+  0% {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* última review mantém a mesma linha divisória para preservar altura visual igual entre os blocos */
@@ -659,12 +766,13 @@
   height="44"
   style="width:44px;height:44px;display:block;"
 >
-                            <path
+              <path
                 d="M12 2.35l2.91 5.9 6.51.95-4.71 4.59 1.11 6.49L12 17.77l-5.82 3.06 1.11-6.49L2.58 9.2l6.51-.95L12 2.35z"
                 fill="${isFilled ? fillColor : emptyFill}"
                 stroke="${isFilled ? fillColor : emptyStroke}"
                 stroke-width="1.2"
                 stroke-linejoin="round"
+                style="transition:fill 0.16s ease, stroke 0.16s ease, stroke-width 0.16s ease, fill-opacity 0.16s ease;"
               />
             </svg>
           </span>
@@ -2332,46 +2440,82 @@ ${imageHtml}
     </div>
   </div>
 
-  <div id="avaliapro-step-2" style="display:none;gap:16px;">
+  <div
+  id="avaliapro-step-2"
+  style="
+    display:none;
+    gap:16px;
+    flex-direction:column;
+  "
+>
     <div class="avaliapro-field">
-      <label class="avaliapro-label">Sua avaliação</label>
-      <textarea
-        class="avaliapro-textarea"
-        name="comment"
-        placeholder="Escreva sua avaliação"
-        required
-      ></textarea>
-    </div>
+  <label
+    class="avaliapro-label"
+    style="font-size:16px;font-weight:600;color:#374151;line-height:1.35;"
+  >
+    Sua avaliação ajuda outros clientes a comprarem com mais segurança.
+  </label>
+
+  <textarea
+    class="avaliapro-textarea"
+    name="comment"
+    placeholder="Escreva sua avaliação"
+    required
+  ></textarea>
+</div>
 
     <div
-      style="
-        display:flex;
-        justify-content:space-between;
-        gap:12px;
-        flex-wrap:wrap;
-      "
-    >
-      <button
-        class="avaliapro-button"
-        type="button"
-        id="avaliapro-prev-step"
-        style="
-          min-width:auto;
-          padding:12px 16px;
-          border:1px solid #d1d5db;
-          border-radius:12px;
-          background:#ffffff;
-          color:#111827;
-          box-shadow:none;
-        "
-      >
-        Voltar
-      </button>
+  style="
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    width:100%;
+    margin-top:auto;
+    padding-top:8px;
+  "
+>
+  <button
+    type="button"
+    id="avaliapro-prev-step"
+    style="
+      border:none;
+      background:transparent;
+      color:#111827;
+      font-size:15px;
+      font-weight:600;
+      padding:6px 0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    "
+  >
+    <span aria-hidden="true" style="font-size:18px;line-height:1;">←</span>
+    <span>Voltar</span>
+  </button>
 
-      <button class="avaliapro-button" type="submit">
-        Enviar avaliação
-      </button>
-    </div>
+  <button
+    type="submit"
+    id="avaliapro-submit-step"
+    style="
+      border:none;
+      background:transparent;
+      color:#111827;
+      font-size:15px;
+      font-weight:600;
+      padding:6px 0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    "
+  >
+    <span>Enviar avaliação</span>
+    <span aria-hidden="true" style="font-size:18px;line-height:1;">→</span>
+  </button>
+</div>
   </div>
 </form>
         </div>
@@ -2405,11 +2549,51 @@ ${imageHtml}
 
     function setModalStep(step) {
       if (stepOne) {
-        stepOne.style.display = step === 1 ? "grid" : "none";
+        if (step === 1) {
+          stepOne.style.display = "grid";
+          stepOne.style.opacity = "1";
+          stepOne.style.transform = "translateX(0)";
+          stepOne.style.pointerEvents = "auto";
+          stepOne.style.position = "relative";
+        } else {
+          stepOne.style.display = "none";
+          stepOne.style.opacity = "0";
+          stepOne.style.transform = "translateX(-24px)";
+          stepOne.style.pointerEvents = "none";
+          stepOne.style.position = "relative";
+        }
       }
 
       if (stepTwo) {
-        stepTwo.style.display = step === 2 ? "grid" : "none";
+        if (step === 2) {
+          stepTwo.style.display = "flex";
+          stepTwo.style.opacity = "0";
+          stepTwo.style.transform = "translateX(28px)";
+          stepTwo.style.pointerEvents = "none";
+          stepTwo.style.position = "relative";
+
+          requestAnimationFrame(function () {
+            stepTwo.style.opacity = "1";
+            stepTwo.style.transform = "translateX(0)";
+            stepTwo.style.pointerEvents = "auto";
+          });
+        } else {
+          stepTwo.style.display = "none";
+          stepTwo.style.opacity = "0";
+          stepTwo.style.transform = "translateX(28px)";
+          stepTwo.style.pointerEvents = "none";
+          stepTwo.style.position = "relative";
+        }
+      }
+    }
+
+    function syncStepTwoMinHeight() {
+      if (!stepOne || !stepTwo) return;
+
+      var stepOneHeight = stepOne.offsetHeight || 0;
+
+      if (stepOneHeight > 0) {
+        stepTwo.style.minHeight = stepOneHeight + "px";
       }
     }
 
@@ -2476,7 +2660,7 @@ ${imageHtml}
           setFeedback(
             container,
             "error",
-            "Mesmo em avaliação anônima, você precisa preencher seu nome. Ele será ocultado publicamente."
+            "Para enviar como anônima, preencha seu nome. Ele não será exibido publicamente."
           );
           return;
         }
@@ -2494,7 +2678,16 @@ ${imageHtml}
         }
 
         setFeedback(container, "", "");
+        syncStepTwoMinHeight();
         setModalStep(2);
+
+        var stepTwoEl = container.querySelector("#avaliapro-step-2");
+        if (stepTwoEl) {
+          stepTwoEl.style.animation = "none";
+          void stepTwoEl.offsetWidth;
+          stepTwoEl.style.animation =
+            "avaliapro-step-enter-right 0.42s cubic-bezier(1.22, 1, 1.36, 2)";
+        }
 
         var commentEl = container.querySelector('[name="comment"]');
         if (commentEl) {
@@ -2509,6 +2702,14 @@ ${imageHtml}
       prevStepButton.onclick = function () {
         setFeedback(container, "", "");
         setModalStep(1);
+
+        var stepOneEl = container.querySelector("#avaliapro-step-1");
+        if (stepOneEl) {
+          stepOneEl.style.animation = "none";
+          void stepOneEl.offsetWidth;
+          stepOneEl.style.animation =
+            "avaliapro-step-enter-left 0.45s cubic-bezier(0.16, 1, 0.3, 1)";
+        }
       };
     }
 
@@ -2771,15 +2972,20 @@ ${imageHtml}
         var value = Number(star.getAttribute("data-value"));
 
         star.onclick = function () {
-          star.style.transform = "scale(1.12)";
-
-          setTimeout(function () {
-            star.style.transform = "";
-          }, 120);
-
           select.value = String(value);
           paintStars(value);
           updateStarsCaption(value);
+
+          stars.forEach(function (item) {
+            item.classList.remove("avaliapro-star-burst");
+          });
+
+          void star.offsetWidth;
+          star.classList.add("avaliapro-star-burst");
+
+          setTimeout(function () {
+            star.classList.remove("avaliapro-star-burst");
+          }, 360);
         };
 
         star.onmouseenter = function () {
@@ -3451,7 +3657,10 @@ ${imageHtml}
         .finally(function () {
           setTimeout(function () {
             submitButton.disabled = false;
-            submitButton.innerHTML = "Enviar avaliação";
+            submitButton.innerHTML = `
+  <span>Enviar avaliação</span>
+  <span aria-hidden="true" style="font-size:18px;line-height:1;">→</span>
+`;
             submitButton.style.background = "";
           }, 1200);
         });
