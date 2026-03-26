@@ -389,8 +389,14 @@
 
 #avaliapro-modal-box .avaliapro-input:focus,
 #avaliapro-modal-box .avaliapro-textarea:focus {
-  border-color: #111827;
-  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
+  border-color: #d1d5db;
+  box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.04);
+}
+
+#avaliapro-modal-box .avaliapro-textarea:focus {
+  outline: none;
+  border-color: #d7dce3;
+  box-shadow: 0 0 0 1px rgba(17, 24, 39, 0.025);
 }
 
 #avaliapro-modal-box .avaliapro-input::placeholder {
@@ -400,6 +406,7 @@
 
 #avaliapro-modal-box .avaliapro-textarea {
   min-height: 170px;
+  border-color: #d9dee5;
 }
 
 #avaliapro-modal-box .avaliapro-button {
@@ -598,7 +605,7 @@
 @keyframes avaliapro-step-enter-right {
   0% {
     opacity: 0;
-    transform: translateX(28px);
+    transform: translateX(540px);
   }
   100% {
     opacity: 1;
@@ -2460,18 +2467,20 @@ ${imageHtml}
 </div>
   </div>
 
-  <div
+    <div
   id="avaliapro-step-2"
   style="
     display:none;
     gap:16px;
     flex-direction:column;
+    padding-top:8px;
+    box-sizing:border-box;
   "
 >
     <div class="avaliapro-field">
   <label
     class="avaliapro-label"
-    style="font-size:16px;font-weight:600;color:#374151;line-height:1.35;"
+    style="font-size:16px;font-weight:600;color:#374151;line-height:1.95;"
   >
     Sua avaliação ajuda outros clientes a comprarem com mais segurança.
   </label>
@@ -2706,7 +2715,7 @@ ${imageHtml}
           stepTwoEl.style.animation = "none";
           void stepTwoEl.offsetWidth;
           stepTwoEl.style.animation =
-            "avaliapro-step-enter-right 0.42s cubic-bezier(1.22, 1, 1.36, 2)";
+            "avaliapro-step-enter-right 1.25s cubic-bezier(0.16, 1, 0.3, 1)";
         }
 
         var commentEl = container.querySelector('[name="comment"]');
