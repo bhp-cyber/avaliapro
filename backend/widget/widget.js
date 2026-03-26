@@ -445,18 +445,22 @@
       }
 
       #avaliapro-modal-box #avaliapro-feedback {
+        position: absolute;
+        top: calc(100% + 20px);
+        left: 0;
         display: flex;
         justify-content: left;
-        margin-top: -8px;
-        margin-bottom: 8px;
+        margin: 0;
+        z-index: 1;
       }
 
       #avaliapro-modal-box #avaliapro-feedback .avaliapro-feedback {
         display: inline-block;
         width: fit-content;
-        max-width: calc(100% - 40px);
-        text-align: center;
-        padding: 4px 14px;
+        max-width: none;
+        text-align: left;
+        white-space: nowrap;
+        padding: 6px 14px;
         line-height: 1.1;
         font-size: 12px;
       }
@@ -478,7 +482,7 @@
       }
 
 #avaliapro-next-step {
-  transition: transform 0.18s ease, opacity 0.18s ease;
+  transition: opacity 0.18s ease;
 }
 
 #avaliapro-next-step span:last-child {
@@ -488,8 +492,12 @@
 
 #avaliapro-next-step:hover,
 #avaliapro-next-step:focus-visible {
-  transform: translateY(-1px);
-  opacity: 0.88;
+  opacity: 0.82;
+}
+
+#avaliapro-next-step:hover span:last-child,
+#avaliapro-next-step:focus-visible span:last-child {
+  transform: translateX(4px);
 }
 
 #avaliapro-step-1,
@@ -753,9 +761,9 @@
           data-value="${index}"
           aria-label="${index} ${index === 1 ? "estrela" : "estrelas"}"
           title="${index} ${index === 1 ? "estrela" : "estrelas"}"
-          style="display:inline-flex;"
+          style="display:inline-flex;cursor:pointer;"
         >
-                  <span
+<span
   class="avaliapro-star-svg"
   aria-hidden="true"
   style="width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 44px;"
@@ -2085,19 +2093,18 @@ ${imageHtml}
 
           
 
-          <form id="avaliapro-form" class="avaliapro-form">
-  <div id="avaliapro-feedback"></div>
+                    <form id="avaliapro-form" class="avaliapro-form">
   <div id="avaliapro-step-1" style="display:grid;gap:14px;">
-        <div style="display:grid;justify-items:center;gap:0;margin-top:4px;">
+            <div style="display:grid;justify-items:center;gap:0;margin-top:4px;transform:translateY(18px);">
       <h4 style="margin:0;font-size:24px;font-weight:700;color:#111827;line-height:1.2;text-align:center;">
         O que você achou deste produto?
       </h4>
     </div>
 
-    <div class="avaliapro-field" style="margin-top:2px;margin-bottom:8px;">
-      <div
+        <div class="avaliapro-field" style="margin-top:2px;margin-bottom:8px;transform:translateY(28px);">
+            <div
         id="avaliapro-stars-input"
-        style="display:flex;justify-content:center;align-items:center;gap:12px;cursor:pointer;user-select:none;"
+        style="display:flex;justify-content:center;align-items:center;gap:12px;user-select:none;"
       >
         ${getInteractiveStars(0)}
 
@@ -2116,19 +2123,24 @@ ${imageHtml}
         </select>
       </div>
 
-        <div
-        id="avaliapro-stars-caption"
-        style="
-          width:100%;
-          margin-top:2px;
-          min-height:20px;
-          text-align:center;
-          font-size:13px;
-          font-weight:600;
-          color:#6b7280;
-          line-height:1.2;
-        "
-      ></div>
+                <div
+          id="avaliapro-stars-caption"
+          style="
+            width:100%;
+            margin-top:10px;
+            display:grid;
+            grid-template-columns:repeat(5, 44px);
+            justify-content:center;
+            column-gap:12px;
+            align-items:start;
+          "
+        >
+                    <span data-avaliapro-stars-caption="1" style="font-size:11px;font-weight:600;color:#9ca3af;line-height:1.15;text-align:center;white-space:nowrap;opacity:0;transition:opacity 0.16s ease,color 0.16s ease;">Ruim</span>
+          <span data-avaliapro-stars-caption="2" style="font-size:11px;font-weight:600;color:#9ca3af;line-height:1.15;text-align:center;white-space:nowrap;opacity:0;transition:opacity 0.16s ease,color 0.16s ease;">Aceitável</span>
+          <span data-avaliapro-stars-caption="3" style="font-size:11px;font-weight:600;color:#9ca3af;line-height:1.15;text-align:center;white-space:nowrap;opacity:0;transition:opacity 0.16s ease,color 0.16s ease;">Regular</span>
+          <span data-avaliapro-stars-caption="4" style="font-size:11px;font-weight:600;color:#9ca3af;line-height:1.15;text-align:center;white-space:nowrap;opacity:0;transition:opacity 0.16s ease,color 0.16s ease;">Bom</span>
+          <span data-avaliapro-stars-caption="5" style="font-size:11px;font-weight:600;color:#9ca3af;line-height:1.15;text-align:center;white-space:nowrap;opacity:0;transition:opacity 0.16s ease,color 0.16s ease;">Ótimo!</span>
+        </div>
 
     </div>
 
@@ -2142,12 +2154,13 @@ ${imageHtml}
     margin-bottom:10px;
   "
 >
-  <div
+    <div
     style="
       display:grid;
       grid-template-columns:minmax(0, 1fr);
       gap:10px;
       width:100%;
+      position:relative;
     "
   >
     <div class="avaliapro-field" style="margin:0;">
@@ -2167,7 +2180,7 @@ ${imageHtml}
       />
     </div>
 
-    <div
+        <div
       style="
         display:flex;
         justify-content:flex-start;
@@ -2190,6 +2203,8 @@ ${imageHtml}
         Enviar avaliação como anônima
       </label>
     </div>
+
+    <div id="avaliapro-feedback"></div>
   </div>
 
   <div
@@ -2236,7 +2251,7 @@ ${imageHtml}
             min-width:88px;
             border-radius:999px;
             overflow:hidden;
-            box-shadow:0 4px 12px rgba(15, 23, 42, 0.08);
+            
             background:#e5e7eb;
           "
         >
@@ -2284,9 +2299,8 @@ ${imageHtml}
   style="
     display:grid;
     justify-items:center;
-    gap:8px;
-    min-width:120px;
-    opacity:0.72;
+    gap:9px;
+    min-width:110px;  
     pointer-events:none;
     user-select:none;
   "
@@ -2296,20 +2310,25 @@ ${imageHtml}
     alt="Upload de foto em breve"
     draggable="false"
     style="
-      width:88px;
-      height:88px;
-      object-fit:contain;
-      display:block;
-      -webkit-user-drag:none;
-      filter:drop-shadow(0 4px 12px rgba(15, 23, 42, 0.08));
+      width:84px;
+      height:84px;
+      border-radius:999px;
+      overflow:hidden;
+      background:#e5e7eb;
     "
   />
   <span
     style="
-      font-size:12px;
-      line-height:1.2;
-      color:#6b7280;
-      text-align:center;
+      border:none;
+          background:transparent;
+          font-size:12px;
+          font-weight:400;
+          color:#6b7280;
+          opacity:0.42;
+          cursor:default;
+          line-height:1.7;
+          pointer-events:none;
+          text-align:center;
     "
   >
     Upload em breve
@@ -2407,7 +2426,6 @@ ${imageHtml}
       margin-top:0;
     "
   >
-    <div style="min-height:82px;"></div>
 
     <div
       style="
@@ -2415,7 +2433,7 @@ ${imageHtml}
         align-items:center;
         justify-content:flex-end;
         white-space:nowrap;
-        transform:translateY(12px);
+        transform:translateY(-2px);
       "
     >
       <button
@@ -2801,8 +2819,8 @@ ${imageHtml}
           : "Escolha seu avatar";
 
         clearButton.style.color = hasSelectedAvatar ? "#2563eb" : "#6b7280";
-        clearButton.style.cursor = hasSelectedAvatar ? "pointer" : "default";
-        clearButton.style.pointerEvents = hasSelectedAvatar ? "auto" : "none";
+        clearButton.style.cursor = "pointer";
+        clearButton.style.pointerEvents = "auto";
       }
 
       if (trigger && popover) {
@@ -2851,7 +2869,13 @@ ${imageHtml}
         clearButton.onclick = function (event) {
           event.stopPropagation();
 
-          if (!normalizeText((input && input.value) || "")) {
+          var hasSelectedAvatar = !!normalizeText((input && input.value) || "");
+
+          if (!hasSelectedAvatar) {
+            if (popover) {
+              popover.style.display =
+                popover.style.display === "block" ? "none" : "block";
+            }
             return;
           }
 
@@ -2924,28 +2948,28 @@ ${imageHtml}
 
     if (starsContainer && select) {
       var stars = starsContainer.querySelectorAll("[data-value]");
-      var starsCaption = container.querySelector("#avaliapro-stars-caption");
-
-      function getStarsCaption(value) {
-        switch (Number(value) || 0) {
-          case 1:
-            return "Não gostei";
-          case 2:
-            return "Ruim";
-          case 3:
-            return "Regular";
-          case 4:
-            return "Gostei";
-          case 5:
-            return "Adorei!";
-          default:
-            return "";
-        }
-      }
+      var starsCaptions = container.querySelectorAll(
+        "[data-avaliapro-stars-caption]"
+      );
 
       function updateStarsCaption(value) {
-        if (!starsCaption) return;
-        starsCaption.textContent = getStarsCaption(value);
+        if (!starsCaptions || !starsCaptions.length) return;
+
+        var activeValue = Number(value) || 0;
+
+        starsCaptions.forEach(function (caption) {
+          var captionValue = Number(
+            caption.getAttribute("data-avaliapro-stars-caption")
+          );
+
+          if (activeValue && captionValue === activeValue) {
+            caption.style.color = "#374151";
+            caption.style.opacity = "1";
+          } else {
+            caption.style.color = "#9ca3af";
+            caption.style.opacity = "0";
+          }
+        });
       }
 
       function paintStars(activeValue) {
